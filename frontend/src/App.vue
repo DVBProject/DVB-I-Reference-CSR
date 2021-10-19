@@ -1,14 +1,23 @@
 <template>
   <div id="app">
-    <nav class="navbar navbar-expand navbar-dark bg-dark">
-      <router-link to="/" class="navbar-brand">DVB-I CSR</router-link>
+    <nav class="navbar navbar-expand navbar-dark bg-dark px-2">
+      <router-link to="/" class="navbar-brand">DVB-I CSR</router-link> 
       <div class="navbar-nav mr-auto">
+
+        <li class="nav-item">
+          <router-link to="/servicelists" class="nav-link">Service List</router-link>
+        </li>
+        <li class="nav-item">
+          <router-link to="/add-servicelist" class="nav-link">Add Service List</router-link>
+        </li>
+
         <li class="nav-item">
           <router-link to="/providers" class="nav-link">Provider</router-link>
         </li>
         <li class="nav-item">
           <router-link to="/add-provider" class="nav-link">Add Provider</router-link>
         </li>
+
       </div>
     </nav>
 

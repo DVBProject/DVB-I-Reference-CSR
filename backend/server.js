@@ -20,7 +20,12 @@ app.get("/", (req, res) => {
   res.json({ message: "DVB-I CSR backend" });
 });
 
+
+// auth
+
+// service routes
 require("./app/routes/provider.routes")(app);
+require("./app/routes/servicelist.routes")(app);
 
 // set port, listen for requests
 app.listen(3000, () => {

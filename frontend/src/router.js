@@ -17,22 +17,22 @@ const routes =  [
     name: "add-provider",
     component: () => import("./components/providers/AddProvider")
   },
-  /*{
+  {
     path: "/",
     alias: "/servicelists",
     name: "servicelists",
-    component: () => import("./components/servicelists/ServiceListList")
+    component: () => import("./components/servicelist/ServiceListList")
   },
-  {
+  /*{
     path: "/servicelists/:id",
     name: "servicelist-details",
-    component: () => import("./components/servicelists/ServiceList")
-  },
+    component: () => import("./components/servicelist/ServiceList")
+  },*/
   {
     path: "/add-servicelist",
     name: "add-servicelist",
-    component: () => import("./components/servicelists/AddServiceList")
-  }*/
+    component: () => import("./components/servicelist/AddServiceList")
+  }
 ];
 
 const router = createRouter({

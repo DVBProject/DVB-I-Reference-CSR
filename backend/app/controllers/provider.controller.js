@@ -105,3 +105,62 @@ exports.delete = (req, res) => {
     } else res.send({ message: `Customer was deleted successfully!` });
   });
 };
+
+exports.debugSetup = ( ) => {
+  console.log("debugissa, POISTA tää kutsu")
+  const sql = require("../models/db.js");
+
+
+
+  // "SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization where ProviderOffering.Organization = Organization.Id", 
+  sql.query("SELECT * FROM ServiceListName", 
+  (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+    }
+    console.log("res ServiceListName: ", res);
+  })
+
+  sql.query("SELECT * FROM ServiceListURI", 
+  (err, res) => {
+    if (err) {
+      console.log("error2: ", err);
+    }
+    console.log("res ServiceListURI: ", res);
+  })
+
+  sql.query("SELECT * FROM ServiceListOffering", 
+  (err, res) => {
+    if (err) {
+      console.log("error5: ", err);
+    }
+    console.log("res ServiceListOffering: ", res);
+  })
+
+  
+  sql.query("SELECT * FROM ServiceListEntryPoints", 
+  (err, res) => {
+    if (err) {
+      console.log("error3: ", err);
+    }
+    console.log("res ServiceListEntryPoints: ", res);
+    if(res.length == 0) {
+      console.log("create")
+      const newServiceEntryPoint = {
+        ServiceListRegistryEntity: 1
+      }
+
+      sql.query("INSERT INTO ServiceListEntryPoints SET ?", newServiceEntryPoint, (err, res) => {
+        if (err) {
+          console.log("error4: ", err);
+        }
+        else {
+          console.log("created:", res)
+        }
+      }) 
+    }
+  })
+
+
+
+}

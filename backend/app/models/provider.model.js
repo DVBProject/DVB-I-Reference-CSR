@@ -19,8 +19,12 @@ Provider.create = (newProvider, result) => {
         }
 
         console.log("created Organization: ", { id: res.insertId, ...newProvider });
+        // check if serviceListRegistry exixst, create if not.. tbd
+
+
+
         //Assume for now only one ServiceListRegistry, use id 1
-        sql.query("INSERT INTO ProviderOffering(Organization,ServiceListRegistry) VALUES (?,?)", [res.insertId,1], err => {
+        sql.query("INSERT INTO ProviderOffering(Organization,ServiceListRegistry) VALUES (?,?)", [res.insertId,2], err => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
