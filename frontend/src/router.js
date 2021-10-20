@@ -23,11 +23,11 @@ const routes =  [
     name: "servicelists",
     component: () => import("./components/servicelist/ServiceListList")
   },
-  /*{
+  {
     path: "/servicelists/:id",
     name: "servicelist-details",
     component: () => import("./components/servicelist/ServiceList")
-  },*/
+  },
   {
     path: "/add-servicelist",
     name: "add-servicelist",

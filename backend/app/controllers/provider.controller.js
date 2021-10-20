@@ -106,6 +106,8 @@ exports.delete = (req, res) => {
   });
 };
 
+
+
 exports.debugSetup = ( ) => {
   console.log("debugissa, POISTA tää kutsu")
   const sql = require("../models/db.js");
@@ -137,7 +139,7 @@ exports.debugSetup = ( ) => {
     console.log("res ServiceListOffering: ", res);
   })
 
-  
+  // kikkailu, kun sql-setuppi ei osannut luoda ekaa ServiceListRegistryEntityä
   sql.query("SELECT * FROM ServiceListEntryPoints", 
   (err, res) => {
     if (err) {

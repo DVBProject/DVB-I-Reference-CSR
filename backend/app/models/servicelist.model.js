@@ -33,10 +33,7 @@ ServiceList.create = (newServiceList, result) => {
             console.log("created service list NAME", res)
         })
 
-        // Create new service list entry poitn
-
         // Create new URI
-        // check URI
         sql.query("INSERT INTO ServiceListURI SET URI = ?, list = ?",  [newServiceList.URI,res.insertId], (err, res) => {
             if (err) {
             console.log("error: ", err);
@@ -46,16 +43,34 @@ ServiceList.create = (newServiceList, result) => {
             console.log("created service list URI", res)
         })
         
-
-
         result(null, { id: res.insertId, ...newServiceList });       
     });
 };
 
+
+ServiceList.findById = (ListId, result) => {
+    sql.query(`SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Id = ${ListId} AND ServiceListName.list = ServiceListOffering.Id AND ServiceListURI.list = ServiceListOffering.Id`, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+    
+        if (res.length) {            
+            console.log("found List items: ", res[0]);
+            result(null, res[0]);
+            return;
+        }
+    
+        // not found List with the id
+        result({ Name: "not_found" }, null);
+    });
+};
+
+
 ServiceList.getAll = result => {
-    var data = {}
-    //sql.query("SELECT * from ServiceListOffering", (err, res) => {
-    sql.query("SELECT ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering where ServiceListName.list = ServiceListOffering.Id AND ServiceListURI.list = ServiceListOffering.Id", (err, res) => {
+
+    sql.query("SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering where ServiceListName.list = ServiceListOffering.Id AND ServiceListURI.list = ServiceListOffering.Id", (err, res) => {
         if (err) {
         console.log("error: ", err);
         result(null, err);
@@ -63,13 +78,20 @@ ServiceList.getAll = result => {
         }
     
         console.log("ServiceLists: ", res);
-        data = {...res}
-        
 
         result(null, res);
     });
 };
 
+
+ServiceList.updateById = (id, List, result) => {
+}
+
+ServiceList.remove = (id, result) => {
+}
+
+ServiceList.removeAll = result => {
+}
 
 
 module.exports = ServiceList;

@@ -6,15 +6,15 @@ module.exports = app => {
   
     // Retrieve all servicelists
     app.get("/servicelist", servicelist.findAll);
+  
+    // Retrieve a single Customer with listId
+    app.get("/servicelist/:listId", servicelist.findOne);
   /*
-    // Retrieve a single Customer with customerId
-    app.get("/servicelist/:customerId", servicelist.findOne);
+    // Update a list with listId
+    app.put("/servicelist/:listId", servicelist.update);
   
-    // Update a Customer with customerId
-    app.put("/servicelist/:customerId", servicelist.update);
-  
-    // Delete a Customer with customerId
-    app.delete("/servicelist/:customerId", servicelist.delete);
+    // Delete a list with listId
+    app.delete("/servicelist/:listId", servicelist.delete);
     */
   
 };

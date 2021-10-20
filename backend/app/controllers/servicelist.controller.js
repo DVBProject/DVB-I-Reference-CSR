@@ -9,7 +9,7 @@ exports.create = (req, res) => {
       });
     }
   
-    // Create a Customer
+    // Create a List
     const serviceList = new ServiceList({
         Name: req.body.Name,
         URI: req.body.URI,
@@ -19,7 +19,7 @@ exports.create = (req, res) => {
         Delivery: req.body.Delivery
     });
   
-    // Save Customer in the database
+    // Save List in the database
     ServiceList.create(serviceList, (err, data) => {
       if (err)
         res.status(500).send({
@@ -31,7 +31,7 @@ exports.create = (req, res) => {
   };
 
 
-// Retrieve all Customers from the database.
+// Retrieve all Lists from the database.
 exports.findAll = (req, res) => {
     ServiceList.getAll((err, data) => {
       if (err)
@@ -42,5 +42,27 @@ exports.findAll = (req, res) => {
       else res.send(data);
     });
   };
+
+
+// Find a single List with a listId
+exports.findOne = (req, res) => {
+  ServiceList.findById(req.params.listId, (err, data) => {
+    if (err) {
+      if (err.Name === "not_found") {
+        res.status(404).send({
+          message: `Not found List with id ${req.params.listId}.`
+        });
+      } else {
+        res.status(500).send({
+          message: "Error retrieving List with id " + req.params.listId
+        });
+      }
+    } else res.send(data);
+  });
+};
+
+// update
+
+// delete
 
 
