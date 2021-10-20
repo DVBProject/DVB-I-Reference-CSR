@@ -24,7 +24,7 @@ Provider.create = (newProvider, result) => {
 
 
         //Assume for now only one ServiceListRegistry, use id 1 -- muokkasin id:2, koska sql alustus meni jotenkin monkaan.
-        sql.query("INSERT INTO ProviderOffering(Organization,ServiceListRegistry) VALUES (?,?)", [res.insertId,2], err => {
+        sql.query("INSERT INTO ProviderOffering(Organization,ServiceListRegistry) VALUES (?,?)", [res.insertId,1], err => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
