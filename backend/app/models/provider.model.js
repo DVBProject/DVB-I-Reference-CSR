@@ -10,7 +10,7 @@ const Provider = function(Provider) {
     this.Regulator = Provider.Regulator ? 1 : 0;
 };
 
-Provider.create = (newProvider, result) => {
+Provider.create = (newProvider, newName, result) => {
     sql.query("INSERT INTO Organization SET ?", newProvider, (err, res) => {
         if (err) {
         console.log("error: ", err);
@@ -21,23 +21,34 @@ Provider.create = (newProvider, result) => {
         console.log("created Organization: ", { id: res.insertId, ...newProvider });
         // check if serviceListRegistry exixst, create if not.. tbd
 
+        // create a new name table entry for the new organization + type
+        //EntityName.name, EntityName.type
+        const orgId = res.insertId
+        const data = {...newName, organization: orgId}
 
-
-        //Assume for now only one ServiceListRegistry, use id 1 -- muokkasin id:2, koska sql alustus meni jotenkin monkaan.
-        sql.query("INSERT INTO ProviderOffering(Organization,ServiceListRegistry) VALUES (?,?)", [res.insertId,2], err => {
+        sql.query("INSERT INTO EntityName SET ?", data, (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
                 return;
             }
-            result(null, { id: res.insertId, ...newProvider });
+
+            //Assume for now only one ServiceListRegistry, use id 1 -- muokkasin id:2, koska sql alustus meni jotenkin monkaan.
+            sql.query("INSERT INTO ProviderOffering(Organization,ServiceListRegistry) VALUES (?,?)", [orgId/*res.insertId*/,2], err => {
+                if (err) {
+                    console.log("error: ", err);
+                    result(err, null);
+                    return;
+                }
+                result(null, { id: res.insertId, ...newProvider });
+            });            
         });
        
     });
 };
 
 Provider.findById = (ProviderId, result) => {
-sql.query(`SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization WHERE ProviderOffering.Id = ${ProviderId} AND ProviderOffering.Organization = Organization.Id`, (err, res) => {
+sql.query(`SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind,EntityName.name, EntityName.type,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization,EntityName WHERE ProviderOffering.Id = ${ProviderId} AND ProviderOffering.Organization = Organization.Id AND EntityName.organization = Organization.Id`, (err, res) => {
     if (err) {
     console.log("error: ", err);
     result(err, null);
@@ -57,7 +68,7 @@ sql.query(`SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffe
 };
 
 Provider.getAll = result => {
-sql.query("SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization where ProviderOffering.Organization = Organization.Id", (err, res) => {
+sql.query("SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind, EntityName.name, EntityName.type, Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization,EntityName where ProviderOffering.Organization = Organization.Id AND EntityName.organization = Organization.Id", (err, res) => {
     if (err) {
     console.log("error: ", err);
     result(null, err);

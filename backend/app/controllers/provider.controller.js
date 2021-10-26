@@ -20,7 +20,7 @@ exports.create = (req, res) => {
   });
 
   // Save Customer in the database
-  Provider.create(provider, (err, data) => {
+  Provider.create(provider, {name:req.body.name, type: req.body.type}, (err, data) => {
     if (err)
       res.status(500).send({
         message:

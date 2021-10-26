@@ -6,7 +6,7 @@ const ServiceList = function(serviceList) {
     this.lang = serviceList.lang,
     this.URI = serviceList.URI
     this.Provider = serviceList.Provider
-    this.RegulatorList = serviceList.RegulatorList
+    this.regulatorList = serviceList.regulatorList
     this.Delivery = serviceList.Delivery
 }
 
@@ -14,7 +14,7 @@ const ServiceList = function(serviceList) {
 ServiceList.create = (newServiceList, result) => { 
     // check user rights
 
-    sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, delivery = ?", [newServiceList.Provider, newServiceList.RegulatorList, newServiceList.Delivery], (err, res) => {
+    sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, delivery = ?", [newServiceList.Provider, newServiceList.regulatorList, newServiceList.Delivery], (err, res) => {
         if (err) {
         console.log("error: ", err);
         result(err, null);

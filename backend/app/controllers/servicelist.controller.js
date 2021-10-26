@@ -15,7 +15,7 @@ exports.create = (req, res) => {
         URI: req.body.URI,
         lang: req.body.lang,
         Provider: req.body.Provider,
-        RegulatorList: req.body.RegulatorList,
+        regulatorList: req.body.regulatorList,
         Delivery: req.body.Delivery
     });
   
@@ -33,15 +33,15 @@ exports.create = (req, res) => {
 
 // Retrieve all Lists from the database.
 exports.findAll = (req, res) => {
-    ServiceList.getAll((err, data) => {
-      if (err)
-        res.status(500).send({
-          message:
-            err.message || "Some error occurred while retrieving lists."
-        });
-      else res.send(data);
-    });
-  };
+  ServiceList.getAll((err, data) => {
+    if (err)
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving lists."
+      });
+    else res.send(data);
+  });
+};
 
 
 // Find a single List with a listId

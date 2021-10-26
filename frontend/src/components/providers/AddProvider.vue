@@ -9,6 +9,14 @@
       <input type="text" class="form-control my-2" placeholder="Kind"
           v-model="Kind"/>
 
+      <label>Organization Name:</label>
+      <input type="text" class="form-control my-2" placeholder="Name"
+          v-model="Name"/>
+
+      <label>Organization Type:</label>
+      <input type="text" class="form-control my-2" placeholder="Type"
+          v-model="Type"/>
+
       <label>Contact Name:</label>
       <input type="text" class="form-control my-2" placeholder="Contact Name"
           v-model="ContactName"/>
@@ -21,13 +29,16 @@
       <input type="text" class="form-control my-2" placeholder="Address"
           v-model="Address"/>
 
-      <label>ElectronicAddress:</label>
+      <label>Electronic Address:</label>
       <input type="text" class="form-control my-2" placeholder="ElectronicAddress"
           v-model="ElectronicAddress"/>
 
       <label>Regulator:</label>
-      <input type="text" class="form-control my-2" placeholder="Regulator"
-          v-model="Regulator"/>
+      <select class="form-control my-2"
+          v-model="Regulator">
+        <option value=1>Yes</option>
+        <option value=0>No</option>
+      </select>
 
   
       <ul class="list-group">
@@ -88,11 +99,13 @@ export default {
       currentProvider: null,
       currentIndex: -1,
       Kind: "",
+      Name: "",
+      Type: "",
       ContactName: "",
       Jurisdiction: "",
       Address: "",
       ElectronicAddress: "",
-      Regulator: "",      
+      Regulator: 0,      
     };
   },
   methods: {
@@ -119,6 +132,8 @@ export default {
     addProvider() {
         const data = {
             Kind: this.Kind,
+            name: this.Name,
+            type: this.Type,
             ContactName: this.ContactName,
             Jurisdiction: this.Jurisdiction,
             Address: this.Address,

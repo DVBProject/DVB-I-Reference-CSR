@@ -33,6 +33,12 @@
           <label><strong>Kind:</strong></label> {{ currentProvider.Kind }}
         </div>
         <div>
+          <label><strong>Organization name:</strong></label> {{ currentProvider.name }}
+        </div>
+        <div>
+          <label><strong>Organization type:</strong></label> {{ currentProvider.type }}
+        </div>
+        <div>
           <label><strong>Contact name:</strong></label> {{ currentProvider.ContactName }}
         </div>
          <div>

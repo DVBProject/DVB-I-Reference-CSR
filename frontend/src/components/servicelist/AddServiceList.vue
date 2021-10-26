@@ -28,7 +28,7 @@
 
       <label>Regulator list:</label>
       <input type="text" class="form-control my-2" placeholder="List index"
-          v-model="RegulatorList"/>
+          v-model="regulatorList"/>
 
       <label>Delivery:</label>
       <input type="text" class="form-control my-2" placeholder="Delivery"
@@ -61,7 +61,7 @@ export default {
       URI: "",
       lang: "",
       Provider: 0,
-      RegulatorList: 0,
+      regulatorList: 0,
       Delivery: ""
            
     };
@@ -71,6 +71,7 @@ export default {
       ProviderDataService.getAll()
         .then(response => {
           this.providers = response.data;
+          this.Provider = response.data[0].Id;
           console.log("lists:", response.data);
         })
         .catch(e => {
@@ -84,7 +85,7 @@ export default {
             URI: this.URI,
             lang: this.lang,
             Provider: this.Provider,
-            RegulatorList: this.RegulatorList,
+            regulatorList: this.regulatorList,
             Delivery: this.Delivery            
         } 
 

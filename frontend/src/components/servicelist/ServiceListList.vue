@@ -46,7 +46,7 @@
           <label><strong>Delivery:</strong></label> {{ currentList.delivery }}
         </div>
         <div>
-          <label><strong>Regulator List:</strong></label> {{ currentList.regulatorList }}
+          <label><strong>Regulator List:</strong></label> {{ currentList.regulatorList != 0 ? "Yes" : "No" }}
         </div>
         
 

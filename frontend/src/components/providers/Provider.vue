@@ -8,6 +8,19 @@
           v-model="currentProvider.Kind"
         />
       </div>
+
+      <div class="form-group">
+        <label for="description">Organization name</label>
+        <input type="text" class="form-control" id="name"
+          v-model="currentProvider.name"
+        />
+      </div>
+      <div class="form-group">
+        <label for="description">Organization type</label>
+        <input type="text" class="form-control" id="type"
+          v-model="currentProvider.type"
+        />
+      </div>
       <div class="form-group">
         <label for="description">Contactname</label>
         <input type="text" class="form-control" id="contactname"
