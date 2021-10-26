@@ -27,11 +27,6 @@ Provider.create = (newProvider, newName, result) => {
         const data = {...newName, organization: orgId}
 
         sql.query("INSERT INTO EntityName SET ?", data, (err, res) => {
-            if (err) {
-                console.log("error: ", err);
-                result(err, null);
-                return;
-            }
 
             //Assume for now only one ServiceListRegistry, use id 1 -- muokkasin id:2, koska sql alustus meni jotenkin monkaan.
             sql.query("INSERT INTO ProviderOffering(Organization,ServiceListRegistry) VALUES (?,?)", [orgId/*res.insertId*/,2], err => {
