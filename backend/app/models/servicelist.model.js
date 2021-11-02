@@ -14,21 +14,23 @@ const ServiceList = function(serviceList) {
 ServiceList.create = (newServiceList, result) => { 
     // check user rights
 
-    sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, delivery = ?", [newServiceList.Provider, newServiceList.regulatorList, newServiceList.Delivery], (err, res) => {
+    // TODO: now only saves the first item on the delivery-list !!
+    sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, delivery = ?", [newServiceList.Provider, newServiceList.regulatorList, newServiceList.Delivery[0]], (err, res) => {
         if (err) {
-        console.log("error: ", err);
-        result(err, null);
-        return;
+            console.log("error: ", err);
+            result(err, null);
+            return;
         }
 
         console.log("created ServiceListOffering: ", { id: res.insertId, ...newServiceList });
 
         // Create new List Name
-        sql.query("INSERT INTO ServiceListName SET list = ?, Name = ?, lang = ?",  [res.insertId, newServiceList.Name, newServiceList.lang], (err, res) => {
+        // TODO: now only saves with the first item on the languages list  
+        sql.query("INSERT INTO ServiceListName SET list = ?, Name = ?, lang = ?",  [res.insertId, newServiceList.Name, newServiceList.lang[0].a3], (err, res) => {
             if (err) {
-            console.log("error: ", err);
-            result(err, null);
-            return;
+                console.log("error: ", err);
+                result(err, null);
+                return;
             }
             console.log("created service list NAME", res)
         })
@@ -36,12 +38,27 @@ ServiceList.create = (newServiceList, result) => {
         // Create new URI
         sql.query("INSERT INTO ServiceListURI SET URI = ?, list = ?",  [newServiceList.URI,res.insertId], (err, res) => {
             if (err) {
-            console.log("error: ", err);
-            result(err, null);
-            return;
+                console.log("error: ", err);
+                result(err, null);
+                return;
             }
             console.log("created service list URI", res)
         })
+
+        // Create new languages for this service list
+        for(var index in newServiceList.lang) {
+            sql.query("INSERT INTO language SET language = ?, list = ?",  [newServiceList.lang[index].a3, res.insertId], (err, res) => {
+                if (err) {
+                    console.log("error: ", err);
+                }
+                console.log("created service list lang", res)
+            })
+        }
+
+        // Target countries
+
+        // Create genres
+
         
         result(null, { id: res.insertId, ...newServiceList });       
     });

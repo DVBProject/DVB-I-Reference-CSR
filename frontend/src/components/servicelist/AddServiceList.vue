@@ -4,7 +4,7 @@
     <div class="col-md-8">
       <h4>Add Service List</h4>
 
-      <label>Name:</label>
+      <label>Service List Name:</label>
       <input type="text" class="form-control my-2" placeholder="List Name"
           v-model="Name"/>
       <label>URI:</label>
@@ -21,10 +21,8 @@
          >{{item.name}}</option>
       </select>
 
-      <div class="my-2">
-      
-        <label for="deliveriesDataList" class="form-label">Deliveries:</label>
-        
+      <div class="my-2">      
+        <label for="deliveriesDataList" class="form-label">Deliveries:</label>        
         <input class="form-control" list="datalistOptionsDeliveries" 
             id="deliveriesDataList" placeholder="Type to search..."
             v-on:change="addDelivery"
@@ -44,38 +42,101 @@
             <li v-for="(item, index) in SelectedDeliveries" 
                 v-bind:id="index"
                 v-bind:key="index"
-                v-bind:value="item"
                 v-on:click="removeDelivery"
                 class="btn btn-outline-primary mx-1 my-1">{{item}} <span class="badge small bg-primary">x</span></li>
           </ul>
-        </div>
-        
-
+        </div>        
       </div>
 
-      <label>Languages:</label>
-      <input type="text" class="form-control my-2" placeholder="languages"
-          v-model="languages"/>
+      <div class="my-2">
+      <label for="languagesDataList" class="form-label">Languages:</label>
+      <input class="form-control" list="datalistOptionsLanguages" 
+          id="languagesDataList" placeholder="Type to search..."
+          v-on:change="addLang"
+          v-on:click="addLang">
+          <datalist id="datalistOptionsLanguages">
+            <option
+                v-for="(item, index) in languages_ui"
+                v-bind:key="index"
+                v-bind:value="item.a3"
+                >
+                {{item.name}}
+            </option>
+          </datalist>
 
-      <label>Target countries:</label>
-      <input type="text" class="form-control my-2" placeholder="Countries"
-          v-model="countries"/>
+          <div class="btn-group">
+            <ul class="px-0 btn-group-sm">
+              <li v-for="(item, index) in SelectedLanguages" 
+                  v-bind:id="index"
+                  v-bind:key="index"
+                  v-on:click="removeLang"
+                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span class="badge small bg-primary">x</span></li>
+            </ul>
+          </div>
+      </div>
 
-      <label>Genres:</label>
-      <input type="text" class="form-control my-2" placeholder="Genres"
-          v-model="genres"/>
+      <div class="my-2">
+        <label for="countriesDataList" class="form-label">Target countries:</label>       
+        <input class="form-control" list="datalistOptionsCountries"
+            id="countriesDataList" placeholder="Type to search..."
+            v-on:change="addCountry"
+            v-on:click="addCountry">
+            <datalist id="datalistOptionsCountries">
+            <option
+                v-for="(item, index) in countries_ui"
+                v-bind:key="index"
+                v-bind:value="item.code"
+                >
+                {{item.name}}
+            </option>
+          </datalist>
+
+          <div class="btn-group">
+            <ul class="px-0 btn-group-sm">
+              <li v-for="(item, index) in SelectedCountries" 
+                  v-bind:id="index"
+                  v-bind:key="index"
+                  v-on:click="removeCountry"
+                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span class="badge small bg-primary">x</span></li>
+            </ul>
+          </div>
+      </div>
+
+      <div class="my-2">
+        <label for="genreDataList" class="form-label">Genres:</label>
+        <input class="form-control" list="datalistOptionsGenre"
+            id="genreDataList" placeholder="Type to search..."
+            v-on:change="addGenre"
+            v-on:click="addGenre">
+            <datalist id="datalistOptionsGenre">
+            <option
+                v-for="(item, index) in genres_ui"
+                v-bind:key="index"
+                v-bind:value="item"
+                >
+                {{item}}
+            </option>
+          </datalist>
+
+          <div class="btn-group">
+            <ul class="px-0 btn-group-sm">
+              <li v-for="(item, index) in SelectedGenres" 
+                  v-bind:id="index"
+                  v-bind:key="index"
+                  v-on:click="removeGenre"
+                  class="btn btn-outline-primary mx-1 my-1">{{item}} <span class="badge small bg-primary">x</span></li>
+            </ul>
+          </div>
+      </div>
 
       <label>Regulator list:</label><br>
       <div class="btn-group btn-group-sm" role="group" aria-label="Basic radio toggle button group">
-        <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
-        <label class="btn btn-outline-primary" for="btnradio1">Yes</label>
-
-        <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
-        <label class="btn btn-outline-primary" for="btnradio3">No</label>
+        <input type="radio" class="btn-check" name="btnradio" id="btnradioYes" autocomplete="off" @change="regulatorRadio" checked>
+        <label class="btn btn-outline-primary" for="btnradioYes">Yes</label>
+ 
+        <input type="radio" class="btn-check" name="btnradio" id="btnradioNo" autocomplete="off" @change="regulatorRadio">
+        <label class="btn btn-outline-primary" for="btnradioNo">No</label>
       </div>
-      <input type="text" class="form-control my-2" placeholder="List index"
-          v-model="regulatorList"/>
-
   
     </div>
 
@@ -83,7 +144,7 @@
 
         <div class="input-group-append">
             <button class="btn btn-outline-secondary" type="button"
-            @click="addList">
+            @click="submitNewList">
             Add List
             </button>
         </div>
@@ -96,7 +157,9 @@
 import ServiceListDataService from "../../services/ServiceListDataService"
 import ProviderDataService from "../../services/ProviderDataService"
 //import Multiselect from 'vue-multiselect'
-import { deliveries, genres } from "../../dev_constants"
+import { deliveries, genres } from "../../../dev_constants/dev_constants"
+import { languages } from "../../../dev_constants/languages"
+import { countries } from "../../../dev_constants/countries"
 export default {
   name: "add-servicelist",
   //components: { Multiselect },
@@ -105,11 +168,11 @@ export default {
       providers: [],
       deliveries: [],
       SelectedDeliveries: [],
-      genres: [],
+      genres_ui: [],
       SelectedGenres: [],
-      countries: "",
+      countries_ui: [],
       SelectedCountries: [],
-      languages: "",
+      languages_ui: [],
       SelectedLanguages: [],
       Name: "",
       URI: "",
@@ -121,7 +184,7 @@ export default {
     };
   },
   methods: {
-    retrieveLists() {
+    retrieveProviders() {
       ProviderDataService.getAll()
         .then(response => {
           this.providers = response.data;
@@ -133,14 +196,16 @@ export default {
         });
     },
     
-    addList() {
+    submitNewList() {
         const data = {
             Name: this.Name,
             URI: this.URI,
-            lang: this.lang,
+            lang: this.SelectedLanguages,
             Provider: this.Provider,
             regulatorList: this.regulatorList,
-            Delivery: this.Delivery,          
+            Delivery: this.SelectedDeliveries,
+            Countries: this.SelectedCountries,
+            Genres: this.SelectedGenres
         } 
 
         ServiceListDataService.create(data)
@@ -175,15 +240,101 @@ export default {
       }
     },
 
+    addLang(item) {
+      console.log(item.target.value)
+      const value = item.target.value
+      if(value.length === 3) {
+        const valid = languages[value] !== undefined
+
+        if(valid) {
+          const index = this.SelectedLanguages.findIndex( elem => {
+            return elem.a3 === value
+          })          
+          if(index === -1) {
+            this.SelectedLanguages.push({name: languages[value].en[0], a3: value})
+          }          
+        }
+        else {
+          console.log("not valid", value)
+        }
+      }
+      item.target.value = null
+    },
+    removeLang(item) {
+      this.SelectedLanguages.splice(item.target.id, 1)
+    },
+
+    addCountry(item) {
+      console.log(item.target.value)
+      let name = ""
+      const valid = this.countries_ui.findIndex( elem => {
+        return elem.code === item.target.value
+      })
+
+      if(valid !== -1) {
+        name = this.countries_ui[valid].name
+        const index = this.SelectedCountries.findIndex( elem => {
+          return elem.code === item.target.value
+        })
+
+        if(index === -1) {
+          this.SelectedCountries.push({name: name, code: item.target.value})
+        }
+      }
+
+      item.target.value = null
+    },
+    removeCountry(item) {
+      //console.log("remove:", item.target.id)
+      this.SelectedCountries.splice(item.target.id, 1)
+    },
+
+    addGenre(item) {
+      const valid = this.genres_ui.findIndex( elem => {
+        return elem === item.target.value
+      })
+
+      if(valid !== -1) {
+        const index = this.SelectedGenres.findIndex( elem => {
+          return elem === item.target.value
+        })
+
+        if(index === -1) {
+          this.SelectedGenres.push(item.target.value)
+        }
+      }
+
+      item.target.value = null
+    },
+    removeGenre(item) {
+      this.SelectedGenres.splice(item.target.id, 1)
+    },
+
+    regulatorRadio(item) {
+      if(item.target.id === "btnradioYes") {
+        this.regulatorList = 1
+      } 
+      else {
+        this.regulatorList = 0
+      }
+    }
+
+    
+
   },
   mounted() {
     // phase1 insert values from fixed lists (dev_constants.js)
     this.deliveries = deliveries
     this.SelectedDeliveries.push(deliveries[0])
-    this.genres = genres
-
-
-    this.retrieveLists()
+    this.countries_ui = countries
+    for (var item in languages) {
+      this.languages_ui.push({name: languages[item].en[0], a3: item })
+    }
+    for (var index in genres) {      
+      this.genres_ui.push(genres[index])
+    }
+    
+    this.retrieveProviders()
   }
 };
 </script>

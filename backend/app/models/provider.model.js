@@ -19,7 +19,7 @@ Provider.create = (newProvider, newName, result) => {
         }
 
         console.log("created Organization: ", { id: res.insertId, ...newProvider });
-        // check if serviceListRegistry exixst, create if not.. tbd
+        // check if serviceListRegistry exixst, create if not.. TODO
 
         // create a new name table entry for the new organization + type
         //EntityName.name, EntityName.type
@@ -27,9 +27,14 @@ Provider.create = (newProvider, newName, result) => {
         const data = {...newName, organization: orgId}
 
         sql.query("INSERT INTO EntityName SET ?", data, (err, res) => {
-
-            //Assume for now only one ServiceListRegistry, use id 1 -- muokkasin id:2, koska sql alustus meni jotenkin monkaan.
-            sql.query("INSERT INTO ProviderOffering(Organization,ServiceListRegistry) VALUES (?,?)", [orgId/*res.insertId*/,2], err => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+            
+            //Assume for now only one ServiceListRegistry, use id 1
+            sql.query("INSERT INTO ProviderOffering(Organization,ServiceListRegistry) VALUES (?,?)", [ orgId/*res.insertId*/, 1 ], err => {
                 if (err) {
                     console.log("error: ", err);
                     result(err, null);

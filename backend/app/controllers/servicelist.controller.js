@@ -16,7 +16,9 @@ exports.create = (req, res) => {
         lang: req.body.lang,
         Provider: req.body.Provider,
         regulatorList: req.body.regulatorList,
-        Delivery: req.body.Delivery
+        Delivery: req.body.Delivery,
+        Countries: req.body.Countries,
+        Genres: req.body.Genres
     });
   
     // Save List in the database

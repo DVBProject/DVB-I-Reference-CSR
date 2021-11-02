@@ -123,12 +123,12 @@ exports.debugSetup = ( ) => {
     console.log("res ServiceListName: ", res);
   })
 
-  sql.query("SELECT * FROM ServiceListURI", 
+  sql.query("SELECT * FROM language", 
   (err, res) => {
     if (err) {
       console.log("error2: ", err);
     }
-    console.log("res ServiceListURI: ", res);
+    console.log("res language: ", res);
   })
 
   sql.query("SELECT * FROM ServiceListOffering", 
@@ -139,7 +139,7 @@ exports.debugSetup = ( ) => {
     console.log("res ServiceListOffering: ", res);
   })
 
-  // kikkailu, kun sql-setuppi ei osannut luoda ekaa ServiceListRegistryEntityä
+  // sql-setup
   sql.query("SELECT * FROM ServiceListEntryPoints", 
   (err, res) => {
     if (err) {
