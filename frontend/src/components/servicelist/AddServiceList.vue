@@ -85,7 +85,7 @@
             <option
                 v-for="(item, index) in countries_ui"
                 v-bind:key="index"
-                v-bind:value="item.code"
+                v-bind:value="item.alpha3"
                 >
                 {{item.name}}
             </option>
@@ -267,16 +267,16 @@ export default {
     addCountry(item) {
       console.log(item.target.value)
       let name = ""
-      const valid = this.countries_ui.findIndex( elem => {
-        return elem.code === item.target.value
+      const valid = this.countries_ui.findIndex( elem => {        
+        return elem.alpha3 === item.target.value
       })
-
+      
       if(valid !== -1) {
         name = this.countries_ui[valid].name
         const index = this.SelectedCountries.findIndex( elem => {
           return elem.code === item.target.value
         })
-
+        
         if(index === -1) {
           this.SelectedCountries.push({name: name, code: item.target.value})
         }

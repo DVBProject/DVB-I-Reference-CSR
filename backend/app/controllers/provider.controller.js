@@ -115,12 +115,12 @@ exports.debugSetup = ( ) => {
 
 
   // "SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization where ProviderOffering.Organization = Organization.Id", 
-  sql.query("SELECT * FROM ServiceListName", 
+  sql.query("SELECT * FROM Genre", 
   (err, res) => {
     if (err) {
       console.log("error: ", err);
     }
-    console.log("res ServiceListName: ", res);
+    console.log("res Genre: ", res);
   })
 
   sql.query("SELECT * FROM Language",
@@ -131,12 +131,12 @@ exports.debugSetup = ( ) => {
     console.log("res language: ", res);
   })
 
-  sql.query("SELECT * FROM ServiceListOffering", 
+  sql.query("SELECT * FROM TargetCountry", 
   (err, res) => {
     if (err) {
       console.log("error5: ", err);
     }
-    console.log("res ServiceListOffering: ", res);
+    console.log("res TargetCountry: ", res);
   })
 
   // sql-setup
@@ -146,21 +146,7 @@ exports.debugSetup = ( ) => {
       console.log("error3: ", err);
     }
     console.log("res ServiceListEntryPoints: ", res);
-    if(res.length == 0) {
-      console.log("create")
-      const newServiceEntryPoint = {
-        ServiceListRegistryEntity: 1
-      }
-
-      sql.query("INSERT INTO ServiceListEntryPoints SET ?", newServiceEntryPoint, (err, res) => {
-        if (err) {
-          console.log("error4: ", err);
-        }
-        else {
-          console.log("created:", res)
-        }
-      }) 
-    }
+    
   })
 
 
