@@ -154,7 +154,7 @@ csrquery.validateGenres = function(genres) {
         if(!this.validGenres.includes(genre)) {
             throw new Error("Invalid genre:"+genre);
         }
-        array.push("Genre.genre = '"+genre+"'"); 
+        array.push("Genre.Genre = '"+genre+"'");
     }
     return "ServiceListOffering.Id NOT IN(SELECT ServiceList FROM Genre) or ServiceListOffering.Id = Genre.ServiceList and ("+array.join(" or " )+")";
 }

@@ -1,7 +1,7 @@
 module.exports = {
     HOST: "localhost",
-    USER: "root",
-    PASSWORD: "sofia",
+    USER: "user",
+    PASSWORD: "password",
     DB: "dvb_i_csr",
     dialect: "mysql",
     pool: {
