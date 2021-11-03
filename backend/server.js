@@ -1,5 +1,4 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 
 const app = express();
 const cors = require("cors");
@@ -29,5 +28,5 @@ require("./app/routes/servicelist.routes")(app);
 
 // set port, listen for requests
 app.listen(3000, () => {
-  console.log("Server is running on port 3000.");
+  console.log("Backend server is running on port 3000.");
 });
