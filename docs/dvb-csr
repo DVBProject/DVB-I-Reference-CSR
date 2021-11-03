@@ -1,0 +1,9 @@
+A Central Service List Registry (CSR), operated for the benefit of all devices implementing the DVB-I client, 
+providing information on a wide set of service lists known to that registry.
+
+A DVB-I Service List Registry (SLR) is an HTTP endpoint available at a known URL that, if queried, can return a list 
+of Service List Entry Points. A DVB-I Service List Provider who wishes to enable the SLR discovery mechanism for 
+their own Service Lists may register their Service List Entry Points in the SLR using the M interface in clause 4.1. The 
+SLR also collects contact information of the Service List Providers. 
+
+(a177r2 page 18)
