@@ -15,7 +15,7 @@ ServiceList.create = (newServiceList, result) => {
     // check user rights
 
     // TODO: now only saves the first item on the delivery-list !!
-    sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, delivery = ?", [newServiceList.Provider, newServiceList.regulatorList, newServiceList.Delivery[0]], (err, res) => {
+    sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, Delivery = ?", [newServiceList.Provider, newServiceList.regulatorList, newServiceList.Delivery[0]], (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -26,7 +26,7 @@ ServiceList.create = (newServiceList, result) => {
 
         // Create new List Name
         // TODO: now only saves with the first item on the languages list  
-        sql.query("INSERT INTO ServiceListName SET list = ?, Name = ?, lang = ?",  [res.insertId, newServiceList.Name, newServiceList.lang[0].a3], (err, res) => {
+        sql.query("INSERT INTO ServiceListName SET ServiceList = ?, Name = ?, lang = ?",  [res.insertId, newServiceList.Name, newServiceList.lang[0].a3], (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
@@ -36,7 +36,7 @@ ServiceList.create = (newServiceList, result) => {
         })
 
         // Create new URI
-        sql.query("INSERT INTO ServiceListURI SET URI = ?, list = ?",  [newServiceList.URI,res.insertId], (err, res) => {
+        sql.query("INSERT INTO ServiceListURI SET URI = ?, ServiceList = ?",  [newServiceList.URI,res.insertId], (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
@@ -47,7 +47,7 @@ ServiceList.create = (newServiceList, result) => {
 
         // Create new languages for this service list
         for(var index in newServiceList.lang) {
-            sql.query("INSERT INTO language SET language = ?, list = ?",  [newServiceList.lang[index].a3, res.insertId], (err, res) => {
+            sql.query("INSERT INTO Language SET Language = ?, ServiceList = ?",  [newServiceList.lang[index].a3, res.insertId], (err, res) => {
                 if (err) {
                     console.log("error: ", err);
                 }
@@ -66,7 +66,7 @@ ServiceList.create = (newServiceList, result) => {
 
 
 ServiceList.findById = (ListId, result) => {
-    sql.query(`SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Id = ${ListId} AND ServiceListName.list = ServiceListOffering.Id AND ServiceListURI.list = ServiceListOffering.Id`, (err, res) => {
+    sql.query(`SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Id = ${ListId} AND ServiceListName.ServiceList = ServiceListOffering.Id AND ServiceListURI.ServiceList = ServiceListOffering.Id`, (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -87,7 +87,7 @@ ServiceList.findById = (ListId, result) => {
 
 ServiceList.getAll = result => {
 
-    sql.query("SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering where ServiceListName.list = ServiceListOffering.Id AND ServiceListURI.list = ServiceListOffering.Id", (err, res) => {
+    sql.query("SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering where ServiceListName.ServiceList = ServiceListOffering.Id AND ServiceListURI.ServiceList = ServiceListOffering.Id", (err, res) => {
         if (err) {
         console.log("error: ", err);
         result(null, err);

@@ -19,7 +19,7 @@ exports.create = (req, res) => {
     Regulator: req.body.Regulator
   });
 
-  // Save Customer in the database
+  // Save Provider in the database
   Provider.create(provider, {name:req.body.name, type: req.body.type}, (err, data) => {
     if (err)
       res.status(500).send({
@@ -30,7 +30,7 @@ exports.create = (req, res) => {
   });
 };
 
-// Retrieve all Customers from the database.
+// Retrieve all Providers from the database.
 exports.findAll = (req, res) => {
   Provider.getAll((err, data) => {
     if (err)
@@ -123,7 +123,7 @@ exports.debugSetup = ( ) => {
     console.log("res ServiceListName: ", res);
   })
 
-  sql.query("SELECT * FROM language", 
+  sql.query("SELECT * FROM Language",
   (err, res) => {
     if (err) {
       console.log("error2: ", err);

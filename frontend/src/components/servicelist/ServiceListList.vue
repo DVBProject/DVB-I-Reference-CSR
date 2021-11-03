@@ -43,7 +43,7 @@
           <label><strong>URI:</strong></label> {{ currentList.URI }}
         </div>
         <div>
-          <label><strong>Delivery:</strong></label> {{ currentList.delivery }}
+          <label><strong>Delivery:</strong></label> {{ currentList.Delivery }}
         </div>
         <div>
           <label><strong>Regulator List:</strong></label> {{ currentList.regulatorList != 0 ? "Yes" : "No" }}
