@@ -1,7 +1,7 @@
 const qs = require('qs');
 const md5 = require('md5');
 const mysql = require('mysql2/promise');
-const dbConfig = require("./db.config.js");
+const dbConfig = require("../db.config.js");
 const xmlbuilder = require('xmlbuilder');
 
 
