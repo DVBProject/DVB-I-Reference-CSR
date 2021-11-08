@@ -24,3 +24,6 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+db.config.js
+.env
