@@ -21,21 +21,23 @@ SQL database is required. Database configuration is in the db.config.js file in 
 
 Frontend runs in port 8081.Started with the command yarn serve
 
-Backend runs in port 3000. Started with the command node server.js
+Backend runs in port 3000 by default. Started with the command node server.js
 
 API runs in port 3001 by default. Started with the command api.js
 
-## API Configuration
+## API and backened module configuration
 
 Database and port configuration uses .env files.
-API module defaults are:
+Database  defaults are:
+
 * database host: "localhost",
 * database user: "user",
 * database password: "password",
 * database name: "dvb_i_csr"
-* port: 3001
 
-To configure the values create an .env file in the api/-directory containing the values:
+backend default port is 300 and API default port is 3001.
+
+To configure the values create an .env file in the api/ and backend/-directory containing the values:
 ```
 DB_HOST=<my db address>
 DB_USER=<my db user>
