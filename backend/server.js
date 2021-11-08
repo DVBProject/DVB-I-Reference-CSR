@@ -1,3 +1,8 @@
+// catch all rogue exceptions
+process.on('uncaughtException', err => {
+	console.log('Caught exception: ', err);
+});
+
 require("dotenv").config()
 const express = require("express");
 
@@ -21,6 +26,7 @@ app.get("/", (req, res) => {
 });
 
 
+
 // auth
 
 // service routes
@@ -31,3 +37,4 @@ require("./app/routes/servicelist.routes")(app);
 app.listen(3000, () => {
   console.log("Backend server is running on port 3000.");
 });
+
