@@ -108,20 +108,30 @@ exports.delete = (req, res) => {
 
 
 
-exports.debugSetup = ( ) => {
+exports.debugSetup = async ( ) => {
   console.log("debugissa, POISTA tää kutsu")
   const sql = require("../models/db.js");
 
 
 
   // "SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization where ProviderOffering.Organization = Organization.Id", 
-  sql.query("SELECT * FROM Genre", 
-  (err, res) => {
-    if (err) {
-      console.log("error: ", err);
-    }
-    console.log("res Genre: ", res);
-  })
+  try {
+    await new Promise((resolve, reject) => {
+      sql.query("SELECT * FROM Genre", 
+      (err, res) => {
+        if (err) {
+          console.log("error: ", err);
+          reject()
+        }
+        console.log("res Genre: ", res);
+        resolve()
+      })
+    })
+
+  }
+  catch(err) {
+    console.log(err)
+  }
 
   sql.query("SELECT * FROM Language",
   (err, res) => {
@@ -149,6 +159,5 @@ exports.debugSetup = ( ) => {
     
   })
 
-
-
 }
+

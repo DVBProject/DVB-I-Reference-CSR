@@ -113,14 +113,35 @@ ServiceList.findById = (ListId, result) => {
 };
 
 
-ServiceList.getAll = result => {
+ServiceList.getAll = async result => {
 
     sql.query("SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering where ServiceListName.ServiceList = ServiceListOffering.Id AND ServiceListURI.ServiceList = ServiceListOffering.Id", (err, res) => {
         if (err) {
-        console.log("error: ", err);
-        result(null, err);
-        return;
+            console.log("error: ", err);
+            result(null, err);
+            return;
         }
+
+        res.forEach(list => {
+            console.log(list.Name)
+            let res2 = sql.query(`SELECT * FROM TargetCountry where TargetCountry.ServiceList = ${list.Id}`)/*, (err, res) => {
+                if (err) {
+                console.log("error: ", err);
+                }
+                else {                    
+                    let countries = []
+                    res.forEach(pack => {
+                        countries.push(pack.Country)
+                    })
+                    //console.log(countries)
+                    list.Countries = countries
+                }
+            }) */
+            
+            console.log(res2)
+            console.log(list)
+
+        });
     
         console.log("ServiceLists: ", res);
 
