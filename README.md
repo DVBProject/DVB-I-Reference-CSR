@@ -43,7 +43,7 @@ DB_HOST=<my db address>
 DB_USER=<my db user>
 DB_PASSWORD=<my db password>
 DB_NAME=<my db name>
-PORT=<my api port>
+PORT=<my api/backend port>
 ```
 
 ## How to contribute
