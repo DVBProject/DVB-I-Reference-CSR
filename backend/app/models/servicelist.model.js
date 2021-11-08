@@ -50,7 +50,7 @@ ServiceList.create = (newServiceList, result) => {
 
         // Create new languages for this service list
         if(newServiceList.lang && newServiceList.lang.length) {
-            for(var index in newServiceList.lang) {
+            for(let index in newServiceList.lang) {
                 if(newServiceList.lang[index].a3 !== undefined) {
                     sql.query("INSERT INTO Language SET Language = ?, ServiceList = ?",  [newServiceList.lang[index].a3, res.insertId], (err, res) => {
                         if (err) {
@@ -64,7 +64,7 @@ ServiceList.create = (newServiceList, result) => {
 
         // Target countries
         if(newServiceList.Countries && newServiceList.Countries.length) {
-            for(var index in newServiceList.Countries) {
+            for(let index in newServiceList.Countries) {
                 sql.query("INSERT INTO TargetCountry SET Country = ?, ServiceList = ?",  [newServiceList.Countries[index].code, res.insertId], (err, res) => {
                     if (err) {
                         console.log("error: ", err);
@@ -78,7 +78,7 @@ ServiceList.create = (newServiceList, result) => {
         // Create genres
         if(newServiceList.Genres && newServiceList.Genres.length) {
             //
-            for(var index in newServiceList.Genres) {
+            for(let index in newServiceList.Genres) {
                 sql.query("INSERT INTO Genre SET Genre = ?, ServiceList = ?",  [newServiceList.Genres[index], res.insertId], (err, res) => {
                     if (err) {
                         console.log("error: ", err);
@@ -114,37 +114,62 @@ ServiceList.findById = (ListId, result) => {
 
 
 ServiceList.getAll = async result => {
-
-    sql.query("SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering where ServiceListName.ServiceList = ServiceListOffering.Id AND ServiceListURI.ServiceList = ServiceListOffering.Id", (err, res) => {
+    sql.query("SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering where ServiceListName.ServiceList = ServiceListOffering.Id AND ServiceListURI.ServiceList = ServiceListOffering.Id", async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(null, err);
             return;
         }
 
-        res.forEach(list => {
-            console.log(list.Name)
-            let res2 = sql.query(`SELECT * FROM TargetCountry where TargetCountry.ServiceList = ${list.Id}`)/*, (err, res) => {
-                if (err) {
-                console.log("error: ", err);
-                }
-                else {                    
-                    let countries = []
-                    res.forEach(pack => {
-                        countries.push(pack.Country)
+        try {
+            for(i = 0; i < res.length; i++) {
+                let list = res[i]
+                console.log(list.Name)
+
+                // fetch TargetCountries
+                const countries = await getTargetCountries(list).catch(err => {
+                    console.log(err)
+                })
+                
+                list.targetCountries = []
+                if(countries) {
+                    countries.forEach(pack => {
+                        list.targetCountries.push({country: pack.Country})
                     })
-                    //console.log(countries)
-                    list.Countries = countries
                 }
-            }) */
-            
-            console.log(res2)
-            console.log(list)
 
-        });
+                // Fetch Languages
+                const lang = await getLanguages(list).catch(err => {
+                    console.log(err)
+                })
+                list.languages = []
+                if(lang) {
+                    lang.forEach(pack => {
+                        console.log(pack)
+                        list.languages.push({Language: pack.Language})
+                    })
+                }
+
+                // Fetch Genres
+                const genre = await getGenres(list).catch(err => {
+                    console.log(err)
+                })
+                list.genre = []
+                if(genre) {
+                    genre.forEach(pack => {
+                        console.log(pack)
+                        list.genre.push(pack.Genre)
+                    })
+                }
+            }
+
+        } catch(err) {
+            console.log(err)
+            result(null, err);
+            return;
+        }
     
-        console.log("ServiceLists: ", res);
-
+        //console.log("ServiceLists: ", res);
         result(null, res);
     });
 };
@@ -158,6 +183,51 @@ ServiceList.remove = (id, result) => {
 
 ServiceList.removeAll = result => {
 }
+
+
+// 
+
+function getTargetCountries(list) {
+   return new Promise((resolve, reject) => {
+        sql.query(`SELECT * FROM TargetCountry where TargetCountry.ServiceList = ${list.Id}`, (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                reject(err)
+            }
+            else {          
+                resolve(res)
+            }
+        })
+   })
+}
+
+function getLanguages(list) {
+    return new Promise((resolve, reject) => {
+         sql.query(`SELECT * FROM Language where Language.ServiceList = ${list.Id}`, (err, res) => {
+             if (err) {
+                 console.log("error: ", err);
+                 reject(err)
+             }
+             else {          
+                 resolve(res)
+             }
+         })
+    })
+ }
+
+ function getGenres(list) {
+    return new Promise((resolve, reject) => {
+         sql.query(`SELECT * FROM Genre where Genre.ServiceList = ${list.Id}`, (err, res) => {
+             if (err) {
+                 console.log("error: ", err);
+                 reject(err)
+             }
+             else {          
+                 resolve(res)
+             }
+         })
+    })
+ }
 
 
 module.exports = ServiceList;
