@@ -1,3 +1,8 @@
+// catch all rogue exceptions
+process.on('uncaughtException', err => {
+	console.log('Caught exception: ', err);
+});
+
 require("dotenv").config()
 const express = require("express");
 
@@ -20,6 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
   res.json({ message: "DVB-I CSR backend" });
 });
+
 
 
 // auth
