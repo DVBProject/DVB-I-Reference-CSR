@@ -29,11 +29,11 @@ API runs in port 3001 by default. Started with the command api.js
 
 Database and port configuration uses .env files.
 API module defaults are:
-database host: "localhost",
-database user: "user",
-database password: "password",
-database name: "dvb_i_csr"
-port: 3001
+* database host: "localhost",
+* database user: "user",
+* database password: "password",
+* database name: "dvb_i_csr"
+* port: 3001
 
 To configure the values create an .env file in the api/-directory containing the values:
 ```
