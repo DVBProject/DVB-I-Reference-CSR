@@ -23,7 +23,27 @@ Frontend runs in port 8081.Started with the command yarn serve
 
 Backend runs in port 3000. Started with the command node server.js
 
-API runs in port 3001. Started with the command api.js
+API runs in port 3001 by default. Started with the command api.js
+
+## API Configuration
+
+Database and port configuration uses .env files.
+API module defaults are:
+database host: "localhost",
+database user: "user",
+database password: "password",
+database name: "dvb_i_csr"
+port: 3001
+
+To configure the values create an .env file in the api/-directory containing the values:
+```
+DB_HOST=<my db address>
+DB_USER=<my db user>
+DB_PASSWORD=<my db password>
+DB_NAME=<my db name>
+PORT=<my api port>
+```
+
 ## How to contribute
 
 ## contact: 

@@ -1,8 +1,8 @@
 const qs = require('qs');
 const md5 = require('md5');
 const mysql = require('mysql2/promise');
-const dbConfig = require("../db.config.js");
 const xmlbuilder = require('xmlbuilder');
+const env = require('dotenv').config();
 
 
 const csrquery = {}
@@ -173,10 +173,10 @@ csrquery.validateProviderName = function(names) {
 csrquery.generateXML = async function(query) {
     try {
         const conn = await mysql.createConnection({
-            host: dbConfig.HOST,
-            user: dbConfig.USER,
-            password: dbConfig.PASSWORD,
-            database: dbConfig.DB
+            host: process.env.DB_HOST || "localhost",
+            user: process.env.DB_USER || "user",
+            password: process.env.DB_PASSWORD || "password",
+            database: process.env.DB_NAME || "dvb_i_csr"
           });
         var root = xmlbuilder.create('ServiceListEntryPoints',{version: '1.0', encoding: 'UTF-8'})
             .att("xmlns","urn:dvb:metadata:servicelistdiscovery:2021" )

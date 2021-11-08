@@ -1,9 +1,9 @@
-const sql = require("./db.js");
 const http = require('http');
 const url = require('url');
 const redis = require("redis");
 const csrquery = require("./query");
 
+const PORT = process.env.PORT || 3001;
 http.createServer(async function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -40,6 +40,6 @@ http.createServer(async function (req, res) {
         return;
     }
    
-}).listen(3001, () => {
-    console.log("API server is running on port 3001.");
+}).listen(PORT, () => {
+    console.log("API server is running on port "+PORT);
 });
