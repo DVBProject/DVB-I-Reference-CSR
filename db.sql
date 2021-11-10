@@ -119,6 +119,16 @@ KEY `fkIdx_118` (`ServiceList`),
 CONSTRAINT `FK_116` FOREIGN KEY `fkIdx_118` (`ServiceList`) REFERENCES `ServiceListOffering` (`Id`)
 ) ENGINE=InnoDB;
 
+CREATE TABLE `User`
+(
+ `Name`          text NOT NULL ,
+ `Hash`          text NOT NULL ,
+ `Role`          text NOT NULL ,
+ `Organizations` text NOT NULL ,
+ `Id`            integer NOT NULL AUTO_INCREMENT,
+
+PRIMARY KEY (`Id`)
+) ENGINE=InnoDB;
 
 INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator) VALUES ('Repository provider','Contact','Jurisdiction','Address','Electronic address',1);
 INSERT INTO EntityName(Name,Type,Organization) VALUES("Repository provider","",1);

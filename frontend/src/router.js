@@ -2,7 +2,7 @@ import { createWebHistory, createRouter } from "vue-router";
 
 const routes =  [
   {
-    path: "/",
+    path: "/providers",
     alias: "/providers",
     name: "providers",
     component: () => import("./components/providers/ProviderList")
@@ -18,7 +18,7 @@ const routes =  [
     component: () => import("./components/providers/AddProvider")
   },
   {
-    path: "/",
+    path: "/servicelists",
     alias: "/servicelists",
     name: "servicelists",
     component: () => import("./components/servicelist/ServiceListList")
@@ -32,6 +32,18 @@ const routes =  [
     path: "/add-servicelist",
     name: "add-servicelist",
     component: () => import("./components/servicelist/AddServiceList")
+  },
+  {
+    path: "/",
+    alias: "/authenticate",
+    name: "login",
+    component: () => import("./components/Login/Login")
+  },
+  {
+    path: "/setup",
+    alias: "/setup",
+    name: "setup",
+    component: () => import("./components/Login/Setup")
   }
 ];
 

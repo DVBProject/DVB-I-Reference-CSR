@@ -178,7 +178,7 @@ export default {
       URI: "",
       lang: "",
       Provider: 0,
-      regulatorList: 0,
+      regulatorList: 1,
       Delivery: "",
       
     };
@@ -189,7 +189,7 @@ export default {
         .then(response => {
           this.providers = response.data;
           this.Provider = response.data[0].Id;
-          console.log("lists:", response.data);
+          console.log("provirders:", response.data);
         })
         .catch(e => {
           console.log(e);
@@ -241,7 +241,7 @@ export default {
     },
 
     addLang(item) {
-      console.log(item.target.value)
+      //console.log(item.target.value)
       const value = item.target.value
       if(value.length === 3) {
         const valid = languages[value] !== undefined
@@ -265,7 +265,7 @@ export default {
     },
 
     addCountry(item) {
-      console.log(item.target.value)
+      //console.log(item.target.value)
       let name = ""
       const valid = this.countries_ui.findIndex( elem => {        
         return elem.alpha3 === item.target.value

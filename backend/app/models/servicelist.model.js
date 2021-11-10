@@ -102,7 +102,6 @@ ServiceList.findById = (ListId, result) => {
         }
     
         if (res.length) {            
-            console.log("found List items: ", res[0]);
             result(null, res[0]);
             return;
         }
@@ -124,11 +123,10 @@ ServiceList.getAll = async result => {
         try {
             for(i = 0; i < res.length; i++) {
                 let list = res[i]
-                console.log(list.Name)
 
                 // fetch TargetCountries
                 const countries = await getTargetCountries(list).catch(err => {
-                    console.log(err)
+                    console.log("error: ", err)
                 })
                 
                 list.targetCountries = []
@@ -140,35 +138,31 @@ ServiceList.getAll = async result => {
 
                 // Fetch Languages
                 const lang = await getLanguages(list).catch(err => {
-                    console.log(err)
+                    console.log("error: ", err)
                 })
                 list.languages = []
                 if(lang) {
                     lang.forEach(pack => {
-                        console.log(pack)
                         list.languages.push({Language: pack.Language})
                     })
                 }
 
                 // Fetch Genres
                 const genre = await getGenres(list).catch(err => {
-                    console.log(err)
+                    console.log("error: ", err)
                 })
                 list.genre = []
                 if(genre) {
                     genre.forEach(pack => {
-                        console.log(pack)
                         list.genre.push(pack.Genre)
                     })
                 }
             }
-
         } catch(err) {
-            console.log(err)
+            console.log("error: ", err)
             result(null, err);
             return;
         }
-    
         //console.log("ServiceLists: ", res);
         result(null, res);
     });

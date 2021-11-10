@@ -15,6 +15,12 @@ var corsOptions = {
 
 const PORT = process.env.PORT || 3000;
 app.use(cors())
+
+app.disable('x-powered-by')
+
+app.set("jwtstring", "secretstring") // move to env
+
+
 // parse requests of content-type: application/json
 app.use(express.json());
 
@@ -26,9 +32,11 @@ app.get("/", (req, res) => {
   res.json({ message: "DVB-I CSR backend" });
 });
 
-
+// public routes
+require("./app/routes/public")(app)
 
 // auth
+app.use(require("./middleware/authentication"))
 
 // service routes
 require("./app/routes/provider.routes")(app);
