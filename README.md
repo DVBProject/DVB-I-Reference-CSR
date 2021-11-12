@@ -17,14 +17,6 @@ API is the query API used by the DVB-I clients to access the CSR.
 
 SQL database is required. Database configuration is in the db.config.js file in the project root. Database schema is found in db.sql file in the project root
 
-## How to use
-
-Frontend runs in port 8081.Started with the command yarn serve
-
-Backend runs in port 3000 by default. Started with the command node server.js
-
-API runs in port 3001 by default. Started with the command api.js
-
 ## API and backened module configuration
 
 Database and port configuration uses .env files.
@@ -35,7 +27,7 @@ Database  defaults are:
 * database password: "password",
 * database name: "dvb_i_csr"
 
-backend default port is 300 and API default port is 3001.
+backend default port is 3000 and API default port is 3001.
 
 To configure the values create an .env file in the api/ and backend/-directory containing the values:
 ```
@@ -46,8 +38,25 @@ DB_NAME=<my db name>
 PORT=<my api/backend port>
 ```
 
-## How to contribute
+## API Module usage
 
-## contact: 
+After cloning the repository, install the required node modules with the command `yarn install` in the api-directory.
+Start the api server with the command `node api.js` in the api-directory. Default port is 3001
+
+## Backend Module usage
+
+After cloning the repository, install the required node modules with the command `yarn install` in the backend-directory.
+Start the backend server with the command `node api.js` in the backend-directory. Default port is 3000
+
+## Frontend Module usage
+
+After cloning the repository, install the required node modules with the command `yarn install` in the frontend-directory.
+Start the frontend development server with the command `yarn serve` in the frontend-directory. Default port is 8081.
+To build production version of the frontend, use the command `yarn build` in the frontend-directory. The production codes can be found 
+in the frontend/dist-directory.
+
+## Issues
+
+If you have any issue, please report them at https://github.com/DVBProject/DVB-I-Reference-CSR/issues
 
 
