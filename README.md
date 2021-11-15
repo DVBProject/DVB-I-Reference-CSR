@@ -37,7 +37,14 @@ DB_PASSWORD=<my db password>
 DB_NAME=<my db name>
 PORT=<my api/backend port>
 ```
+Example .env file contents for the api-module defining the DB host, user and port:
+```
+DB_HOST=localhost
+DB_USER=dbuser
+DB_PASSWORD=dbpassword
+```
 
+If a value is not defined in the .env-file, the default value is used
 ## API Module usage
 
 After cloning the repository, install the required node modules with the command `yarn install` in the api-directory.
