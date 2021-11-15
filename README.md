@@ -71,6 +71,16 @@ Start the frontend development server with the command `yarn serve` in the front
 To build production version of the frontend, use the command `yarn build` in the frontend-directory. The production codes can be found 
 in the frontend/dist-directory.
 
+## Test server and Query API
+
+A test server Frontend is running at https://csr.dtv.fi/
+The Query API can be accessed from https://csr.dtv.fi/api/query
+Example queries: 
+https://csr.dtv.fi/api/query?TargetCountry=FIN 
+https://csr.dtv.fi/api/query?ProviderName=Servicelist%20provider%202
+
+Refer to https://dvb.org/wp-content/uploads/2020/11/A177r2_Service-Discovery-and-Programme-Metadata-for-DVB-I_ts_103-770-v120_June-2021.pdf chapter 5.1.3 and annex C.4.
+
 ## Issues
 
 If you have any issue, please report them at https://github.com/DVBProject/DVB-I-Reference-CSR/issues
