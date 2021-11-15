@@ -44,7 +44,8 @@ DB_USER=dbuser
 DB_PASSWORD=dbpassword
 ```
 
-If a value is not defined in the .env-file, the default value is used
+If a value is not defined in the .env-file, the default value is used. Port and database name can usually use the defaul values but they can be configured if needed.
+
 ## API Module usage
 
 After cloning the repository, install the required node modules with the command `yarn install` in the api-directory.
