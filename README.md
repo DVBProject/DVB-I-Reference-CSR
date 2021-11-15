@@ -45,6 +45,14 @@ DB_PASSWORD=dbpassword
 ```
 
 If a value is not defined in the .env-file, the default value is used. Port and database name can usually use the default values but they can be configured if needed.
+```
+DB_HOST=localhost
+DB_USER=dbuser
+DB_PASSWORD=dbpassword
+DB_NAME=dvb_i_csr-1
+PORT=3333
+```
+Create the .env files to "api" and "backend" directory, respectively.
 
 ## API Module usage
 
