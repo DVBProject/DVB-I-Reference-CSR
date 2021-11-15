@@ -46,7 +46,7 @@ Start the api server with the command `node api.js` in the api-directory. Defaul
 ## Backend Module usage
 
 After cloning the repository, install the required node modules with the command `yarn install` in the backend-directory.
-Start the backend server with the command `node api.js` in the backend-directory. Default port is 3000
+Start the backend server with the command `node server.js` in the backend-directory. Default port is 3000
 
 ## Frontend Module usage
 
