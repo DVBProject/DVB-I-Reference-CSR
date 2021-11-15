@@ -37,7 +37,7 @@ DB_PASSWORD=<my db password>
 DB_NAME=<my db name>
 PORT=<my api/backend port>
 ```
-Example .env file contents for the api-module defining the DB host, user and port:
+Example .env file contents defining the DB host, user and port:
 ```
 DB_HOST=localhost
 DB_USER=dbuser
