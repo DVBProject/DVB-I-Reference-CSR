@@ -40,7 +40,7 @@ export default {
 
       LoginService.login(data)
         .then(response => {
-          console.log(response)
+          console.log("login ui", response)
           console.log(this.$route)
           if(response.success) {
             if(this.$route.redirectedFrom) {

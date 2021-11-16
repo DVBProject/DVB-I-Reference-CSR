@@ -94,6 +94,8 @@
 
 <script>
 import ServiceListDataService from "../../services/ServiceListDataService"
+import LoginService from "../../services/LoginService"
+
 export default {
   name: "servicelist-list",
   data() {
@@ -113,11 +115,11 @@ export default {
         })
         .catch(e => {
           console.log(e);
-          // error with fetch
-          // clear session data & re-login
-          // TODO
-          //LoginService.reset()  
 
+          // TODO: move this handler the service module
+          // error with fetch (unauthorized)
+          // clear session data & re-login
+          LoginService.reset()
         });
     },
     refreshList() {
