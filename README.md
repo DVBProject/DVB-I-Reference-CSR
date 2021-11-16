@@ -15,7 +15,7 @@ Backend is used by the frontend to access the CSR database.
 
 API is the query API used by the DVB-I clients to access the CSR. 
 
-SQL database is required. Database configuration is in the db.config.js file in the project root. Database schema is found in db.sql file in the project root
+SQL database is required. Database schema is found in db.sql file in the project root. Initialize the database using this sql file. 
 
 ## API and backened module configuration
 
