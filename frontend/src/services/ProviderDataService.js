@@ -1,32 +1,29 @@
 import http from "../http-common";
 
 
-let configdata = {
-  headers: { 'Authorization': sessionStorage.getItem("auth") }
-}
 
 class ProviderDataService {
   getAll() {
-    return http.get("/providers", configdata);
+    return http.get("/providers");
   }
 
   get(id) {
-    return http.get(`/providers/${id}`, configdata);
+    return http.get(`/providers/${id}`);
   }
 
   create(data) {
-    return http.post("/providers", data, configdata);
+    return http.post("/providers", data);
   }
 
   update(id, data) {
-    return http.put(`/providers/${id}`, data, configdata);
+    return http.put(`/providers/${id}`, data);
   }
 
   delete(id) {
-    return http.delete(`/providers/${id}`, configdata);
+    return http.delete(`/providers/${id}`);
   }
   findByTitle(title) {
-    return http.get(`/providers?title=${title}`, configdata);
+    return http.get(`/providers?title=${title}`);
   }
 }
 

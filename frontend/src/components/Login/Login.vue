@@ -28,19 +28,31 @@ export default {
   data() {
     return {
       username: "",
-      password: ""
+      password: "",
+      message: ""
     };
   },
   methods: {
     submitLogin() {
+      // TODO: validate & check input
+
       const data = {username: this.username, password: this.password}
 
       LoginService.login(data)
         .then(response => {
-          console.log(response.data)
-
-          // handle token & redirect
-          sessionStorage.setItem("auth", response.data.token) // hax
+          console.log(response)
+          console.log(this.$route)
+          if(response.success) {
+            if(this.$route.redirectedFrom) {
+              this.$router.push(this.$route.redirectedFrom.fullPath)
+            }
+            else {
+              this.$router.push("/")
+            }
+          }
+          else {
+            this.message = "Could not log in"
+          }
 
         })
         .catch(e => {
@@ -49,8 +61,8 @@ export default {
     }
     
   },
-  mounted() {
-      
+  mounted() {    
+
   }
 };
 </script>

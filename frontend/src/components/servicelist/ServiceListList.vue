@@ -113,6 +113,11 @@ export default {
         })
         .catch(e => {
           console.log(e);
+          // error with fetch
+          // clear session data & re-login
+          // TODO
+          //LoginService.reset()  
+
         });
     },
     refreshList() {

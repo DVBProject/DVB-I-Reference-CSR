@@ -80,8 +80,10 @@ module.exports = app => {
             const token = await jwt.sign({Id, Role}, req.app.get("jwtstring"), {expiresIn: "12h"})
             
             // log the login: "user logged in from ip"
-
-            return res.status(200).json({ success: true, token })
+            let user_data = {
+                is_admin: Role === "admin"
+            }
+            return res.status(200).json({ success: true, token, user: user_data })
 
         } 
         catch (err) {
