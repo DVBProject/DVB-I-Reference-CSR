@@ -15,6 +15,13 @@ const ServiceList = function(serviceList) {
 
 ServiceList.create = (newServiceList, result) => {
 
+    // verify needed data is not missing
+    newServiceList.Name = newServiceList.Name || "Not defined"
+    if( !newServiceList.lang || newServiceList.lang.length < 1) newServiceList.lang = [{a3: "Not defined"}]
+    newServiceList.URI = newServiceList.URI || "Not defined"
+    if(!newServiceList.Delivery || newServiceList.Delivery.length < 1) newServiceList.Delivery = ["DASHDelivery"]
+
+    
     // TODO: now only saves the first item on the delivery-list !!
     sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, Delivery = ?", [newServiceList.Provider, newServiceList.regulatorList, newServiceList.Delivery[0]], (err, res) => {
         if (err) {
@@ -26,8 +33,8 @@ ServiceList.create = (newServiceList, result) => {
         console.log("created ServiceListOffering: ", { id: res.insertId, ...newServiceList });
 
         // Create new List Name
-        // TODO: now only saves with the first item on the languages list  
-        if(newServiceList.Name && newServiceList.lang && newServiceList.lang[0].a3 !== undefined) {
+        // TODO: now only saves with the first item on the languages list 
+        if(newServiceList.Name) {
             sql.query("INSERT INTO ServiceListName SET ServiceList = ?, Name = ?, lang = ?",  [res.insertId, newServiceList.Name, newServiceList.lang[0].a3], (err, res) => {
                 if (err) {
                     console.log("error: ", err);
@@ -37,7 +44,7 @@ ServiceList.create = (newServiceList, result) => {
             })
         }
 
-        // Create new URI
+        // Create new URI        
         if(newServiceList.URI !== undefined) {
             sql.query("INSERT INTO ServiceListURI SET URI = ?, ServiceList = ?",  [newServiceList.URI,res.insertId], (err, res) => {
                 if (err) {
