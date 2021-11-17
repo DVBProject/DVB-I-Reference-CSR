@@ -5,17 +5,45 @@
     <div class="col-md-8">
       <h4>Add Provider</h4>
 
-      <label>Kind:</label>
+      <label>Organization Names:</label>
+      <button class="btn btn-outline-primary mx-2 mb-1" type="button"
+            @click="addNameField"
+          >
+        +
+      </button>
+      <div class="input-group mb-3">
+
+        
+          <div class="col-sm-12 px-0"
+            v-for="(name, index) in Names"
+            :key="index"
+          >      
+          <div class="row my-0 mx-0">
+
+            <div class="form-floating px-0 col-sm-6">          
+              <input type="text" id="floatingInput" class="form-control mb-1" placeholder="Name"
+                  v-model="name.name"/>
+              <label for="floatingInput">Name</label>
+            </div>
+
+            <div class="form-floating px-0 col-sm-6">
+              <input type="text" id="floatingInput2" class="form-control mb-1" placeholder="Type"
+                  v-model="name.type"/>
+              <label for="floatingInput2">Type</label>
+            </div>
+
+            </div>
+
+          </div>
+        
+      </div>
+
+        
+      
+
+      <label>Organization Kind:</label>
       <input type="text" class="form-control my-2" placeholder="Kind"
           v-model="Kind"/>
-
-      <label>Organization Name:</label>
-      <input type="text" class="form-control my-2" placeholder="Name"
-          v-model="Name"/>
-
-      <label>Organization Type:</label>
-      <input type="text" class="form-control my-2" placeholder="Type"
-          v-model="Type"/>
 
       <label>Contact Name:</label>
       <input type="text" class="form-control my-2" placeholder="Contact Name"
@@ -25,62 +53,55 @@
       <input type="text" class="form-control my-2" placeholder="Jurisdiction"
           v-model="Jurisdiction"/>
 
+
       <label>Address:</label>
-      <input type="text" class="form-control my-2" placeholder="Address"
-          v-model="Address"/>
+ 
+      <div class="form-floating mb-1">
+        <input type="text" id="floatingInputStreet" class="form-control my-2" placeholder="Street"
+            v-model="Address.street"/>
+        <label for="floatingInputStreet">Street</label>
+      </div>
+      <div class="form-floating mb-1">
+        <input type="text" id="floatingInputCity" class="form-control my-2" placeholder="City"
+            v-model="Address.city"/>
+        <label for="floatingInputCity">City</label>
+      </div>
+      <div class="form-floating mb-1">
+        <input type="text" id="floatingInputPC" class="form-control my-2" placeholder="Post code"
+            v-model="Address.postcode"/>
+        <label for="floatingInputPC">Post code</label>
+      </div>
+      <div class="form-floating mb-1">
+        <input type="text" id="floatingInputCountry" class="form-control my-2" placeholder="Country"
+            v-model="Address.country"/>
+        <label for="floatingInputCountry">Country</label>
+      </div>
+
+
+
+
 
       <label>Electronic Address:</label>
       <input type="text" class="form-control my-2" placeholder="ElectronicAddress"
           v-model="ElectronicAddress"/>
 
-      <label>Regulator:</label>
-      <select class="form-control my-2"
-          v-model="Regulator">
-        <option value=1>Yes</option>
-        <option value=0>No</option>
-      </select>
+      <label>Regulator:</label><br>
+      <div class="btn-group btn-group-sm" role="group" aria-label="Basic radio toggle button group">
+        <input type="radio" class="btn-check" name="btnradio" id="btnradioYes" autocomplete="off" @change="regulatorRadio" checked>
+        <label class="btn btn-outline-primary" for="btnradioYes">Yes</label>
+ 
+        <input type="radio" class="btn-check" name="btnradio" id="btnradioNo" autocomplete="off" @change="regulatorRadio">
+        <label class="btn btn-outline-primary" for="btnradioNo">No</label>
+      </div>
 
-  
-      <ul class="list-group">
-        <li class="list-group-item"
-          :class="{ active: index == currentIndex }"
-          v-for="(provider, index) in providers"
-          :key="index"
-          @click="setActiveProvider(provider, index)"
-        >
-          {{ provider.Kind }}
-        </li>
-      </ul>
     </div>
 
-    <div class="col-md-4">
-      <div v-if="currentProvider">
-        <h4>Provider</h4>
-        <div>
-          <label><strong>Kind:</strong></label> {{ currentProvider.Kind }}
-        </div>
-        <div>
-          <label><strong>Contact name:</strong></label> {{ currentProvider.ContactName }}
-        </div>
-         <div>
-          <label><strong>Jurisdiction:</strong></label> {{ currentProvider.Jurisdiction }}
-        </div>
-         <div>
-          <label><strong>Address:</strong></label> {{ currentProvider.Address }}
-        </div>
-         <div>
-          <label><strong>Electronic address:</strong></label> {{ currentProvider.ElectronicAddress }}
-        </div>
-        <div>
-          <label><strong>Regulator:</strong></label> {{ currentProvider.Regulator ? "True" : "False" }}
-        </div>
+    <div class="col-md-4">    
 
-        <router-link :to="'/providers/' + currentProvider.Id" class="badge alert-warning">Edit</router-link>
-      </div>
-      <div v-else>
+      <div>
         <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="button"
-            @click="addProvider">
+            <button class="btn btn-outline-primary" type="button"
+            @click="submitProvider">
             Add Provider
             </button>
         </div>
@@ -91,24 +112,35 @@
 
 <script>
 import ProviderDataService from "../../services/ProviderDataService"
+
 export default {
   name: "add-provider",
   data() {
     return {
       providers: [],
-      currentProvider: null,
-      currentIndex: -1,
+
       Kind: "",
+
       Name: "",
       Type: "",
+      Names: [],
+
       ContactName: "",
       Jurisdiction: "",
-      Address: "",
+
+      Address: {
+        street: "",
+        city: "",
+        postcode: "",
+        country: ""
+      },
+
       ElectronicAddress: "",
-      Regulator: 0,      
+      Regulator: 1,      
     };
   },
   methods: {
+    /*
     retrieveProviders() {
       ProviderDataService.getAll()
         .then(response => {
@@ -118,30 +150,37 @@ export default {
         .catch(e => {
           console.log(e);
         });
+    },*/
+    
+
+    addNameField() {
+      this.Names.push({name: "", type: ""})
     },
-    refreshList() {
-      this.retrieveProviders();
-      this.currentProvider = null;
-      this.currentIndex = -1;
-    },
-    setActiveProvider(provider, index) {
-      this.currentProvider = provider;
-      this.currentIndex = provider ? index : -1;
+
+    regulatorRadio(item) {
+      if(item.target.id === "btnradioYes") {
+        this.Regulator = 1
+      } 
+      else {
+        this.Regulator = 0
+      }
     },
     
-    addProvider() {
+    submitProvider() {
+        const addrstring = JSON.stringify(this.Address)
         const data = {
             Kind: this.Kind,
+            Names: this.Names, //JSON.stringify(this.Names),
             name: this.Name,
             type: this.Type,
             ContactName: this.ContactName,
             Jurisdiction: this.Jurisdiction,
-            Address: this.Address,
+            Address: addrstring,
             ElectronicAddress: this.ElectronicAddress,
             Regulator: this.Regulator,
         } 
-        //console.log("add provider:", data)
-
+        console.log("add provider:", data)
+        
         ProviderDataService.create(data)
             .then(response => {
                 console.log(response)
@@ -150,18 +189,8 @@ export default {
                 console.log(err);
             });
     }
-    /*
-    searchTitle() {
-      ProviderDataService.findByTitle(this.title)
-        .then(response => {
-          this.providers = response.data;
-          this.setActiveProvider(null);
-          console.log(response.data);
-        })
-        .catch(e => {
-          console.log(e);
-        });
-    } */
+
+
   },
   mounted() {
     //this.retrieveProviders();

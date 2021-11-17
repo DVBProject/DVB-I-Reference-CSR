@@ -33,10 +33,10 @@
           <label><strong>Kind:</strong></label> {{ currentProvider.Kind }}
         </div>
         <div>
-          <label><strong>Organization name:</strong></label> {{ currentProvider.name }}
+          <label><strong>Organization name:</strong></label> {{ currentProvider.Names[0].name }}
         </div>
         <div>
-          <label><strong>Organization type:</strong></label> {{ currentProvider.type }}
+          <label><strong>Organization type:</strong></label> {{ currentProvider.Names[0].type }}
         </div>
         <div>
           <label><strong>Contact name:</strong></label> {{ currentProvider.ContactName }}
@@ -81,6 +81,18 @@ export default {
       ProviderDataService.getAll()
         .then(response => {
           this.providers = response.data;
+          this.providers.forEach(pr => {
+            
+            // parse address objects
+            try {
+              let addr = JSON.parse(pr.Address)
+              pr.Address = addr.street + " " + addr.city + " " + addr.postcode + " " + addr.country
+              console.log(pr.Address)
+            } catch (err) {
+              //console.log(err)
+            }
+
+          })
           console.log(response.data);
         })
         .catch(e => {

@@ -123,40 +123,9 @@ ServiceList.getAll = async result => {
         try {
             for(i = 0; i < res.length; i++) {
                 let list = res[i]
-
-                // fetch TargetCountries
-                const countries = await getTargetCountries(list).catch(err => {
-                    console.log("error: ", err)
-                })
                 
-                list.targetCountries = []
-                if(countries) {
-                    countries.forEach(pack => {
-                        list.targetCountries.push({country: pack.Country})
-                    })
-                }
-
-                // Fetch Languages
-                const lang = await getLanguages(list).catch(err => {
-                    console.log("error: ", err)
-                })
-                list.languages = []
-                if(lang) {
-                    lang.forEach(pack => {
-                        list.languages.push({Language: pack.Language})
-                    })
-                }
-
-                // Fetch Genres
-                const genre = await getGenres(list).catch(err => {
-                    console.log("error: ", err)
-                })
-                list.genre = []
-                if(genre) {
-                    genre.forEach(pack => {
-                        list.genre.push(pack.Genre)
-                    })
-                }
+                // fetch all the rest of relevant DB tables
+                list = await getRestOfServiceList(list)
             }
         } catch(err) {
             console.log("error: ", err)
@@ -179,7 +148,60 @@ ServiceList.removeAll = result => {
 }
 
 
+
 // 
+// promises for getting different parts of servicelist item
+//
+
+// one call to combine everything
+async function getRestOfServiceList(list) {
+    
+    // Fetch provider name                
+    const names = await getNames(list).catch(err => {
+        console.log("error: ", err)
+    })
+    if(names) {
+        list.Provider = names[0].Name
+        list.Names = names // remove ids before returning?
+    }
+
+    // fetch TargetCountries
+    const countries = await getTargetCountries(list).catch(err => {
+        console.log("error: ", err)
+    })
+    
+    list.targetCountries = []
+    if(countries) {
+        countries.forEach(pack => {
+            list.targetCountries.push({country: pack.Country})
+        })
+    }
+
+    // Fetch Languages
+    const lang = await getLanguages(list).catch(err => {
+        console.log("error: ", err)
+    })
+    list.languages = []
+    if(lang) {
+        lang.forEach(pack => {
+            list.languages.push({Language: pack.Language})
+        })
+    }
+
+    // Fetch Genres
+    const genre = await getGenres(list).catch(err => {
+        console.log("error: ", err)
+    })
+    list.genre = []
+    if(genre) {
+        genre.forEach(pack => {
+            list.genre.push(pack.Genre)
+        })
+    }
+
+    return list
+}
+
 
 function getTargetCountries(list) {
    return new Promise((resolve, reject) => {
@@ -218,6 +240,30 @@ function getLanguages(list) {
              }
              else {          
                  resolve(res)
+             }
+         })
+    })
+ }
+
+ function getNames(list) {
+    return new Promise((resolve, reject) => {
+        // get organization for provider
+         sql.query(`SELECT * FROM ProviderOffering where ProviderOffering.Id = ${list.Provider}`, (err, res) => {
+             if (err) {
+                 console.log("error: ", err);
+                 reject(err)
+             }
+             else {      
+                 // get organization names 
+                 sql.query(`SELECT * FROM EntityName where EntityName.Organization = ${res[0].Organization}`, (err, res2) => {
+                    if (err) {
+                        console.log("error: ", err);
+                        reject(err)
+                    }
+                    else {                          
+                        resolve(res2)
+                    }
+                })   
              }
          })
     })

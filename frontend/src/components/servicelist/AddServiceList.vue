@@ -18,7 +18,7 @@
             v-for="item in providers"
             v-bind:key="item.Id"
             v-bind:value="item.Id"
-         >{{item.name}}</option>
+         >{{item.Names[0].name}}</option>
       </select>
 
       <div class="my-2">      
@@ -143,7 +143,7 @@
     <div class="col-md-4">
 
         <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="button"
+            <button class="btn btn-outline-primary" type="button"
             @click="submitNewList">
             Add List
             </button>

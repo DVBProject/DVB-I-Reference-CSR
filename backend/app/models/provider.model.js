@@ -10,12 +10,12 @@ const Provider = function(Provider) {
     this.Regulator = Provider.Regulator ? 1 : 0;
 };
 
-Provider.create = (newProvider, newName, result) => {
+Provider.create = (newProvider, Names, result) => {
     sql.query("INSERT INTO Organization SET ?", newProvider, (err, res) => {
         if (err) {
-        console.log("error: ", err);
-        result(err, null);
-        return;
+            console.log("error: ", err);
+            result(err, null);
+            return;
         }
 
         console.log("created Organization: ", { id: res.insertId, ...newProvider });
@@ -24,60 +24,88 @@ Provider.create = (newProvider, newName, result) => {
         // create a new name table entry for the new organization + type
         //EntityName.name, EntityName.type
         const orgId = res.insertId
-        const data = {...newName, organization: orgId}
 
-        sql.query("INSERT INTO EntityName SET ?", data, (err, res) => {
-            if (err) {
-                console.log("error: ", err);
-                result(err, null);
-                return;
-            }
-            
-            //Assume for now only one ServiceListRegistry, use id 1
-            sql.query("INSERT INTO ProviderOffering(Organization,ServiceListRegistry) VALUES (?,?)", [ orgId/*res.insertId*/, 1 ], err => {
+        for(index in Names) {
+     
+            const data = {...Names[index], organization: orgId}
+
+            sql.query("INSERT INTO EntityName SET ?", data, (err, res) => {
                 if (err) {
                     console.log("error: ", err);
                     result(err, null);
                     return;
                 }
-                result(null, { id: res.insertId, ...newProvider });
-            });            
-        });
+            });
+        }
+            
+        //Assume for now only one ServiceListRegistry, use id 1
+        sql.query("INSERT INTO ProviderOffering(Organization,ServiceListRegistry) VALUES (?,?)", [ orgId/*res.insertId*/, 1 ], err => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+            result(null, { id: res.insertId, ...newProvider });
+        });            
+        
        
     });
 };
 
 Provider.findById = (ProviderId, result) => {
-sql.query(`SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind,EntityName.name, EntityName.type,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization,EntityName WHERE ProviderOffering.Id = ${ProviderId} AND ProviderOffering.Organization = Organization.Id AND EntityName.organization = Organization.Id`, (err, res) => {
-    if (err) {
-    console.log("error: ", err);
-    result(err, null);
-    return;
-    }
-
-    if (res.length) {
-        res[0].Regulator = res[0].Regulator != 0;
-        console.log("found Provider: ", res[0]);
-        result(null, res[0]);
+    sql.query(`SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind,EntityName.name, EntityName.type,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization,EntityName WHERE ProviderOffering.Id = ${ProviderId} AND ProviderOffering.Organization = Organization.Id AND EntityName.organization = Organization.Id`, (err, res) => {
+        if (err) {
+        console.log("error: ", err);
+        result(err, null);
         return;
-    }
+        }
 
-    // not found Provider with the id
-    result({ kind: "not_found" }, null);
-});
+        if (res.length) {
+            res[0].Regulator = res[0].Regulator != 0;
+            console.log("found Provider: ", res[0]);
+            result(null, res[0]);
+            return;
+        }
+
+        // not found Provider with the id
+        result({ kind: "not_found" }, null);
+    });
 };
 
 Provider.getAll = result => {
-sql.query("SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind, EntityName.name, EntityName.type, Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization,EntityName where ProviderOffering.Organization = Organization.Id AND EntityName.organization = Organization.Id", (err, res) => {
-    if (err) {
-    console.log("error: ", err);
-    result(null, err);
-    return;
-    }
+    sql.query("SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind, Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization where ProviderOffering.Organization = Organization.Id", async (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(null, err);
+            return;
+        }
 
-    console.log("Providers: ", res);
-    result(null, res);
-});
+        try {
+            for(i = 0; i < res.length; i++) {
+                let provider = res[i]
+
+                // Fetch Names
+                const names = await getNames(provider).catch(err => {
+                    console.log("error: ", err)
+                })
+                provider.Names = []
+                if(names) {
+                    names.forEach(n => {
+                        provider.Names.push({name: n.Name, type: n.Type})
+                    })
+                }
+                //console.log(provider.Names)
+
+            }
+        } catch(err) {
+            console.log("error: ", err)
+            result(null, err);
+            return;
+        }
+
+        console.log("Providers: ", res);
+        result(null, res);
+    });
 };
 
 Provider.updateById = (id, Provider, result) => {
@@ -144,5 +172,20 @@ sql.query("DELETE FROM Providers", (err, res) => {
     result(null, res);
 });
 };
+
+
+function getNames(provider) {
+    return new Promise((resolve, reject) => {
+         sql.query(`SELECT * FROM EntityName where EntityName.Organization = ${provider.Organization}`, (err, res) => {
+             if (err) {
+                 console.log("error: ", err);
+                 reject(err)
+             }
+             else {          
+                 resolve(res)
+             }
+         })
+    })
+ }
 
 module.exports = Provider;

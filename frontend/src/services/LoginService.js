@@ -35,7 +35,8 @@ class LoginService {
     // clear session information
     sessionStorage.clear()
     // reload previous view & trigger re-login
-    window.history.go(0)
+    //window.history.go(0)
+    this.$router.go(0)
   }
 
   // ui-routing middleware

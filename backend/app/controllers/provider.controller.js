@@ -16,11 +16,13 @@ exports.create = (req, res) => {
     Jurisdiction: req.body.Jurisdiction,
     Address: req.body.Address,
     ElectronicAddress: req.body.ElectronicAddress,
-    Regulator: req.body.Regulator
+    Regulator: req.body.Regulator    
   });
 
+  const Names = req.body.Names
+
   // Save Provider in the database
-  Provider.create(provider, {name:req.body.name, type: req.body.type}, (err, data) => {
+  Provider.create(provider, Names, (err, data) => {
     if (err)
       res.status(500).send({
         message:
