@@ -16,7 +16,5 @@ module.exports = app => {
     // Delete a Customer with customerId
     app.delete("/providers/:customerId", providers.delete);
 
-    
-    providers.debugSetup()
   
 };

@@ -35,6 +35,8 @@ exports.create = (req, res) => {
 
 // Retrieve all Lists from the database.
 exports.findAll = (req, res) => {
+  console.log("user:", req.user.Name, req.user.Role)
+
   ServiceList.getAll((err, data) => {
     if (err)
       res.status(500).send({

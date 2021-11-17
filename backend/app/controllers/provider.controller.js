@@ -16,11 +16,13 @@ exports.create = (req, res) => {
     Jurisdiction: req.body.Jurisdiction,
     Address: req.body.Address,
     ElectronicAddress: req.body.ElectronicAddress,
-    Regulator: req.body.Regulator
+    Regulator: req.body.Regulator    
   });
 
+  const Names = req.body.Names
+
   // Save Provider in the database
-  Provider.create(provider, {name:req.body.name, type: req.body.type}, (err, data) => {
+  Provider.create(provider, Names, (err, data) => {
     if (err)
       res.status(500).send({
         message:
@@ -108,56 +110,4 @@ exports.delete = (req, res) => {
 
 
 
-exports.debugSetup = async ( ) => {
-  console.log("debugissa, POISTA tää kutsu")
-  const sql = require("../models/db.js");
-
-
-
-  // "SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization where ProviderOffering.Organization = Organization.Id", 
-  try {
-    await new Promise((resolve, reject) => {
-      sql.query("SELECT * FROM Genre", 
-      (err, res) => {
-        if (err) {
-          console.log("error: ", err);
-          reject()
-        }
-        console.log("res Genre: ", res);
-        resolve()
-      })
-    })
-
-  }
-  catch(err) {
-    console.log(err)
-  }
-
-  sql.query("SELECT * FROM Language",
-  (err, res) => {
-    if (err) {
-      console.log("error2: ", err);
-    }
-    console.log("res language: ", res);
-  })
-
-  sql.query("SELECT * FROM TargetCountry", 
-  (err, res) => {
-    if (err) {
-      console.log("error5: ", err);
-    }
-    console.log("res TargetCountry: ", res);
-  })
-
-  // sql-setup
-  sql.query("SELECT * FROM ServiceListEntryPoints", 
-  (err, res) => {
-    if (err) {
-      console.log("error3: ", err);
-    }
-    console.log("res ServiceListEntryPoints: ", res);
-    
-  })
-
-}
 

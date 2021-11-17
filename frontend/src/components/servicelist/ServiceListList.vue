@@ -31,22 +31,54 @@
       <div v-if="currentList">
         <h4>Selected List</h4>
         <div>
-          <label><strong>Name:</strong></label> {{ currentList.Name }}
+          <label class="mx-1"><strong>Name:</strong></label> {{ currentList.Name }}
         </div>
         <div>
-          <label><strong>Provider:</strong></label> {{ currentList.Provider }}
+          <label class="mx-1"><strong>Provider:</strong></label> {{ currentList.Provider }}
+        </div>
+        
+        <div class="d-flex">
+        <label class="mx-1"><strong>Language:</strong></label>
+          <div class="d-flex justify-content-end">
+            <template class="mx-1" v-for="(lang, index) in currentList.languages"
+            :key="index">
+            <template v-if="index > 0">,</template>
+            <span class="mx-1">{{lang.Language}}</span>
+            </template>
+          </div>
+        </div>
+        
+        <div class="d-flex">
+          <label class="mx-1"><strong>Countries:</strong></label>
+          <div class="d-flex justify-content-end">
+            <template class="mx-1" v-for="(tc, index) in currentList.targetCountries"
+            :key="index">
+            <template v-if="index > 0">,</template>
+            <span class="mx-1">{{tc.country}}</span>
+            </template>
+          </div>
+        </div>
+
+        <div class="d-flex">
+          <label class="mx-1"><strong>Genre:</strong></label>
+          <div class="d-flex justify-content-end">
+            <template class="mx-1" v-for="(genre, index) in currentList.genre"
+            :key="index">
+            <template v-if="index > 0">,</template>
+            <span >{{ genre }}</span>
+            </template>
+          </div>
+        </div>
+
+
+        <div>
+          <label class="mx-1"><strong>URI:</strong></label> {{ currentList.URI }}
         </div>
         <div>
-          <label><strong>Language:</strong></label> {{ currentList.lang }}
+          <label class="mx-1"><strong>Delivery:</strong></label> {{ currentList.Delivery }}
         </div>
         <div>
-          <label><strong>URI:</strong></label> {{ currentList.URI }}
-        </div>
-        <div>
-          <label><strong>Delivery:</strong></label> {{ currentList.Delivery }}
-        </div>
-        <div>
-          <label><strong>Regulator List:</strong></label> {{ currentList.regulatorList != 0 ? "Yes" : "No" }}
+          <label class="mx-1"><strong>Regulator List:</strong></label> {{ currentList.regulatorList != 0 ? "Yes" : "No" }}
         </div>
         
 
@@ -62,6 +94,8 @@
 
 <script>
 import ServiceListDataService from "../../services/ServiceListDataService"
+import LoginService from "../../services/LoginService"
+
 export default {
   name: "servicelist-list",
   data() {
@@ -81,6 +115,11 @@ export default {
         })
         .catch(e => {
           console.log(e);
+
+          // TODO: move this handler the service module
+          // error with fetch (unauthorized)
+          // clear session data & re-login
+          LoginService.reset()
         });
     },
     refreshList() {
