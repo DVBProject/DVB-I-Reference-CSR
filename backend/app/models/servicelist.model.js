@@ -21,7 +21,7 @@ ServiceList.create = (newServiceList, result) => {
     newServiceList.URI = newServiceList.URI || "Not defined"
     if(!newServiceList.Delivery || newServiceList.Delivery.length < 1) newServiceList.Delivery = ["DASHDelivery"]
 
-    
+
     // TODO: now only saves the first item on the delivery-list !!
     sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, Delivery = ?", [newServiceList.Provider, newServiceList.regulatorList, newServiceList.Delivery[0]], (err, res) => {
         if (err) {
@@ -101,14 +101,17 @@ ServiceList.create = (newServiceList, result) => {
 
 
 ServiceList.findById = (ListId, result) => {
-    sql.query(`SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Id = ${ListId} AND ServiceListName.ServiceList = ServiceListOffering.Id AND ServiceListURI.ServiceList = ServiceListOffering.Id`, (err, res) => {
+    sql.query(`SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Id = ${ListId} AND ServiceListName.ServiceList = ServiceListOffering.Id AND ServiceListURI.ServiceList = ServiceListOffering.Id`, async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
     
-        if (res.length) {            
+        if (res.length) {  
+            let list = res[0]            
+            // fetch all the rest of relevant DB tables
+            list = await getRestOfServiceList(list)          
             result(null, res[0]);
             return;
         }

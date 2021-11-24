@@ -43,7 +43,7 @@
                 v-bind:id="index"
                 v-bind:key="index"
                 v-on:click="removeDelivery"
-                class="btn btn-outline-primary mx-1 my-1">{{item}} <span class="badge small bg-primary">x</span></li>
+                class="btn btn-outline-primary mx-1 my-1">{{item}} <span v-bind:id="index" class="badge small bg-primary">x</span></li>
           </ul>
         </div>        
       </div>
@@ -70,7 +70,7 @@
                   v-bind:id="index"
                   v-bind:key="index"
                   v-on:click="removeLang"
-                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span class="badge small bg-primary">x</span></li>
+                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span v-bind:id="index" class="badge small bg-primary">x</span></li>
             </ul>
           </div>
       </div>
@@ -97,7 +97,7 @@
                   v-bind:id="index"
                   v-bind:key="index"
                   v-on:click="removeCountry"
-                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span class="badge small bg-primary">x</span></li>
+                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span v-bind:id="index" class="badge small bg-primary">x</span></li>
             </ul>
           </div>
       </div>
@@ -124,7 +124,7 @@
                   v-bind:id="index"
                   v-bind:key="index"
                   v-on:click="removeGenre"
-                  class="btn btn-outline-primary mx-1 my-1">{{item}} <span class="badge small bg-primary">x</span></li>
+                  class="btn btn-outline-primary mx-1 my-1">{{item}} <span v-bind:id="index" class="badge small bg-primary">x</span></li>
             </ul>
           </div>
       </div>
