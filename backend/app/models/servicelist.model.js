@@ -20,80 +20,19 @@ ServiceList.create = (newServiceList, result) => {
     if( !newServiceList.lang || newServiceList.lang.length < 1) newServiceList.lang = [{a3: "Not defined"}]
     newServiceList.URI = newServiceList.URI || "Not defined"
     if(!newServiceList.Delivery || newServiceList.Delivery.length < 1) newServiceList.Delivery = ["DASHDelivery"]
-
+    const deliveries = JSON.stringify(newServiceList.Delivery)
 
     // TODO: now only saves the first item on the delivery-list !!
-    sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, Delivery = ?", [newServiceList.Provider, newServiceList.regulatorList, newServiceList.Delivery[0]], (err, res) => {
+    sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, Delivery = ?", [ newServiceList.Provider, newServiceList.regulatorList, deliveries ], async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
-
         console.log("created ServiceListOffering: ", { id: res.insertId, ...newServiceList });
 
-        // Create new List Name
-        // TODO: now only saves with the first item on the languages list 
-        if(newServiceList.Name) {
-            sql.query("INSERT INTO ServiceListName SET ServiceList = ?, Name = ?, lang = ?",  [res.insertId, newServiceList.Name, newServiceList.lang[0].a3], (err, res) => {
-                if (err) {
-                    console.log("error: ", err);
-                    
-                }
-                console.log("created service list NAME", res)
-            })
-        }
-
-        // Create new URI        
-        if(newServiceList.URI !== undefined) {
-            sql.query("INSERT INTO ServiceListURI SET URI = ?, ServiceList = ?",  [newServiceList.URI,res.insertId], (err, res) => {
-                if (err) {
-                    console.log("error: ", err);
-                    
-                }
-                console.log("created service list URI", res)
-            })
-        }
-
-        // Create new languages for this service list
-        if(newServiceList.lang && newServiceList.lang.length) {
-            for(let index in newServiceList.lang) {
-                if(newServiceList.lang[index].a3 !== undefined) {
-                    sql.query("INSERT INTO Language SET Language = ?, ServiceList = ?",  [newServiceList.lang[index].a3, res.insertId], (err, res) => {
-                        if (err) {
-                            console.log("error: ", err);
-                        }
-                        console.log("created service list lang", res)
-                    }) 
-                }
-            }
-        }
-
-        // Target countries
-        if(newServiceList.Countries && newServiceList.Countries.length) {
-            for(let index in newServiceList.Countries) {
-                sql.query("INSERT INTO TargetCountry SET Country = ?, ServiceList = ?",  [newServiceList.Countries[index].code, res.insertId], (err, res) => {
-                    if (err) {
-                        console.log("error: ", err);
-                    }
-                    console.log("created service list target country", res)
-                })
-            }
-        }
-
-
-        // Create genres
-        if(newServiceList.Genres && newServiceList.Genres.length) {
-            //
-            for(let index in newServiceList.Genres) {
-                sql.query("INSERT INTO Genre SET Genre = ?, ServiceList = ?",  [newServiceList.Genres[index], res.insertId], (err, res) => {
-                    if (err) {
-                        console.log("error: ", err);
-                    }
-                    console.log("created service list Genre", res)
-                })
-            }
-        }
+        // create all related items
+        await createRelatedTables(newServiceList, res.insertId)
         
         result(null, { id: res.insertId, ...newServiceList });       
     });
@@ -130,10 +69,10 @@ ServiceList.getAll = async result => {
             return;
         }
 
+        console.time("getAll")
         try {
             for(i = 0; i < res.length; i++) {
-                let list = res[i]
-                
+                let list = res[i]                
                 // fetch all the rest of relevant DB tables
                 list = await getRestOfServiceList(list)
             }
@@ -142,6 +81,7 @@ ServiceList.getAll = async result => {
             result(null, err);
             return;
         }
+        console.timeEnd("getAll")
         //console.log("ServiceLists: ", res);
         result(null, res);
     });
@@ -149,6 +89,33 @@ ServiceList.getAll = async result => {
 
 
 ServiceList.updateById = (id, List, result) => {
+
+    console.log('update', List, id);
+
+    const deliveries = JSON.stringify(List.Delivery)
+
+    // TODO: if provider can be changed, fetch the correct provider with the provider name...
+
+    sql.query(
+        "UPDATE ServiceListOffering SET regulatorList = ?, Delivery = ? WHERE Id = ?", // Provider = ?,
+        [List.regulatorList, deliveries, id], // List.Provider, 
+        async (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(null, err);
+                return;
+            }
+
+            // remove existing related items
+            await removeRelatedTables(id)
+
+            // create new related items
+            await createRelatedTables(List, id)
+
+            console.log("updated List: ", { id: id });
+            result(null, { id: id });
+        }
+    );
 }
 
 ServiceList.remove = (id, result) => {
@@ -163,7 +130,112 @@ ServiceList.removeAll = result => {
 // promises for getting different parts of servicelist item
 //
 
-// one call to combine everything
+async function createRelatedTables(list, id) {        
+    let promises = []
+    //console.time()
+
+    // Create new List Name
+    // TODO: update when we have more lang per name; now only saves with the first item on the languages list 
+    if(list.Name) {
+        promises.push(new Promise((resolve, reject) => {
+            sql.query("INSERT INTO ServiceListName SET ServiceList = ?, Name = ?, lang = ?",  [id, list.Name, list.lang[0].a3], (err, res) => {
+                if (err) {
+                    console.log("INSERT INTO ServiceListName error: ", err);
+                    reject()
+                }
+                //console.log("created service list NAME", res)
+                resolve()
+            })
+        }).catch(err => {return err}) )
+    }
+
+    // Create new URI, 
+    // TODO: support for several per list ? 
+    if(list.URI !== undefined) {
+        promises.push(new Promise((resolve, reject) => {
+            sql.query("INSERT INTO ServiceListURI SET URI = ?, ServiceList = ?",  [list.URI, id], (err, res) => {
+                if (err) {
+                    console.log("INSERT INTO ServiceListURI error: ", err);
+                    reject()
+                }
+                //console.log("created service list URI", res)
+                resolve()
+            })
+        }).catch(err => {return err}) )
+    }
+
+    // Create new languages for this service list
+    if(list.lang && list.lang.length) {
+        for(let index in list.lang) {
+            if(list.lang[index].a3 !== undefined) {
+                promises.push(new Promise((resolve, reject) => {
+                    sql.query("INSERT INTO Language SET Language = ?, ServiceList = ?",  [list.lang[index].a3, id], (err, res) => {
+                        if (err) {
+                            console.log("INSERT INTO Language error: ", err);
+                            reject()
+                        }
+                        //console.log("created service list lang", res)
+                        resolve()
+                    }) 
+                }).catch(err => {return err}) )
+            }
+        }
+    }
+
+    // Target countries
+    if(list.Countries && list.Countries.length) {
+        for(let index in list.Countries) {
+            promises.push(new Promise((resolve, reject) => {
+                sql.query("INSERT INTO TargetCountry SET Country = ?, ServiceList = ?",  [list.Countries[index].code, id], (err, res) => {
+                    if (err) {
+                        console.log("INSERT INTO TargetCountry error: ", err);
+                        reject()
+                    }
+                    //console.log("created service list target country", res)
+                    resolve()
+                })
+            }).catch(err => {return err}) )
+        }
+    }
+
+    // Create genres
+    if(list.Genres && list.Genres.length) {
+        for(let index in list.Genres) {
+            promises.push(new Promise((resolve, reject) => {
+                sql.query("INSERT INTO Genre SET Genre = ?, ServiceList = ?",  [list.Genres[index], id], (err, res) => {
+                    if (err) {
+                        console.log("INSERT INTO Genre error: ", err);
+                        reject()
+                    }
+                    //console.log("created service list Genre", res)
+                    resolve()
+                })
+            }).catch(err => {return err}) )
+        }
+    }
+
+    await Promise.all(promises).catch(err => console.log("ALL", err))
+
+    //console.timeEnd()  // 40ms vs 13ms   
+}
+
+// part of update - clear tables before creating new rows
+// 
+async function removeRelatedTables(list) {
+    // cycle all related tables... 
+    let promises = []
+    promises.push( removeAllListEntries(list, "ServiceListName").catch(err => {return err}) )
+    promises.push( removeAllListEntries(list, "ServiceListURI").catch(err => {return err}) )
+    promises.push( removeAllListEntries(list, "Genre").catch(err => {return err}) )
+    promises.push( removeAllListEntries(list, "TargetCountry").catch(err => {return err}) )
+    promises.push( removeAllListEntries(list, "Language").catch(err => {return err}) )
+
+    await Promise.all(promises).catch(err => console.log("ALL", err))
+}
+
+
+// one call to fetch everything
+//
 async function getRestOfServiceList(list) {
     
     // Fetch provider name                
@@ -202,14 +274,31 @@ async function getRestOfServiceList(list) {
     const genre = await getGenres(list).catch(err => {
         console.log("error: ", err)
     })
-    list.genre = []
+    list.Genres = []
     if(genre) {
         genre.forEach(pack => {
-            list.genre.push(pack.Genre)
+            list.Genres.push(pack.Genre)
         })
     }
 
     return list
+}
+
+
+//
+// clear tables of serviceList references
+function removeAllListEntries(listId, tableName) {
+    return new Promise((resolve, reject) => {
+        sql.query(`DELETE FROM ${tableName} where ServiceList = ${listId}`, (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                reject(err)
+            }
+            else {          
+                resolve(res)
+            }
+        })
+    })
 }
 
 

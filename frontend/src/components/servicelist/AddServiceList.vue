@@ -130,7 +130,7 @@
       </div>
 
       <label>Regulator list:</label><br>
-      <div class="btn-group btn-group-sm" role="group" aria-label="Basic radio toggle button group">
+      <div class="btn-group btn-group-sm my-2" role="group" aria-label="Basic radio toggle button group">
         <input type="radio" class="btn-check" name="btnradio" id="btnradioYes" autocomplete="off" @change="regulatorRadio" checked>
         <label class="btn btn-outline-primary" for="btnradioYes">Yes</label>
  
@@ -211,6 +211,9 @@ export default {
         ServiceListDataService.create(data)
             .then(response => {
                 console.log(response)
+                setTimeout(() => {
+                  this.$router.push({ name: "servicelists" });
+                }, 1000)
             })
             .catch(err => {
                 console.log(err);
