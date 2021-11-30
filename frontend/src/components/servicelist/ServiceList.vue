@@ -6,53 +6,23 @@
     <form>
       <div class="form-group">
         <label for="title">Name</label>
-        <input type="text" class="form-control" id="Name"
+        <input type="text" class="form-control my-2" id="Name"
           v-model="currentList.Name"
+        />
+      </div>
+
+      
+      <div class="form-group">
+        <label for="description">URI</label>
+        <input type="text" class="form-control my-2" id="URI"
+          v-model="currentList.URI"
         />
       </div>
 
       <div class="form-group">
         <label for="description">Provider</label>
-        <input type="text" class="form-control" id="Provider" disabled
+        <input type="text" class="form-control my-2" id="Provider" disabled
           v-model="currentList.Provider"
-        />
-      </div>
-
-
-      <div class="my-2">
-      <label for="languagesDataList" class="form-label">Languages:</label>
-      <input class="form-control" list="datalistOptionsLanguages" 
-          id="languagesDataList" placeholder="Type to search..."
-          v-on:change="addLang"
-          v-on:click="addLang">
-          <datalist id="datalistOptionsLanguages">
-            <option
-                v-for="(item, index) in languages_ui"
-                v-bind:key="index"
-                v-bind:value="item.a3"
-                >
-                {{item.name}}
-            </option>
-          </datalist>
-
-          <div class="btn-group">
-            <ul class="px-0 btn-group-sm">
-              <li v-for="(item, index) in SelectedLanguages" 
-                  v-bind:id="index"
-                  v-bind:key="index"
-                  v-on:click="removeLang"
-                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span v-bind:id="index" class="badge small bg-primary">x</span></li>
-            </ul>
-          </div>
-      </div>
-
-
-
-
-      <div class="form-group">
-        <label for="description">URI</label>
-        <input type="text" class="form-control" id="URI"
-          v-model="currentList.URI"
         />
       </div>
 
@@ -85,6 +55,63 @@
 
 
       <div class="my-2">
+      <label for="languagesDataList" class="form-label">Languages:</label>
+      <input class="form-control" list="datalistOptionsLanguages" 
+          id="languagesDataList" placeholder="Type to search..."
+          v-on:change="addLang"
+          v-on:click="addLang">
+          <datalist id="datalistOptionsLanguages">
+            <option
+                v-for="(item, index) in languages_ui"
+                v-bind:key="index"
+                v-bind:value="item.a3"
+                >
+                {{item.name}}
+            </option>
+          </datalist>
+
+          <div class="btn-group">
+            <ul class="px-0 btn-group-sm">
+              <li v-for="(item, index) in SelectedLanguages" 
+                  v-bind:id="index"
+                  v-bind:key="index"
+                  v-on:click="removeLang"
+                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span v-bind:id="index" class="badge small bg-primary">x</span></li>
+            </ul>
+          </div>
+      </div>
+
+
+
+      <div class="my-2">
+        <label for="countriesDataList" class="form-label">Target countries:</label>       
+        <input class="form-control" list="datalistOptionsCountries"
+            id="countriesDataList" placeholder="Type to search..."
+            v-on:change="addCountry"
+            v-on:click="addCountry">
+            <datalist id="datalistOptionsCountries">
+            <option
+                v-for="(item, index) in countries_ui"
+                v-bind:key="index"
+                v-bind:value="item.alpha3"
+                >
+                {{item.name}}
+            </option>
+          </datalist>
+
+          <div class="btn-group">
+            <ul class="px-0 btn-group-sm">
+              <li v-for="(item, index) in SelectedCountries" 
+                  v-bind:id="index"
+                  v-bind:key="index"
+                  v-on:click="removeCountry"
+                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span v-bind:id="index" class="badge small bg-primary">x</span></li>
+            </ul>
+          </div>
+      </div>
+
+
+      <div class="my-2">
         <label for="genreDataList" class="form-label">Genres:</label>
         <input class="form-control" list="datalistOptionsGenre"
             id="genreDataList" placeholder="Type to search..."
@@ -113,7 +140,7 @@
 
 
       <label>Regulator list:</label><br>
-      <div class="btn-group btn-group-sm" role="group" aria-label="Basic radio toggle button group">
+      <div class="btn-group btn-group-sm my-2" role="group" aria-label="Basic radio toggle button group">
         <input type="radio" class="btn-check" name="btnradio" id="btnradioYes" autocomplete="off" @change="regulatorRadio" :checked="currentList.regulatorList">
         <label class="btn btn-outline-primary" for="btnradioYes">Yes</label>
  
@@ -176,10 +203,17 @@ export default {
         .then(response => {
           this.currentList = response.data;
 
-          this.SelectedDeliveries.push(this.currentList.Delivery)
-          this.SelectedGenres = this.currentList.genre
+          const deliv = JSON.parse(this.currentList.Delivery)
+          
+          for(var de in deliv) {
+            this.SelectedDeliveries.push(deliv[de])
+          }
+          this.SelectedGenres = this.currentList.Genres
           for(var item in this.currentList.languages) {
             this.addLang(this.currentList.languages[item].Language)
+          }
+          for(var cn in this.currentList.targetCountries) {
+            this.addCountry(this.currentList.targetCountries[cn].country)
           }
           console.log(response.data);
         })
@@ -190,8 +224,8 @@ export default {
     updateList() {
       const data = { 
         ...this.currentList,
-        lang: this.SelectedLanguages,
         Delivery: this.SelectedDeliveries,
+        lang: this.SelectedLanguages,
         Countries: this.SelectedCountries,
         Genres: this.SelectedGenres
       }
@@ -200,20 +234,29 @@ export default {
         .then(response => {
           console.log(response.data);
           this.message = 'The list was updated successfully!';
-          //this.$router.push({ name: "servicelists" });
+
+          setTimeout(() => {
+            this.$router.push({ name: "servicelists" });
+          }, 1000)
         })
         .catch(e => {
           console.log(e);
+          this.message = 'Error updating list';
         });
     },
     deleteList() {
       ServiceListDataService.delete(this.currentList.Id)
         .then(response => {
           console.log(response.data);
-          this.$router.push({ name: "servicelists" });
+          this.message = 'The list was deleted';
+
+          setTimeout(() => {
+            this.$router.push({ name: "servicelists" });
+          }, 1000)
         })
         .catch(e => {
           console.log(e);
+          this.message = 'Error deleting list';
         });
     },
 
@@ -284,6 +327,32 @@ export default {
     },
     removeLang(item) {
       this.SelectedLanguages.splice(item.target.id, 1)
+    },
+
+    addCountry(item) {
+      //console.log(item.target.value)
+      const value = item.target ? item.target.value : item
+      let name = ""
+      const valid = this.countries_ui.findIndex( elem => {        
+        return elem.alpha3 === value
+      })
+      
+      if(valid !== -1) {
+        name = this.countries_ui[valid].name
+        const index = this.SelectedCountries.findIndex( elem => {
+          return elem.code === value
+        })
+        
+        if(index === -1) {
+          this.SelectedCountries.push({name: name, code: value})
+        }
+      }
+
+      if(item.target) item.target.value = null
+    },
+    removeCountry(item) {
+      //console.log("remove:", item.target.id)
+      this.SelectedCountries.splice(item.target.id, 1)
     },
 
     regulatorRadio(item) {

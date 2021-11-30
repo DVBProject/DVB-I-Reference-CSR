@@ -62,7 +62,7 @@
         <div class="d-flex">
           <label class="mx-1"><strong>Genre:</strong></label>
           <div class="d-flex justify-content-end">
-            <template class="mx-1" v-for="(genre, index) in currentList.genre"
+            <template class="mx-1" v-for="(genre, index) in currentList.Genres"
             :key="index">
             <template v-if="index > 0">,</template>
             <span >{{ genre }}</span>
@@ -75,7 +75,7 @@
           <label class="mx-1"><strong>URI:</strong></label> {{ currentList.URI }}
         </div>
         <div>
-          <label class="mx-1"><strong>Delivery:</strong></label> {{ currentList.Delivery }}
+          <label class="mx-1"><strong>Delivery:</strong></label> {{ JSON.parse(currentList.Delivery).join(", ") }}
         </div>
         <div>
           <label class="mx-1"><strong>Regulator List:</strong></label> {{ currentList.regulatorList != 0 ? "Yes" : "No" }}
