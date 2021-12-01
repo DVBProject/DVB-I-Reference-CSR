@@ -101,9 +101,9 @@ ServiceList.updateById = (id, List, result) => {
         [List.regulatorList, deliveries, id], // List.Provider, 
         async (err, res) => {
             if (err) {
-                console.log("error: ", err)
-                result(null, err)
-                return
+                console.log("error: ", err);
+                result(null, err);
+                return;
             }
 
             // remove existing related items
