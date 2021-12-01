@@ -3,7 +3,7 @@ const md5 = require('md5');
 const mysql = require('mysql2/promise');
 const xmlbuilder = require('xmlbuilder');
 const env = require('dotenv').config();
-
+const redis = require("redis");
 
 const csrquery = {}
 csrquery.validParameters = [
@@ -48,6 +48,79 @@ csrquery.validGenres = [
     "application"
 ];
 
+csrquery.redis = null;
+csrquery.mysql = null;
+csrquery.init = function() {
+    console.log("init csrquery");
+    if(process.env.REDIS_ENABLED === "true") {
+        let config = {};
+        if(process.env.REDIS_HOST) {
+            config.host = process.env.REDIS_HOST;
+        }
+        if(process.env.REDIS_PORT) {
+            config.port = process.env.REDIS_PORT;
+        }
+        if(process.env.REDIS_PASSWORD) {
+            config.password = process.env.REDIS_PASSWORD;
+        }
+        this.redis = redis.createClient(config);
+        console.log("redis cache initialized");
+    }
+    this.mysql = mysql.createPool({
+        connectionLimit: process.env.DB_CONNECTIONS || 10,
+        host: process.env.DB_HOST || "localhost",
+        port: process.env.DB_PORT || "",
+        user: process.env.DB_USER || "user",
+        password: process.env.DB_PASSWORD || "password",
+        database: process.env.DB_NAME || "dvb_i_csr"
+    });
+    console.log("DB connection pool initialized");
+
+}
+
+csrquery.getCSRList = async function(request) {
+        const params  = qs.parse(request.query);
+        var keys = Object.keys(params);
+        keys.sort();
+        var ordered = {};
+        for (var i = 0; i < keys.length; i++) {
+            ordered[keys[i]] = params[keys[i]];
+        }
+        //TODO Better hash function or some other way to identify the request?
+        //Could we use the unhashed json as the key? or gzip the json so
+        //we could check the parameters from the key
+        const hash = md5(JSON.stringify(ordered));
+        let cached = null;
+        if(this.redis) {
+            cached = await this.getCachedResponse(hash);
+        }
+        if(cached) {
+            return cached;
+        }
+        else {
+            const query = this.parseCSRQuery(request);
+            const xml = await this.generateXML(query);
+            if(this.redis) {
+                this.redis.set(hash,xml);
+            }
+            return xml;
+        }
+
+}
+
+csrquery.getCachedResponse = async function(hash) {
+    try {
+        return new Promise((resv, rej) => {
+            this.redis.get(hash, (err, reply) => {
+              resv(reply);
+            });
+          });
+    } catch(e) {
+        console.log(e);
+        return false;
+    }
+}
+
 csrquery.parseCSRQuery = function(request)  {
     const params  = qs.parse(request.query);
 
@@ -57,11 +130,7 @@ csrquery.parseCSRQuery = function(request)  {
     for (var i = 0; i < keys.length; i++) {
         ordered[keys[i]] = params[keys[i]];
     }
-    //TODO better hash function than md5?
-    const hash = md5(JSON.stringify(ordered));
-    //TODO check redis for request content with the hash
 
-    //Not found, validate parameters and perform SQL query.
     for (var param in params) {
         if(!this.validParameters.includes(param)) {
             throw new Error("Invalid parameter:"+param);
@@ -99,7 +168,6 @@ csrquery.parseCSRQuery = function(request)  {
     }
     
     const sqlQuery = "Select ServiceListOffering.Id,ServiceListOffering.Provider from "+tables.join(",")+(queryParameters.length == 0 ? "" : " where "+queryParameters.join(" and "))+" Group By Id;";
-    console.log(sqlQuery);
     return sqlQuery;
 };
 
@@ -172,12 +240,7 @@ csrquery.validateProviderName = function(names) {
 
 csrquery.generateXML = async function(query) {
     try {
-        const conn = await mysql.createConnection({
-            host: process.env.DB_HOST || "localhost",
-            user: process.env.DB_USER || "user",
-            password: process.env.DB_PASSWORD || "password",
-            database: process.env.DB_NAME || "dvb_i_csr"
-          });
+       
         var root = xmlbuilder.create('ServiceListEntryPoints',{version: '1.0', encoding: 'UTF-8'})
             .att("xmlns","urn:dvb:metadata:servicelistdiscovery:2021" )
             .att('xmlns:mpeg7',"urn:tva:mpeg7:2008")
@@ -185,11 +248,11 @@ csrquery.generateXML = async function(query) {
             .att('xmlns:xsi',"http://www.w3.org/2001/XMLSchema-instance")
             .att('xsi:schemaLocation',"urn:dvb:metadata:servicelistdiscovery:2021 dvbi_service_list_discovery_v1.1.xsd");
 
-        const registryEntity = await conn.execute("SELECT Organization.* FROM ServiceListEntryPoints,Organization "
+        const registryEntity = await this.mysql.execute("SELECT Organization.* FROM ServiceListEntryPoints,Organization "
         +"WHERE ServiceListEntryPoints.Id = 1 AND ServiceListEntryPoints.ServiceListRegistryEntity = Organization.Id");
         const entityData = registryEntity[0][0];
-        await this.generateOrganizationXML(entityData,true,root,conn);
-        const lists = await conn.execute(query);
+        await this.generateOrganizationXML(entityData,true,root);
+        const lists = await this.mysql.execute(query);
         var providers = {};
         for(var list of lists[0]) {
             if(!providers.hasOwnProperty(list.Provider)) {
@@ -198,17 +261,18 @@ csrquery.generateXML = async function(query) {
             providers[list.Provider].push(list.Id);   
         }
         for (var key of Object.keys(providers)) {
-            await this.generateProviderXML(key,providers[key],root,conn);
+            await this.generateProviderXML(key,providers[key],root);
         }
         return root.end();
     } catch(e) {
         console.log(e);
+        return null;
     }
 }
 
-csrquery.generateOrganizationXML = async function(organization,registryEntity,root,conn) {
+csrquery.generateOrganizationXML = async function(organization,registryEntity,root) {
     try {
-        const names =  await conn.execute("SELECT * FROM EntityName WHERE Organization = "+organization.Id);
+        const names =  await this.mysql.execute("SELECT * FROM EntityName WHERE Organization = "+organization.Id);
         var entity = null;
         if(registryEntity) {
             entity = root.ele("ServiceListRegistryEntity",{'regulatorFlag': (organization["Regulator"] == 1 ? "true" : "false")});
@@ -230,42 +294,42 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
     }
 }
 
-csrquery.generateProviderXML = async function(provider,lists,root,conn) {
+csrquery.generateProviderXML = async function(provider,lists,root) {
     try {
-        const organization = await conn.execute("SELECT Organization.* FROM Organization,ProviderOffering WHERE Organization.Id = ProviderOffering.Organization AND ProviderOffering.Id = "+provider);
+        const organization = await this.mysql.execute("SELECT Organization.* FROM Organization,ProviderOffering WHERE Organization.Id = ProviderOffering.Organization AND ProviderOffering.Id = "+provider);
         var providerOffering = root.ele("ProviderOffering");
-        await this.generateOrganizationXML(organization[0][0],false,providerOffering,conn);
+        await this.generateOrganizationXML(organization[0][0],false,providerOffering);
         for(var list of lists) {
-            await this.generateServiceListOfferingXML(list,providerOffering,conn);
+            await this.generateServiceListOfferingXML(list,providerOffering);
         }
     } catch(e) {
         console.log(e);
     }
 }
 
-csrquery.generateServiceListOfferingXML = async function(list,root,conn) {
+csrquery.generateServiceListOfferingXML = async function(list,root) {
     var serviceListOffering = root.ele("ServiceListOffering");
-    const listOffering =  await conn.execute("SELECT RegulatorList,Delivery FROM ServiceListOffering WHERE Id = "+list);
+    const listOffering =  await this.mysql.execute("SELECT RegulatorList,Delivery FROM ServiceListOffering WHERE Id = "+list);
     if(listOffering.Regulator == 1) {
         serviceListOffering.att("regulatorListFlag","true");
     }
-    const uris =  await conn.execute("SELECT URI FROM ServiceListURI WHERE ServiceList = "+list);
+    const uris =  await this.mysql.execute("SELECT URI FROM ServiceListURI WHERE ServiceList = "+list);
     for(var uri of uris[0]) {
         var uriElement = serviceListOffering.ele("ServiceListURI",{"contentType":"application/xml"});
         uriElement.ele("dvbisd:URI",{},uri.URI);
     }
-    const names =  await conn.execute("SELECT Name,Lang FROM ServiceListName WHERE ServiceList = "+list);
+    const names =  await this.mysql.execute("SELECT Name,Lang FROM ServiceListName WHERE ServiceList = "+list);
     for(var name of names[0]) {
         var nameElement = serviceListOffering.ele("ServiceListName",{},name.Name);
         if(name.Lang != null && name.Lang != "") {
             nameElement.att("xml:lang",name.Lang);
         }
     }
-    const languages =  await conn.execute("SELECT Language FROM Language WHERE ServiceList = "+list);
+    const languages =  await this.mysql.execute("SELECT Language FROM Language WHERE ServiceList = "+list);
     for(var language of languages[0]) {
         serviceListOffering.ele("Language",{},language.Language);
     }
-    const targetcountries =  await conn.execute("SELECT Country FROM TargetCountry WHERE ServiceList = "+list);
+    const targetcountries =  await this.mysql.execute("SELECT Country FROM TargetCountry WHERE ServiceList = "+list);
     for(var country of targetcountries[0]) {
         serviceListOffering.ele("TargetCountry",{},country.Country);
     }

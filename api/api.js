@@ -4,6 +4,7 @@ const redis = require("redis");
 const csrquery = require("./query");
 
 const PORT = process.env.PORT || 3001;
+csrquery.init();
 http.createServer(async function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -27,10 +28,9 @@ http.createServer(async function (req, res) {
         return;
     }
     try {
-        const query = csrquery.parseCSRQuery(request);
+        const list = await csrquery.getCSRList(request);
         res.writeHead(200);
-        const xml = await csrquery.generateXML(query);
-        res.write(xml);
+        res.write(list);
         res.end();
     }
     catch(e) {
