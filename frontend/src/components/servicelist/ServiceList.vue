@@ -203,7 +203,12 @@ export default {
         .then(response => {
           this.currentList = response.data;
 
-          const deliv = JSON.parse(this.currentList.Delivery)
+          let deliv = [] 
+          try {
+            deliv = JSON.parse(this.currentList.Delivery)
+          } catch {
+            deliv.push(this.currentList.Delivery)
+          }
           
           for(var de in deliv) {
             this.SelectedDeliveries.push(deliv[de])

@@ -101,9 +101,9 @@ ServiceList.updateById = (id, List, result) => {
         [List.regulatorList, deliveries, id], // List.Provider, 
         async (err, res) => {
             if (err) {
-                console.log("error: ", err);
-                result(null, err);
-                return;
+                console.log("error: ", err)
+                result(null, err)
+                return
             }
 
             // remove existing related items
@@ -118,7 +118,30 @@ ServiceList.updateById = (id, List, result) => {
     );
 }
 
-ServiceList.remove = (id, result) => {
+ServiceList.remove = async (id, result) => {
+    console.log('remove', id);
+
+    // toinen tapa, dellaa ensin referenssit - poista tää kun se cascade on taulumaarityksissa mukana
+    // delete rest of the tables
+    await removeRelatedTables(id)
+
+
+    sql.query("DELETE FROM ServiceListOffering WHERE Id = ?", id, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(null, err);
+            return
+        }
+    
+        if (res.affectedRows == 0) {
+            // not found List with the id
+            result({ list: "not_found" }, null);
+            return
+        }
+        
+        console.log("deleted List with id: ", id);
+        result(null, res);
+    });
 }
 
 ServiceList.removeAll = result => {
@@ -227,7 +250,9 @@ async function removeRelatedTables(list) {
     promises.push( removeAllListEntries(list, "ServiceListName").catch(err => {return err}) )
     promises.push( removeAllListEntries(list, "ServiceListURI").catch(err => {return err}) )
     promises.push( removeAllListEntries(list, "Genre").catch(err => {return err}) )
-    promises.push( removeAllListEntries(list, "TargetCountry").catch(err => {return err}) )
+    promises.push( removeAllListEntries(list, "TargetCountry").catch(err => {
+        console.log("target country failed") // debug
+        return err}) )
     promises.push( removeAllListEntries(list, "Language").catch(err => {return err}) )
 
     await Promise.all(promises).catch(err => console.log("ALL", err))
