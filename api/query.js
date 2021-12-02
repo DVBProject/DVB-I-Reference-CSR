@@ -4,6 +4,8 @@ const mysql = require('mysql2/promise');
 const xmlbuilder = require('xmlbuilder');
 const env = require('dotenv').config();
 const redis = require("redis");
+const countries = require("../common/countries");
+const languages = require("../common/languages");
 
 const csrquery = {}
 csrquery.validParameters = [
@@ -13,21 +15,6 @@ csrquery.validParameters = [
     "Language",
     "Genre",
     "ProviderName"
-];
-
-csrquery.validLanguages = [
-    "en",
-    "fi",
-    "sv"
-];
-
-csrquery.validCountries = [
-    "AUT",
-    "DEU",
-    "FIN",
-    "GBR",
-    "USA",
-    "SWE"
 ];
 
 csrquery.validDeliveries = [
@@ -171,13 +158,13 @@ csrquery.parseCSRQuery = function(request)  {
     return sqlQuery;
 };
 
-csrquery.validateLanguage = function(languages) {
-    if(!Array.isArray(languages)) {
-        languages = [languages];
+csrquery.validateLanguage = function(languageParams) {
+    if(!Array.isArray(languageParams)) {
+        languageParams = [languageParams];
     }
     var array = [];
-    for (var lang of languages) {
-        if(!this.validLanguages.includes(lang)) {
+    for (var lang of languageParams) {
+        if(!languages.hasOwnProperty(lang)) {
             throw new Error("Invalid language:"+lang);
         }
         array.push("Language.language = '" +lang+"'")
@@ -185,13 +172,13 @@ csrquery.validateLanguage = function(languages) {
     return "ServiceListOffering.Id NOT IN(SELECT ServiceList FROM Language) or ServiceListOffering.Id = Language.ServiceList and ("+array.join(" or " )+")";
 }
 
-csrquery.validateTargetCountry = function(countries) {
-    if(!Array.isArray(countries)) {
-        countries = [countries];
+csrquery.validateTargetCountry = function(countryParams) {
+    if(!Array.isArray(countryParams)) {
+        countryParams = [countryParams];
     }
     var array = [];
-    for (var country of countries) {
-        if(!this.validCountries.includes(country)) {
+    for (var country of countryParams) {
+        if(!countries.hasOwnProperty(country)) {
             throw new Error("Invalid targetcountry:"+country);
         }
         array.push("TargetCountry.Country = '" +country+"'")
