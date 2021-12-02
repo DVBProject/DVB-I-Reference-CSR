@@ -85,7 +85,7 @@
             <option
                 v-for="(item, index) in countries_ui"
                 v-bind:key="index"
-                v-bind:value="item.alpha3"
+                v-bind:value="index"
                 >
                 {{item.name}}
             </option>
@@ -158,8 +158,8 @@ import ServiceListDataService from "../../services/ServiceListDataService"
 import ProviderDataService from "../../services/ProviderDataService"
 //import Multiselect from 'vue-multiselect'
 import { deliveries, genres } from "../../../dev_constants/dev_constants"
-import languages  from "../../../../common/languages"
-import countries  from "../../../../common/countries"
+import languages from "../../../../common/languages"
+import countries from "../../../../common/countries"
 export default {
   name: "add-servicelist",
   //components: { Multiselect },
@@ -263,21 +263,10 @@ export default {
     },
 
     addCountry(item) {
-      //console.log(item.target.value)
-      let name = ""
-      const valid = this.countries_ui.findIndex( elem => {        
-        return elem.alpha3 === item.target.value
-      })
-      
-      if(valid !== -1) {
-        name = this.countries_ui[valid].name
-        const index = this.SelectedCountries.findIndex( elem => {
-          return elem.code === item.target.value
-        })
-        
-        if(index === -1) {
-          this.SelectedCountries.push({name: name, code: item.target.value})
-        }
+      const value = item.target ? item.target.value : item
+      const country = this.countries_ui[value];
+      if(country) {
+        this.SelectedCountries.push({name: country.name, code: value})
       }
 
       item.target.value = null
