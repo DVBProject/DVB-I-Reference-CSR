@@ -73,7 +73,7 @@ To enable the redis caching, enter the following line to the .env-file:
 ```
 REDIS_ENABLED=true
 ```
-To configure redis host, port and password, you can use the following env variables:
+To configure redis host, port and password, you can use the following env variables in the api/.env-file:
 ```
 REDIS_HOST=localhost
 REDIS_PORT=34542
