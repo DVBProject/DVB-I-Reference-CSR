@@ -17,12 +17,13 @@ API is the query API used by the DVB-I clients to access the CSR.
 
 SQL database is required. Database schema is found in db.sql file in the project root. Initialize the database using this sql file. 
 
-## API and backened module configuration
+## API and backend module configuration
 
 Database and port configuration uses .env files.
 Database  defaults are:
 
 * database host: "localhost",
+* database port: "3306",
 * database user: "user",
 * database password: "password",
 * database name: "dvb_i_csr"
@@ -32,12 +33,13 @@ backend default port is 3000 and API default port is 3001.
 To configure the values create an .env file in the api/ and backend/-directory containing the values:
 ```
 DB_HOST=<my db address>
+DB_PORT=<my db port>
 DB_USER=<my db user>
 DB_PASSWORD=<my db password>
 DB_NAME=<my db name>
 PORT=<my api/backend port>
 ```
-Example .env file contents defining the DB host, user and port:
+Example .env file contents defining the DB host, user and password:
 ```
 DB_HOST=localhost
 DB_USER=dbuser
@@ -58,6 +60,29 @@ Create the .env files to "api" and "backend" directory, respectively.
 
 After cloning the repository, install the required node modules with the command `yarn install` in the api-directory.
 Start the api server with the command `node api.js` in the api-directory. Default port is 3001
+
+API module uses a connection pool for sql connections. By default it uses 10 connections. The amount of connections can be configured in the .env file with the variable `DB_CONNECTIONS`. For example, to use a maximum of 50 connections, enter the following line to the .env file:
+```
+DB_CONNECTIONS=50
+```
+
+### Redis cache
+
+The API can use redis in-memory-database to cache the responses for better performance.
+To enable the redis caching, enter the following line to the .env-file:
+```
+REDIS_ENABLED=true
+```
+To configure redis host, port and password, you can use the following env variables:
+```
+REDIS_HOST=localhost
+REDIS_PORT=34542
+REDIS_PASSWORD=redispassword
+```
+Default values are:
+* Host: localhost
+* Port: 6379
+* no password
 
 ## Backend Module usage
 
