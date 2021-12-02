@@ -4,6 +4,7 @@ const mysql = require("mysql");
 const connection = mysql.createConnection({
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "user",
+  port: process.env.DB_PORT || "",
   password: process.env.DB_PASSWORD || "password",
   database: process.env.DB_NAME || "dvb_i_csr"
 });
