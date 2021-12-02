@@ -58,7 +58,7 @@
             <option
                 v-for="(item, index) in languages_ui"
                 v-bind:key="index"
-                v-bind:value="item.a3"
+                v-bind:value="index"
                 >
                 {{item.name}}
             </option>
@@ -250,12 +250,7 @@ export default {
         const valid = languages[value] !== undefined
 
         if(valid) {
-          const index = this.SelectedLanguages.findIndex( elem => {
-            return elem.a3 === value
-          })          
-          if(index === -1) {
-            this.SelectedLanguages.push({name: languages[value].en[0], a3: value})
-          }          
+          this.SelectedLanguages.push({name: languages[value].name, a3: value})
         }
         else {
           console.log("not valid", value)
@@ -330,9 +325,7 @@ export default {
     this.deliveries = deliveries
     this.SelectedDeliveries.push(deliveries[0])
     this.countries_ui = countries
-    for (var item in languages) {
-      this.languages_ui.push({name: languages[item].en[0], a3: item })
-    }
+    this.languages_ui = languages
     for (var index in genres) {      
       this.genres_ui.push(genres[index])
     }
