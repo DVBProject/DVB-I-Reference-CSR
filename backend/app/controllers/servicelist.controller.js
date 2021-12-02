@@ -66,7 +66,46 @@ exports.findOne = (req, res) => {
 };
 
 // update
+// 
+exports.update = (req, res) => {
+  // check for auth,
+  // Validate Request & user, TODO
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content can not be empty!"
+    });
+  }
+
+  ServiceList.updateById(
+    req.params.listId,
+    new ServiceList(req.body),
+    (err, data) => {
+      if (err) {         
+        res.status(500).send({
+          message: "Error updating List with id " + req.params.listId
+        })        
+      } 
+      else {
+        res.send(data);
+      }
+    }
+  );
+};
 
 // delete
-
+exports.delete = (req, res) => {
+  ServiceList.remove(req.params.listId, (err, data) => {
+    if (err) {
+      if (err.list === "not_found") {
+        res.status(404).send({
+          message: `Not found List with id ${req.params.listId}.`
+        });
+      } else {
+        res.status(500).send({
+          message: "Could not delete List with id " + req.params.listId
+        });
+      }
+    } else res.send({ message: `List was deleted successfully!` });
+  });
+};
 

@@ -62,7 +62,7 @@
         <div class="d-flex">
           <label class="mx-1"><strong>Genre:</strong></label>
           <div class="d-flex justify-content-end">
-            <template class="mx-1" v-for="(genre, index) in currentList.genre"
+            <template class="mx-1" v-for="(genre, index) in currentList.Genres"
             :key="index">
             <template v-if="index > 0">,</template>
             <span >{{ genre }}</span>
@@ -75,7 +75,7 @@
           <label class="mx-1"><strong>URI:</strong></label> {{ currentList.URI }}
         </div>
         <div>
-          <label class="mx-1"><strong>Delivery:</strong></label> {{ currentList.Delivery }}
+          <label class="mx-1"><strong>Delivery:</strong></label> {{ Delivery }}
         </div>
         <div>
           <label class="mx-1"><strong>Regulator List:</strong></label> {{ currentList.regulatorList != 0 ? "Yes" : "No" }}
@@ -103,7 +103,8 @@ export default {
       lists: [],
       currentList: null,
       currentIndex: -1,
-      title: ""
+      title: "",
+      Delivery: ""
     };
   },
   methods: {
@@ -130,6 +131,12 @@ export default {
     setActiveList(list, index) {
       this.currentList = list;
       this.currentIndex = list ? index : -1;
+      try {
+        this.Delivery = JSON.parse(list.Delivery).join(", ")
+      } catch {
+        this.Delivery = list.Delivery
+      }
+      
     },
     
     searchTitle() {
