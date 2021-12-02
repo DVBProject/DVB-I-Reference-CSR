@@ -158,8 +158,8 @@ import ServiceListDataService from "../../services/ServiceListDataService"
 import ProviderDataService from "../../services/ProviderDataService"
 //import Multiselect from 'vue-multiselect'
 import { deliveries, genres } from "../../../dev_constants/dev_constants"
-import { languages } from "../../../dev_constants/languages"
-import { countries } from "../../../dev_constants/countries"
+import languages  from "../../../../common/languages"
+import countries  from "../../../../common/countries"
 export default {
   name: "add-servicelist",
   //components: { Multiselect },
@@ -246,7 +246,7 @@ export default {
     addLang(item) {
       //console.log(item.target.value)
       const value = item.target.value
-      if(value.length === 3) {
+      if(value.length === 2) {
         const valid = languages[value] !== undefined
 
         if(valid) {

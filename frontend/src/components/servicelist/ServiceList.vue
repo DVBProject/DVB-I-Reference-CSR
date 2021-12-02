@@ -176,9 +176,9 @@
 
 <script>
 import ServiceListDataService from "../../services/ServiceListDataService"
-import { countries } from "../../../dev_constants/countries"
+import { countries } from "../../../../common/countries"
 import { deliveries, genres } from "../../../dev_constants/dev_constants"
-import { languages } from "../../../dev_constants/languages"
+import { languages } from "../../../../common/languages"
 
 export default {
   name: "servicelist-edit",
@@ -313,7 +313,7 @@ export default {
     addLang(item) {
       //console.log(item.target.value)
       const value = item.target ? item.target.value : item
-      if(value.length === 3) {
+      if(value.length === 2) {
         const valid = languages[value] !== undefined
 
         if(valid) {
