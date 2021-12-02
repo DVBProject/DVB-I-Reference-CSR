@@ -176,9 +176,9 @@
 
 <script>
 import ServiceListDataService from "../../services/ServiceListDataService"
-import { countries } from "../../../../common/countries"
+import countries from "../../../../common/countries"
 import { deliveries, genres } from "../../../dev_constants/dev_constants"
-import { languages } from "../../../../common/languages"
+import languages from "../../../../common/languages"
 
 export default {
   name: "servicelist-edit",
