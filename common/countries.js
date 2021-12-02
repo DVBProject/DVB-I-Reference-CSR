@@ -1,4 +1,5 @@
 /* eslint-disable */
+/* eslint-env es6 */
 // https://raw.githubusercontent.com/lukes/ISO-3166-Countries-with-Regional-Codes/master/slim-3/slim-3.json
 
 const countries =

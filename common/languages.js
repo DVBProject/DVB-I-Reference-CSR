@@ -1,4 +1,5 @@
 /* eslint-disable */
+/* eslint-env es6 */
 // https://github.com/haliaeetus/iso-639/blob/master/data/iso_639-2.json
 
 const languages =   
