@@ -290,9 +290,16 @@ csrquery.generateProviderXML = async function(provider,lists,root) {
 
 csrquery.generateServiceListOfferingXML = async function(list,root) {
     var serviceListOffering = root.ele("ServiceListOffering");
-    const listOffering =  await this.mysql.execute("SELECT RegulatorList,Delivery FROM ServiceListOffering WHERE Id = "+list);
-    if(listOffering.Regulator == 1) {
+    const listOffering =  await this.mysql.execute("SELECT regulatorList,Delivery FROM ServiceListOffering WHERE Id = "+list);
+    if(listOffering[0][0].regulatorList == 1) {
         serviceListOffering.att("regulatorListFlag","true");
+    }
+    if(listOffering[0][0].Delivery) {
+        var deliveries = JSON.parse(listOffering[0][0].Delivery);
+        var deliveryElement = serviceListOffering.ele("Delivery");
+        for(var delivery of deliveries) {
+            deliveryElement.ele(delivery);
+        }
     }
     const uris =  await this.mysql.execute("SELECT URI FROM ServiceListURI WHERE ServiceList = "+list);
     for(var uri of uris[0]) {
