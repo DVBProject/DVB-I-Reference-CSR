@@ -124,7 +124,7 @@
                   v-bind:id="index"
                   v-bind:key="index"
                   v-on:click="removeGenre"
-                  class="btn btn-outline-primary mx-1 my-1">{{item}} <span v-bind:id="index" class="badge small bg-primary">x</span></li>
+                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span v-bind:id="index" class="badge small bg-primary">x</span></li>
             </ul>
           </div>
       </div>
@@ -275,23 +275,15 @@ export default {
       //console.log("remove:", item.target.id)
       this.SelectedCountries.splice(item.target.id, 1)
     },
-
     addGenre(item) {
-      const valid = this.genres_ui.findIndex( elem => {
-        return elem === item.target.value
-      })
+      const value = item.target ? item.target.value : item
+      const valid = genres[value] !== undefined
 
-      if(valid !== -1) {
-        const index = this.SelectedGenres.findIndex( elem => {
-          return elem === item.target.value
-        })
-
-        if(index === -1) {
-          this.SelectedGenres.push(item.target.value)
-        }
+      if(valid) {
+          this.SelectedGenres.push({ name: genres[value], value: value});
       }
 
-      item.target.value = null
+      if(item.target) item.target.value = null
     },
     removeGenre(item) {
       this.SelectedGenres.splice(item.target.id, 1)
