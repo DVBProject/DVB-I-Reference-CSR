@@ -18,17 +18,6 @@ csrquery.validParameters = [
     "ProviderName"
 ];
 
-
-
-csrquery.validGenres = [
-    "dvb-dash",
-    "dvb-t",
-    "dvb-c",
-    "dvb-s",
-    "dvb-iptv",
-    "application"
-];
-
 csrquery.redis = null;
 csrquery.mysql = null;
 csrquery.init = function() {
@@ -200,7 +189,7 @@ csrquery.validateGenres = function(genres) {
     }
     var array = [];
     for (var genre of genres) {
-        if(!this.validGenres.includes(genre)) {
+        if(!constants.genres.hasOwnProperty(genre)) {
             throw new Error("Invalid genre:"+genre);
         }
         array.push("Genre.Genre = '"+genre+"'");
@@ -320,6 +309,10 @@ csrquery.generateServiceListOfferingXML = async function(list,root) {
     const targetcountries =  await this.mysql.execute("SELECT Country FROM TargetCountry WHERE ServiceList = "+list);
     for(var country of targetcountries[0]) {
         serviceListOffering.ele("TargetCountry",{},country.Country);
+    }
+    const genres =  await this.mysql.execute("SELECT Genre FROM Genre WHERE ServiceList = "+list);
+    for(var genre of genres[0]) {
+        serviceListOffering.ele("Genre",{href: genre.Genre});
     }
 
 }

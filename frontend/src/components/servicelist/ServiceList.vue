@@ -121,7 +121,7 @@
             <option
                 v-for="(item, index) in genres_ui"
                 v-bind:key="index"
-                v-bind:value="item"
+                v-bind:value="index"
                 >
                 {{item}}
             </option>
@@ -133,7 +133,7 @@
                   v-bind:id="index"
                   v-bind:key="index"
                   v-on:click="removeGenre"
-                  class="btn btn-outline-primary mx-1 my-1">{{item}} <span v-bind:id="index" class="badge small bg-primary">x</span></li>
+                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span v-bind:id="index" class="badge small bg-primary">x</span></li>
             </ul>
           </div>
       </div>
@@ -213,7 +213,9 @@ export default {
           for(var de in deliv) {
             this.SelectedDeliveries.push(deliv[de])
           }
-          this.SelectedGenres = this.currentList.Genres
+          for(var genre in this.currentList.Genres) {
+            this.addGenre(this.currentList.Genres[genre])
+          }
           for(var item in this.currentList.languages) {
             this.addLang(this.currentList.languages[item].Language)
           }
@@ -289,21 +291,14 @@ export default {
       }
     },
     addGenre(item) {
-      const valid = this.genres_ui.findIndex( elem => {
-        return elem === item.target.value
-      })
+      const value = item.target ? item.target.value : item
+      const valid = genres[value] !== undefined
 
-      if(valid !== -1) {
-        const index = this.SelectedGenres.findIndex( elem => {
-          return elem === item.target.value
-        })
-
-        if(index === -1) {
-          this.SelectedGenres.push(item.target.value)
-        }
+      if(valid) {
+          this.SelectedGenres.push({ name: genres[value], value: value});
       }
 
-      item.target.value = null
+      if(item.target) item.target.value = null
     },
     removeGenre(item) {
       console.log(item.target.id)
@@ -361,11 +356,7 @@ export default {
     this.deliveries_ui = deliveries
     this.countries_ui = countries
     this.languages_ui = languages
-
-    for (var index in genres) {      
-      this.genres_ui.push(genres[index])
-    }
-
+    this.genres_ui = genres
     this.getList(this.$route.params.id);
   }
 };

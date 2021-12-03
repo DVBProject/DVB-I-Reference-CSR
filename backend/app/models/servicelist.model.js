@@ -225,7 +225,7 @@ async function createRelatedTables(list, id) {
     if(list.Genres && list.Genres.length) {
         for(let index in list.Genres) {
             promises.push(new Promise((resolve, reject) => {
-                sql.query("INSERT INTO Genre SET Genre = ?, ServiceList = ?",  [list.Genres[index], id], (err, res) => {
+                sql.query("INSERT INTO Genre SET Genre = ?, ServiceList = ?",  [list.Genres[index].value, id], (err, res) => {
                     if (err) {
                         console.log("INSERT INTO Genre error: ", err);
                         reject()

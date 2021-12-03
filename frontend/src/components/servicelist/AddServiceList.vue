@@ -112,7 +112,7 @@
             <option
                 v-for="(item, index) in genres_ui"
                 v-bind:key="index"
-                v-bind:value="item"
+                v-bind:value="index"
                 >
                 {{item}}
             </option>
@@ -315,9 +315,7 @@ export default {
     this.SelectedDeliveries.push(deliveries[0])
     this.countries_ui = countries
     this.languages_ui = languages
-    for (var index in genres) {      
-      this.genres_ui.push(genres[index])
-    }
+    this.genres_ui = genres
     
     this.retrieveProviders()
   }
