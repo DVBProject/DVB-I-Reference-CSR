@@ -6,6 +6,7 @@ const env = require('dotenv').config();
 const redis = require("redis");
 const countries = require("../common/countries");
 const languages = require("../common/languages");
+const constants = require("../common/dev_constants");
 
 const csrquery = {}
 csrquery.validParameters = [
@@ -17,14 +18,7 @@ csrquery.validParameters = [
     "ProviderName"
 ];
 
-csrquery.validDeliveries = [
-    "dvb-dash",
-    "dvb-t",
-    "dvb-c",
-    "dvb-s",
-    "dvb-iptv",
-    "application"
-];
+
 
 csrquery.validGenres = [
     "dvb-dash",
@@ -192,7 +186,7 @@ csrquery.validateDelivery = function(deliveries) {
     }
     var array = [];
     for (var delivery of deliveries) {
-        if(!this.validDeliveries.includes(delivery)) {
+        if(!constants.deliveries.includes(delivery)) {
             throw new Error("Invalid delivery:"+delivery);
         }
         array.push("ServiceListOffering.Delivery IS NULL OR ServiceListOffering.Delivery = '' or ServiceListOffering.Delivery LIKE '%" +delivery+"%'"); 
