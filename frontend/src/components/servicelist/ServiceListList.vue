@@ -10,6 +10,11 @@
           >
             Search
           </button>
+           <button class="btn btn-outline-secondary" type="button"
+            @click="generateData"
+          >
+            Generate 5 Random service lists(TESTING)
+          </button>
         </div>
       </div>
     </div>
@@ -93,8 +98,13 @@
 </template>
 
 <script>
+import ProviderDataService from "../../services/ProviderDataService"
 import ServiceListDataService from "../../services/ServiceListDataService"
 import LoginService from "../../services/LoginService"
+import countries from "../../../../common/countries"
+import { deliveries, genres } from "../../../../common/dev_constants"
+import languages from "../../../../common/languages"
+
 
 export default {
   name: "servicelist-list",
@@ -149,6 +159,71 @@ export default {
         .catch(e => {
           console.log(e);
         });
+    },
+    generateData() {
+      ProviderDataService.getAll()
+        .then(response => {
+          let providerList = response.data;
+          console.log("provirders:", response.data);
+               for(let i = 0; i < 5;i++) {
+        let languageList = [];
+        let delivertyList = [];
+        let countryList = [];
+        let genreList = [];
+        let provider = providerList[Math.floor(Math.random() * providerList.length)].Id
+        let regulator =  Math.round(Math.random());
+        let rand = Math.floor(Math.random() * 5);
+        let keys = Object.keys(languages);
+        for(let j = 0;j < rand;j++) {
+          let value = keys[Math.floor(Math.random() * keys.length)]
+          languageList.push({name: languages[value].name, a3: value});
+        }
+        rand = Math.floor(Math.random() * 2);
+        for(let j = 0;j < rand;j++) {
+          let value = deliveries[Math.floor(Math.random() * deliveries.length)]
+          delivertyList.push(value);
+        }
+        rand = Math.floor(Math.random() * 5);
+        keys = Object.keys(countries);
+        for(let j = 0;j < rand;j++) {
+          let value = keys[Math.floor(Math.random() * keys.length)]
+          countryList.push({name: countries[value].name, code: value});
+        }
+        rand = Math.floor(Math.random() * 5);
+        keys = Object.keys(genres);
+        for(let j = 0;j < rand;j++) {
+          let value = keys[Math.floor(Math.random() * keys.length)]
+          genreList.push({name: genres[value].name, value: value});
+        }
+        const data = {
+            Name: "ServiceList "+(this.lists.length+i+1),
+            URI: "https://serviceprovider-"+(this.lists.length+i+1)+".net/servicelist.xml",
+            lang: languageList,
+            Provider: provider,
+            regulatorList: regulator,
+            Delivery: delivertyList,
+            Countries: countryList,
+            Genres: genreList
+        } 
+
+        ServiceListDataService.create(data)
+            .then(response => {
+                console.log(response)
+                if(i == 4) {
+                  setTimeout(() => {
+                  this.$router.go();
+                  }, 1000)
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            });
+      }
+        })
+        .catch(e => {
+          console.log(e);
+        });
+ 
     }
   },
   mounted() {
