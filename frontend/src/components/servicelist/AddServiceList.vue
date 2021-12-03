@@ -157,7 +157,7 @@
 import ServiceListDataService from "../../services/ServiceListDataService"
 import ProviderDataService from "../../services/ProviderDataService"
 //import Multiselect from 'vue-multiselect'
-import { deliveries, genres } from "../../../dev_constants/dev_constants"
+import { deliveries,genres } from "../../../../common/dev_constants"
 import languages from "../../../../common/languages"
 import countries from "../../../../common/countries"
 export default {

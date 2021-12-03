@@ -1,5 +1,5 @@
 
-export const deliveries = [
+const deliveries = [
     "DASHDelivery", 
     "DVBTDelivery",
     "DVBCDelivery",
@@ -11,7 +11,7 @@ export const deliveries = [
 ]
 
 
-export const genres = [
+const genres = [
     "Proprietary",
     "NON-FICTION/INFORMATION/News/Daily news","NON-FICTION/INFORMATION/News/Special news/edition",
     "NON-FICTION/INFORMATION/News/Special Report","NON-FICTION/INFORMATION/News/Commentary",
@@ -25,7 +25,8 @@ export const genres = [
     "Adult/Adult (general)"
 ]
 
-
-
-// tbd: some methods to filter lang / country lists
+module.exports = {
+    deliveries,
+    genres
+ }
 
