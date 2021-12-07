@@ -129,7 +129,7 @@ ServiceList.remove = async (id, result) => {
     sql.query("DELETE FROM ServiceListOffering WHERE Id = ?", id, (err, res) => {
         if (err) {
             console.log("error: ", err);
-            result(null, err);
+            result(err, null);
             return
         }
     
@@ -326,7 +326,8 @@ function removeAllListEntries(listId, tableName) {
     })
 }
 
-
+// get methods
+//
 function getTargetCountries(list) {
    return new Promise((resolve, reject) => {
         sql.query(`SELECT * FROM TargetCountry where TargetCountry.ServiceList = ${list.Id}`, (err, res) => {

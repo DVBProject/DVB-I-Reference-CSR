@@ -14,10 +14,10 @@
       <div class="input-group mb-3">
 
         
-          <div class="col-sm-12 px-0"
+        <div class="col-sm-12 px-0"
             v-for="(name, index) in Names"
-            :key="index"
-          >      
+            :key="index">      
+
           <div class="row my-0 mx-0">
 
             <div class="form-floating px-0 col-sm-6">          
@@ -32,10 +32,9 @@
               <label for="floatingInput2">Type</label>
             </div>
 
-            </div>
-
           </div>
-        
+
+        </div>        
       </div>
 
         

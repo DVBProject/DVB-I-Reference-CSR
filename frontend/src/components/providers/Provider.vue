@@ -1,62 +1,91 @@
  <template>
-  <div v-if="currentProvider" class="edit-form">
-    <h4>Provider</h4>
-    <form>
-      <div class="form-group">
-        <label for="title">Kind</label>
-        <input type="text" class="form-control" id="kind"
-          v-model="currentProvider.Kind"
-        />
-      </div>
+  <div v-if="currentProvider" class="edit-form row">
 
-      <div class="form-group">
-        <label for="description">Organization name</label>
-        <input type="text" class="form-control" id="name"
-          v-model="currentProvider.name"
-        />
-      </div>
-      <div class="form-group">
-        <label for="description">Organization type</label>
-        <input type="text" class="form-control" id="type"
-          v-model="currentProvider.type"
-        />
-      </div>
-      <div class="form-group">
-        <label for="description">Contactname</label>
-        <input type="text" class="form-control" id="contactname"
-          v-model="currentProvider.ContactName"
-        />
-      </div>
-       <div class="form-group">
-        <label for="description">Jurisdiction</label>
-        <input type="text" class="form-control" id="jurisdiction"
-          v-model="currentProvider.Jurisdiction"
-        />
-      </div>
-       <div class="form-group">
-        <label for="description">Address</label>
-        <input type="text" class="form-control" id="contactname"
-          v-model="currentProvider.Address"
-        />
-      </div>
-       <div class="form-group">
-        <label for="description">Electronic Address</label>
-        <input type="text" class="form-control" id="electronicaddress"
-          v-model="currentProvider.ElectronicAddress"
-        />
-      </div>
-       <div class="form-group">
-        <label for="description">Regulator</label>
-        <input type="checkbox" class="form-check-input" id="regulator"
-          v-model="currentProvider.Regulator"
-        />
-      </div>
+    <div class="col-md-8">
+      <h4>Edit Provider</h4>
+      <form>
+        
+        <div class="form-group">
+          <label for="name">Organization name:</label>
+          <input type="text" class="form-control my-2" id="name"
+            v-model="currentProvider.name"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="type">Organization type:</label>
+          <input type="text" class="form-control my-2" id="type"
+            v-model="currentProvider.type"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Organization Kind:</label>
+          <input type="text" class="form-control my-2" placeholder="Kind"
+              v-model="currentProvider.Kind"/>
+        </div>
+
+        
+        <div class="form-group">
+          <label for="description">Contact name:</label>
+          <input type="text" class="form-control my-2" id="contactname"
+            v-model="currentProvider.ContactName"
+          />
+        </div>
+        <div class="form-group">
+          <label for="description">Jurisdiction:</label>
+          <input type="text" class="form-control my-2" id="jurisdiction"
+            v-model="currentProvider.Jurisdiction"
+          />
+        </div>
+
+        
+        <label for="description">Address:</label>
+        <div class="form-floating mb-1">
+          <input type="text" id="floatingInputStreet" class="form-control my-2" placeholder="Street"
+              v-model="currentProvider.Address.street"/>
+          <label for="floatingInputStreet">Street</label>
+        </div>
+        <div class="form-floating mb-1">
+          <input type="text" id="floatingInputCity" class="form-control my-2" placeholder="City"
+              v-model="currentProvider.Address.city"/>
+          <label for="floatingInputCity">City</label>
+        </div>
+        <div class="form-floating mb-1">
+          <input type="text" id="floatingInputPC" class="form-control my-2" placeholder="Post code"
+              v-model="currentProvider.Address.postcode"/>
+          <label for="floatingInputPC">Post code</label>
+        </div>
+        <div class="form-floating mb-1">
+          <input type="text" id="floatingInputCountry" class="form-control my-2" placeholder="Country"
+              v-model="currentProvider.Address.country"/>
+          <label for="floatingInputCountry">Country</label>
+        </div>
 
 
-    </form>
+
+        <div class="form-group">
+          <label for="description">Electronic Address:</label>
+          <input type="text" class="form-control my-2" id="electronicaddress"
+            v-model="currentProvider.ElectronicAddress"
+          />
+        </div>
 
 
 
+        <div class="form-group">
+          <label for="description">Regulator:</label>
+          <input type="checkbox" class="form-check-input" id="regulator"
+            v-model="currentProvider.Regulator"
+          />
+        </div>
+
+
+      </form>
+
+    </div>
+
+    <div class="col-md-4">
     <button class="badge badge-danger mr-2"
       @click="deleteProvider"
     >
@@ -71,9 +100,11 @@
     <p>{{ message }}</p>
   </div>
 
+  </div>
+
   <div v-else>
     <br />
-    <p>Please click on a Provider...</p>
+    <p>Provider was not found...</p>
   </div>
 </template>
 
@@ -92,6 +123,7 @@ export default {
       ProviderDataService.get(id)
         .then(response => {
           this.currentProvider = response.data;
+          this.currentProvider.Address = JSON.parse(response.data.Address)
           console.log(response.data);
         })
         .catch(e => {
@@ -99,11 +131,18 @@ export default {
         });
     },
     updateProvider() {
-        console.log("POST",this.currentProvider.Id, this.currentProvider);
-      ProviderDataService.update(this.currentProvider.Id, this.currentProvider)
+      const addrstring = JSON.stringify(this.currentProvider.Address)
+
+      const data = {
+            ...this.currentProvider,
+            Address: addrstring,
+        }
+
+        console.log("POST",this.currentProvider.Id, data)//this.currentProvider);
+      ProviderDataService.update(this.currentProvider.Id, data) //this.currentProvider)
         .then(response => {
           console.log(response.data);
-          this.message = 'The tutorial was updated successfully!';
+          this.message = 'The Provider was updated successfully!';
         })
         .catch(e => {
           console.log(e);
@@ -113,7 +152,7 @@ export default {
       ProviderDataService.delete(this.currentProvider.Id)
         .then(response => {
           console.log(response.data);
-          this.$router.push({ name: "tutorials" });
+          this.$router.push({ name: "providers" });
         })
         .catch(e => {
           console.log(e);
@@ -129,7 +168,8 @@ export default {
 
 <style>
 .edit-form {
-  max-width: 300px;
+  text-align: left;
+  max-width: 750px;
   margin: auto;
 }
 </style>

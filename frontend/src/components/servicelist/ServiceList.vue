@@ -5,7 +5,7 @@
     <h4>Edit Service List</h4>
     <form>
       <div class="form-group">
-        <label for="title">Name</label>
+        <label for="Name">Name</label>
         <input type="text" class="form-control my-2" id="Name"
           v-model="currentList.Name"
         />
@@ -13,14 +13,14 @@
 
       
       <div class="form-group">
-        <label for="description">URI</label>
+        <label for="URI">URI</label>
         <input type="text" class="form-control my-2" id="URI"
           v-model="currentList.URI"
         />
       </div>
 
       <div class="form-group">
-        <label for="description">Provider</label>
+        <label for="Provider">Provider</label>
         <input type="text" class="form-control my-2" id="Provider" disabled
           v-model="currentList.Provider"
         />
@@ -150,22 +150,22 @@
 
 
     </form>
-
-
-
-    <button class="badge badge-danger mr-2"
-      @click="deleteList"
-    >
-      Delete
-    </button>
-
-    <button type="submit" class="badge badge-success"
-      @click="updateList"
-    >
-      Update
-    </button>
-    <p>{{ message }}</p>
+    
   </div>
+  <div class="col-md-4">
+      <button class="badge badge-danger mr-2"
+        @click="deleteList"
+      >
+        Delete
+      </button>
+
+      <button type="submit" class="badge badge-success"
+        @click="updateList"
+      >
+        Update
+      </button>
+      <p>{{ message }}</p>
+    </div>
 
   </div>
   <div v-else>
@@ -236,7 +236,7 @@ export default {
         Countries: this.SelectedCountries,
         Genres: this.SelectedGenres
       }
-        console.log("POST",this.currentList.Id, /*this.currentList*/ data);
+      //console.log("POST",this.currentList.Id, /*this.currentList*/ data);
       ServiceListDataService.update(this.currentList.Id, data)
         .then(response => {
           console.log(response.data);
