@@ -153,19 +153,21 @@
     
   </div>
   <div class="col-md-4">
-      <button class="badge badge-danger mr-2"
+    <div class="btn-group btn-group-sm my-2" role="group">
+      <button class="btn btn-outline-danger mr-2"
         @click="deleteList"
       >
         Delete
       </button>
 
-      <button type="submit" class="badge badge-success"
+      <button type="submit" class="btn btn-outline-primary"
         @click="updateList"
       >
         Update
       </button>
-      <p>{{ message }}</p>
     </div>
+    <p>{{ message }}</p>
+  </div>
 
   </div>
   <div v-else>

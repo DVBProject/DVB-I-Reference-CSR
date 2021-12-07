@@ -20,18 +20,24 @@
 
           <div class="row my-0 mx-0">
 
-            <div class="form-floating px-0 col-sm-6">          
+            <div class="form-floating px-0 col-sm-5">          
               <input type="text" id="floatingInput" class="form-control mb-1" placeholder="Name"
                   v-model="name.name"/>
               <label for="floatingInput">Name</label>
             </div>
 
-            <div class="form-floating px-0 col-sm-6">
-              <input type="text" id="floatingInput2" class="form-control mb-1" placeholder="Type"
+            <div class="form-floating px-0 col-sm-5">
+              <input type="text" id="floatingInput2" class="form-control mx-2 mb-1" placeholder="Type"
                   v-model="name.type"/>
               <label for="floatingInput2">Type</label>
             </div>
 
+          <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
+            :id="index"
+            @click="delNameField"
+          >
+            -
+          </button>
           </div>
 
         </div>        
@@ -154,6 +160,10 @@ export default {
 
     addNameField() {
       this.Names.push({name: "", type: ""})
+    },
+
+    delNameField(item) {
+      console.log(item.target.id)
     },
 
     regulatorRadio(item) {
