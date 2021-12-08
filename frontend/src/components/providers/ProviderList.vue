@@ -66,6 +66,7 @@
 
 <script>
 import ProviderDataService from "../../services/ProviderDataService"
+import LoginService from "../../services/LoginService"
 export default {
   name: "provider-list",
   data() {
@@ -87,7 +88,6 @@ export default {
             try {
               let addr = JSON.parse(pr.Address)
               pr.Address = addr.street + " " + addr.city + " " + addr.postcode + " " + addr.country
-              console.log(pr.Address)
             } catch (err) {
               //console.log(err)
             }
@@ -97,6 +97,10 @@ export default {
         })
         .catch(e => {
           console.log(e);
+          // TODO: move this handler the service module
+          // error with fetch (unauthorized)
+          // clear session data & re-login
+          LoginService.reset()
         });
     },
     refreshList() {

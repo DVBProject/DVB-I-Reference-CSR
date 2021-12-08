@@ -117,6 +117,7 @@
 
 <script>
 import ProviderDataService from "../../services/ProviderDataService"
+import LoginService from "../../services/LoginService"
 
 export default {
   name: "add-provider",
@@ -164,6 +165,7 @@ export default {
 
     delNameField(item) {
       console.log(item.target.id)
+      this.Names.splice(item.target.id, 1)
     },
 
     regulatorRadio(item) {
@@ -196,6 +198,10 @@ export default {
             })
             .catch(err => {
                 console.log(err);
+                // TODO: move this handler the service module
+                // error with fetch (unauthorized)
+                // clear session data & re-login
+                LoginService.reset()
             });
     }
 

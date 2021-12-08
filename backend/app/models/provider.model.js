@@ -65,7 +65,7 @@ Provider.findById = (ProviderId, result) => {
 
         if (res.length) {
             res[0].Regulator = res[0].Regulator != 0;
-            console.log("found Provider: ", res[0]);
+            //console.log("found Provider: ", res[0]);
 
             // fetch names
             let provider = res[0]
@@ -132,7 +132,7 @@ Provider.updateById = (id, Provider, result) => {
             result(err, null);
             return;
         }
-        console.log(res[0].Organization,id);
+        //console.log(res[0].Organization,id);
         const orgId = res[0].Organization
         sql.query(
             "UPDATE Organization SET Kind = ?, ContactName = ?, Jurisdiction = ?,Address = ?,ElectronicAddress = ?,Regulator = ? WHERE Id = ?",
