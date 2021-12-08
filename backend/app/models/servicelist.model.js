@@ -265,7 +265,7 @@ async function getRestOfServiceList(list) {
     
     // Fetch provider name                
     const names = await getNames(list).catch(err => {
-        console.log("error: ", err)
+        console.log("getNames error: ", err)
     })
     if(names) {
         list.Provider = names[0].Name
@@ -274,7 +274,7 @@ async function getRestOfServiceList(list) {
 
     // fetch TargetCountries
     const countries = await getTargetCountries(list).catch(err => {
-        console.log("error: ", err)
+        console.log("getTargetCountries error: ", err)
     })
     
     list.targetCountries = []
@@ -286,7 +286,7 @@ async function getRestOfServiceList(list) {
 
     // Fetch Languages
     const lang = await getLanguages(list).catch(err => {
-        console.log("error: ", err)
+        console.log("getLanguages error: ", err)
     })
     list.languages = []
     if(lang) {
@@ -297,7 +297,7 @@ async function getRestOfServiceList(list) {
 
     // Fetch Genres
     const genre = await getGenres(list).catch(err => {
-        console.log("error: ", err)
+        console.log("getGenres error: ", err)
     })
     list.Genres = []
     if(genre) {
@@ -313,10 +313,11 @@ async function getRestOfServiceList(list) {
 //
 // clear tables of serviceList references
 function removeAllListEntries(listId, tableName) {
+    console.log("removeAllListEntries", listId, tableName)
     return new Promise((resolve, reject) => {
         sql.query(`DELETE FROM ${tableName} where ServiceList = ${listId}`, (err, res) => {
             if (err) {
-                console.log("error: ", err);
+                console.log("remove error: ", err);
                 reject(err)
             }
             else {          

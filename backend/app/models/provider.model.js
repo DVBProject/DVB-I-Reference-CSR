@@ -14,7 +14,7 @@ const Provider = function(Provider) {
 Provider.create = (newProvider, Names, result) => {
     sql.query("INSERT INTO Organization SET ?", newProvider, (err, res) => {
         if (err) {
-            console.log("error: ", err);
+            console.log("provider create error: ", err);
             result(err, null);
             return;
         }
@@ -48,6 +48,7 @@ Provider.create = (newProvider, Names, result) => {
                 result(err, null);
                 return;
             }
+            console.log("created ProviderOffering")
             result(null, { id: res.insertId, ...newProvider });
         });            
         
@@ -58,7 +59,7 @@ Provider.create = (newProvider, Names, result) => {
 Provider.findById = (ProviderId, result) => {
     sql.query(`SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind,EntityName.name, EntityName.type,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization,EntityName WHERE ProviderOffering.Id = ${ProviderId} AND ProviderOffering.Organization = Organization.Id AND EntityName.organization = Organization.Id`, async (err, res) => {
         if (err) {
-            console.log("error: ", err);
+            console.log("findById error: ", err);
             result(err, null);
             return;
         }
@@ -70,7 +71,7 @@ Provider.findById = (ProviderId, result) => {
             // fetch names
             let provider = res[0]
             const names = await getNames(provider).catch(err => {
-                console.log("getNames error: ", err)
+                console.log("findById, getNames error: ", err)
             })
             provider.Names = []
             if(names) {
@@ -79,6 +80,7 @@ Provider.findById = (ProviderId, result) => {
                 })
             }
 
+            console.log("Provider: ", res);
             result(null, res[0]);
             return;
         }
@@ -125,7 +127,8 @@ Provider.getAll = result => {
 };
 
 Provider.updateById = (id, Provider, result) => {
-    console.log('update',Provider,id);
+    console.log('update Provider')//,Provider,id);
+
     sql.query("SELECT Organization FROM ProviderOffering WHERE Id = ?", id, (err, res) => {
         if (err) {
             console.log("error: ", err);
@@ -139,7 +142,7 @@ Provider.updateById = (id, Provider, result) => {
             [Provider.Kind, Provider.ContactName, Provider.Jurisdiction,Provider.Address,Provider.ElectronicAddress,Provider.Regulator ? 1 : 0, res[0].Organization],
             async (err, res) => {
             if (err) {
-                console.log("error: ", err);
+                console.log("Organization update error: ", err);
                 result(err, null);
                 return;
             }
@@ -163,6 +166,7 @@ Provider.updateById = (id, Provider, result) => {
 };
 
 Provider.remove = (id, result) => {
+    console.log('remove Provider')
 sql.query("DELETE FROM Providers WHERE id = ?", id, (err, res) => {
     if (err) {
         console.log("error: ", err);
@@ -182,6 +186,7 @@ sql.query("DELETE FROM Providers WHERE id = ?", id, (err, res) => {
 };
 
 Provider.removeAll = result => {
+    console.log('remove ALL Providers')
 sql.query("DELETE FROM Providers", (err, res) => {
     if (err) {
     console.log("error: ", err);
@@ -198,7 +203,7 @@ function removeNames(id) {
     return new Promise((resolve, reject) => {
         sql.query(`DELETE FROM EntityName where EntityName.Organization = ${id}`, (err, res) => {
             if (err) {
-                console.log("error: ", err);
+                console.log("EntityName delete error: ", err);
                 reject(err)
             }
             else {          
@@ -216,7 +221,7 @@ async function createNames(orgId, provider) {
             new Promise((resolve, reject) => {
                 sql.query("INSERT INTO EntityName SET ?", data, (err, res) => {
                     if (err) {
-                        console.log("error: ", err);
+                        console.log("EntityName insert error: ", err);
                         reject()
                     }
                     resolve()
@@ -230,7 +235,7 @@ function getNames(provider) {
     return new Promise((resolve, reject) => {
          sql.query(`SELECT * FROM EntityName where EntityName.Organization = ${provider.Organization}`, (err, res) => {
              if (err) {
-                 console.log("error: ", err);
+                 console.log("EntityName get error: ", err);
                  reject(err)
              }
              else {          

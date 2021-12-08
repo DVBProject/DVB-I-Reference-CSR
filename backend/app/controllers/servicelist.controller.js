@@ -1,4 +1,5 @@
 const ServiceList = require("../models/servicelist.model.js");
+const EventHistory = require("../models/eventhistory.model.js");
 
 // Create and Save a new List
 exports.create = (req, res) => {
@@ -20,6 +21,8 @@ exports.create = (req, res) => {
         Countries: req.body.Countries,
         Genres: req.body.Genres
     });
+
+    
   
     // Save List in the database
     ServiceList.create(serviceList, (err, data) => {
@@ -28,14 +31,27 @@ exports.create = (req, res) => {
           message:
             err.message || "Some error occurred while creating the List."
         });
-      else res.send(data);
+      else {
+         res.send(data);
+         const event = new EventHistory({
+            User : req.user.Id,
+            Event : "Create",
+            Time : Date.now(),
+            ServiceList : data.Id // ?? 
+          })
+          EventHistory.create(event), (err, data) => {
+            if(err) {
+              console.log("error creating history event")
+            }
+          }
+      }
     });
   };
 
 
 // Retrieve all Lists from the database.
 exports.findAll = (req, res) => {
-  console.log("user:", req.user.Name, req.user.Role)
+  //console.log(req.url, req.ip, "user:", req.user.Name, req.user.Role)
 
   ServiceList.getAll((err, data) => {
     if (err)

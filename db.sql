@@ -130,6 +130,17 @@ CREATE TABLE `User`
 PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB;
 
+CREATE TABLE `EventHistory`
+(
+ `Event`         text NOT NULL ,
+ `ServiceList`   integer NOT NULL ,
+ `Time`          text NOT NULL ,
+ `User`          integer NOT NULL ,
+ `Id`            integer NOT NULL AUTO_INCREMENT,
+
+PRIMARY KEY (`Id`)
+) ENGINE=InnoDB;
+
 INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator) VALUES ('Repository provider','Contact','Jurisdiction','Address','Electronic address',1);
 INSERT INTO EntityName(Name,Type,Organization) VALUES("Repository provider","",1);
 INSERT INTO ServiceListEntryPoints(ServiceListRegistryEntity) VALUES (1);
