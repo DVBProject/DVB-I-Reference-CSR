@@ -22,7 +22,7 @@
           :key="index"
           @click="setActiveProvider(provider, index)"
         >
-          {{ provider.Kind }}
+          {{ provider.Names[0] ? provider.Names[0].name : "No name" }}
         </li>
       </ul>
     </div>
@@ -33,10 +33,7 @@
           <label><strong>Kind:</strong></label> {{ currentProvider.Kind }}
         </div>
         <div>
-          <label><strong>Organization name:</strong></label> {{ currentProvider.Names[0].name }}
-        </div>
-        <div>
-          <label><strong>Organization type:</strong></label> {{ currentProvider.Names[0].type }}
+          <label><strong>Organization name:</strong></label> {{ currentProvider.Names[0].name }} {{ currentProvider.Names[0].type != "" ? "(Type:" +currentProvider.Names[0].type+")" : ""}}
         </div>
         <div>
           <label><strong>Contact name:</strong></label> {{ currentProvider.ContactName }}
