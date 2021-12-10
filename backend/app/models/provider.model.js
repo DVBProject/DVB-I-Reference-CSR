@@ -12,7 +12,8 @@ const Provider = function(Provider) {
 };
 
 Provider.create = (newProvider, Names, result) => {
-    sql.query("INSERT INTO Organization SET ?", newProvider, (err, res) => {
+    sql.query("INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator) VALUES (?,?,?,?,?,?)",
+     [newProvider.Kind,newProvider.ContactName,newProvider.Jurisdiction,newProvider.Address,newProvider.ElectronicAddress,newProvider.Regulator], (err, res) => {
         if (err) {
             console.log("provider create error: ", err);
             result(err, null);
@@ -42,7 +43,7 @@ Provider.create = (newProvider, Names, result) => {
         }
             
         //Assume for now only one ServiceListRegistry, use id 1
-        sql.query("INSERT INTO ProviderOffering(Organization,ServiceListRegistry) VALUES (?,?)", [ orgId/*res.insertId*/, 1 ], err => {
+        sql.query("INSERT INTO ProviderOffering(Organization,ServiceListRegistry) VALUES (?,?)", [ orgId/*res.insertId*/, 1 ], (err,res) => {
             if (err) {
                 console.log("error: ", err);
                 result(err, null);
@@ -167,7 +168,7 @@ Provider.updateById = (id, Provider, result) => {
 
 Provider.remove = (id, result) => {
     console.log('remove Provider')
-sql.query("DELETE FROM Providers WHERE id = ?", id, (err, res) => {
+sql.query("DELETE FROM ProviderOffering WHERE id = ?", id, (err, res) => {
     if (err) {
         console.log("error: ", err);
         result(err, null);
