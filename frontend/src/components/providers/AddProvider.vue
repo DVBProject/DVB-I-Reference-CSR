@@ -195,6 +195,9 @@ export default {
         ProviderDataService.create(data)
             .then(response => {
                 console.log(response)
+                setTimeout(() => {
+                   this.$router.push({ name: "providers" });
+                }, 1000)
             })
             .catch(err => {
                 console.log(err);
