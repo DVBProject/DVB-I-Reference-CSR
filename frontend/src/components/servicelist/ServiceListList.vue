@@ -93,13 +93,8 @@
 </template>
 
 <script>
-import ProviderDataService from "../../services/ProviderDataService"
 import ServiceListDataService from "../../services/ServiceListDataService"
 import LoginService from "../../services/LoginService"
-import countries from "../../../../common/countries"
-import { deliveries, genres } from "../../../../common/dev_constants"
-import languages from "../../../../common/languages"
-
 
 export default {
   name: "servicelist-list",
