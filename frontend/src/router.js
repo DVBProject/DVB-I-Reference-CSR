@@ -74,6 +74,12 @@ const routes =  [
     }
   },
   {
+    path: "/settings",
+    alias: "/settings",
+    name: "settings",
+    component: () => import("./components/settings/Settings"),
+  },
+  {
     // redirect for nonexistent routes
     path: "/:pathMatch(.*)*",
     name: "notfound",

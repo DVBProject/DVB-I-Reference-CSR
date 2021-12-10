@@ -5,17 +5,20 @@
       <div class="navbar-nav mr-auto">
 
         <li class="nav-item">
-          <router-link to="/servicelists" class="nav-link">Service List</router-link>
+          <router-link to="/servicelists" class="nav-link">Service Lists</router-link>
         </li>
         <li class="nav-item">
           <router-link to="/add-servicelist" class="nav-link">Add Service List</router-link>
         </li>
 
         <li class="nav-item">
-          <router-link to="/providers" class="nav-link">Provider</router-link>
+          <router-link to="/providers" class="nav-link">Providers</router-link>
         </li>
         <li class="nav-item">
           <router-link to="/add-provider" class="nav-link">Add Provider</router-link>
+        </li>
+        <li class="nav-item">
+          <router-link to="/settings" class="nav-link">Settings</router-link>
         </li>
 
       </div>
