@@ -1,98 +1,59 @@
-//
-// genre parser
-// 
-
-var xml2js = require("xml2js")
-var fs = require("fs")
-
-const host1 = "raw.githubusercontent.com/paulhiggs/dvb-i-tools/main/tva/ContentCS.xml"
-const file1 = "ContentCS.xml"
-
-const host2 = "raw.githubusercontent.com/paulhiggs/dvb-i-tools/main/tva/FormatCS.xml"
-const file2 = "FormatCS.xml"
-
-const host3 = "raw.githubusercontent.com/paulhiggs/dvb-i-tools/main/dvbi/DVBContentSubjectCS-2019.xml"
-const file3 = "DVBContentSubjectCS-2019.xml"
-
-const hosts = [
-    {h: host1, f: file1},
-    {h: host2, f: file2},
-    {h: host3, f: file3},
-]
-
-let finalList = []
-let parsers = []
-let final_xml = {}
+const { DOMParser } = require('@xmldom/xmldom');
+const fs = require("fs")
+const genres = [
+    "https://raw.githubusercontent.com/paulhiggs/dvb-i-tools/main/tva/ContentCS.xml",
+    "https://raw.githubusercontent.com/paulhiggs/dvb-i-tools/main/tva/FormatCS.xml",
+    "https://raw.githubusercontent.com/paulhiggs/dvb-i-tools/main/dvbi/DVBContentSubjectCS-2019.xml",
+];
 
 
 
-composeJsonFromXml()
+const getXML = (url) => {
+    return new Promise((resolve, reject) => {
+        const https = require('https');
+        https.get(url, (resp) => {
+            let data = '';
 
+            // A chunk of data has been recieved.
+            resp.on('data', (chunk) => {
+                data += chunk;
+            });
 
-async function composeJsonFromXml() {    
-    for(var i = 0; i < hosts.length; i++) {
-        let element = hosts[i]
-        if(element.f) {
-            let parser = new xml2js.Parser({
-                normalize: true,
-                parseNumbers: true,
-                explicitRoot: false,
-            })
-            parsers.push(parser)
+            // The whole response has been received. Print out the result.
+            resp.on('end', () => {
+                resolve(data);
+            });
 
-            console.log(element)
-            let data = await readFile(element.f)
+        }).on("error", (err) => {
+            reject(err);
+        });
+    });
+};
 
-            let json = await parser.parseStringPromise(data).catch(err => console.log(err))
-            
-            final_xml[i] = json
-
-            let part = parseSubList("", json, true)
-            part.forEach(e => {
-                finalList.push(e)
-            })
-
-            console.log("parser done", element.f)
-        }
-        else console.log("no data for element !!")
-    }
-
-    if(finalList) writeFile("genrelist.txt", JSON.stringify(finalList))
-    if(final_xml) writeFile("combinedxml.json", JSON.stringify(final_xml))
-}
-
-
-var cn = 0
-function parseSubList(parent, data, dash = false) {
-    let list_part = []
-    let nameTxt = ""
-    if(data.Name) {
-        nameTxt = dash ? data.Name[0]._ : data.Name
-        parent += nameTxt + "/"
-    }
-    if(data.Term) {
-        element = data.Term
-        element.forEach(el => {
-            if(el.Term && el.Term.length) { 
-                parseSubList(parent, el, dash).forEach(e => {
-                    list_part.push(e)
-                })
-            }
-            else {
-                if(el.Name) {
-                    let elNameTxt = dash ? el.Name[0]._ : el.Name
-                    list_part.push(parent + elNameTxt)
+async function readGenres() {
+    let genrelist = {};
+    for(const genre of genres) {
+        let data = await getXML(genre);
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data,"text/xml");
+        const uri = doc.documentElement.getAttribute("uri");
+        const terms = doc.documentElement.getElementsByTagName("Term");
+        for(var i = 0;i < terms.length;i++) {
+            let term = terms[i]
+            let id = term.getAttribute("termID");
+            let name = null;
+            for(var j = 0; j < term.childNodes.length; j++)
+            {
+                if(term.childNodes[j].nodeType == 1 && term.childNodes[j].tagName == "Name") {
+                    name = term.childNodes[j].childNodes[0].nodeValue;
                 }
-
-            }
-            
-            if(parent == "") cn++
-        })
+            }    
+            genrelist[uri+"."+id] = name;
+        }
     }
-    
-    return list_part
+    writeFile("genres.json", JSON.stringify(genrelist));
+    console.log(genrelist);
 }
-
 
 function writeFile(filename, data) {
     fs.writeFile(filename, data, (err) => {
@@ -101,23 +62,7 @@ function writeFile(filename, data) {
         }
         else {
             console.log("file saved: ", filename)
-        }
-    })
+             }
+    }); 
 }
-
-function readFile(filename) {
-    return new Promise(function(resolve, reject) {
-        let res = ""
-        fs.readFile(filename, (err, data) => {
-            if(err) {
-                console.log(err, filename)
-                reject()
-            }
-            else {
-                console.log("file opened: ", filename)
-                res = data.toString()
-                resolve(res)
-            }            
-        })
-    })
-}
+readGenres();
