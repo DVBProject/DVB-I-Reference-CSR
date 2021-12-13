@@ -32,19 +32,20 @@ exports.create = (req, res) => {
             err.message || "Some error occurred while creating the List."
         });
       else {
-         res.send(data);
-         /*
-         const event = new EventHistory({
-            User : req.user.Id,
-            Event : "Create",
-            Time : Date.now(),
-            ServiceList : data.Id // ?? 
-          })
-          EventHistory.create(event), (err, data) => {
-            if(err) {
-              console.log("error creating history event")
-            }
-          }*/
+        res.send(data);
+
+        const event = { 
+          ...data,
+          user: req.user,
+          eventType: "Create"
+        }
+
+        EventHistory.create( event, (err, res) => {
+          if (err) { 
+            console.log("List update, create event error:", err)
+          }
+        })
+
       }
     });
   };
@@ -105,8 +106,8 @@ exports.update = (req, res) => {
       else {
         res.send(data);
 
-        const event = { // data vai req.params.listId ??
-          ...data,
+        const event = { 
+          id: req.params.listId,
           user: req.user,
           eventType: "Update"
         }
@@ -135,7 +136,21 @@ exports.delete = (req, res) => {
           message: "Could not delete List with id " + req.params.listId
         });
       }
-    } else res.send({ message: `List was deleted successfully!` });
+    } else {
+      res.send({ message: `List was deleted successfully!` });
+
+      const event = {
+        id: req.params.listId,
+        user: req.user,
+        eventType: "Delete"
+      }
+
+      EventHistory.create( event, (err, res) => {
+        if (err) { 
+          console.log("List update, create event error:", err)
+        }
+      })
+    }
   });
 };
 
