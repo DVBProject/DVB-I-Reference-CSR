@@ -1,5 +1,5 @@
 const ServiceList = require("../models/servicelist.model.js");
-const EventHistory = require("../models/eventhistory.model.js");
+const EventHistory = require("../controllers/eventhistory.controller");
 
 // Create and Save a new List
 exports.create = (req, res) => {
@@ -33,6 +33,7 @@ exports.create = (req, res) => {
         });
       else {
          res.send(data);
+         /*
          const event = new EventHistory({
             User : req.user.Id,
             Event : "Create",
@@ -43,7 +44,7 @@ exports.create = (req, res) => {
             if(err) {
               console.log("error creating history event")
             }
-          }
+          }*/
       }
     });
   };
@@ -103,6 +104,19 @@ exports.update = (req, res) => {
       } 
       else {
         res.send(data);
+
+        const event = { // data vai req.params.listId ??
+          ...data,
+          user: req.user,
+          eventType: "Update"
+        }
+
+        EventHistory.create( event, (err, res) => {
+          if (err) { 
+            console.log("List update, create event error:", err)
+          }
+        })
+
       }
     }
   );

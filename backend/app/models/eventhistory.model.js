@@ -1,5 +1,6 @@
 const sql = require("./db.js");
 
+
 // constructor
 const EventHistory = function(eventHistory) {
     this.User = eventHistory.User
@@ -11,6 +12,7 @@ const EventHistory = function(eventHistory) {
 
 EventHistory.create = (newEvent, result) => {
     console.log("history create", newEvent)
+
     sql.query("INSERT INTO EventHistory SET ?", newEvent, (err, res) => {
         if (err) {
             console.log("EventHistory create error: ", err);
@@ -18,7 +20,7 @@ EventHistory.create = (newEvent, result) => {
             return;
         }
 
-        result(null, null)
+        result(null, res) // res tai vaan true ??
     })
 }
 
