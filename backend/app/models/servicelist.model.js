@@ -313,7 +313,7 @@ async function getRestOfServiceList(list) {
 //
 // clear tables of serviceList references
 function removeAllListEntries(listId, tableName) {
-    console.log("removeAllListEntries", listId, tableName)
+    //console.log("removeAllListEntries", listId, tableName)
     return new Promise((resolve, reject) => {
         sql.query(`DELETE FROM ${tableName} where ServiceList = ${listId}`, (err, res) => {
             if (err) {

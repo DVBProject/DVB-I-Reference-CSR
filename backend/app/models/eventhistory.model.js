@@ -11,7 +11,7 @@ const EventHistory = function(eventHistory) {
 
 
 EventHistory.create = (newEvent, result) => {
-    console.log("history create", newEvent)
+    console.log("new", newEvent)
 
     sql.query("INSERT INTO EventHistory SET ?", newEvent, (err, res) => {
         if (err) {
@@ -20,9 +20,13 @@ EventHistory.create = (newEvent, result) => {
             return;
         }
 
-        result(null, res) // res tai vaan true ??
+        result(null, res)
     })
 }
 
 
 module.exports = EventHistory;
+
+// findById
+
+// findAll ??
