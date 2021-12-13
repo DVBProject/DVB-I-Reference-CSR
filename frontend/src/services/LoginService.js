@@ -36,7 +36,8 @@ class LoginService {
     sessionStorage.clear()
     // reload previous view & trigger re-login
     //window.history.go(0)
-    this.$router.go(0)
+    console.log("login debug:", this.$router)
+    this.$router.go()
   }
 
   // ui-routing middleware
