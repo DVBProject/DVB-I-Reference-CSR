@@ -152,3 +152,5 @@ INSERT INTO ProviderOffering(Organization,ServiceListRegistry) VALUES(2,1);
 INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator) VALUES ('Servicelist provider2','Contact','Jurisdiction','Address','Email',1);
 INSERT INTO EntityName(Name,Type,Organization) VALUES("Servicelist provider 2","",3);
 INSERT INTO ProviderOffering(Organization,ServiceListRegistry) VALUES(3,1);
+
+INSERT INTO User VALUES ('admin','$2a$08$B5kXMji7bHC8yOO1xIqeO.Vy3oPc.rkQUTG4bNG1hZWNBmcz9eaZe','admin',0,1);
