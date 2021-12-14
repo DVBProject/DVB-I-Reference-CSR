@@ -24,7 +24,7 @@ http.createServer(async function (req, res) {
     if(!request.pathname || !request.pathname.endsWith("/query")) {
         res.writeHead(400);
 		res.end();
-        console.log("wrong pathname:"+req.pathname);
+        console.log("ERROR: Wrong pathname:"+req.pathname);
         return;
     }
     try {
@@ -32,11 +32,12 @@ http.createServer(async function (req, res) {
         res.writeHead(200);
         res.write(list);
         res.end();
+        console.log('"'+req.url+'"','"'+req.headers['user-agent']+'"');
     }
     catch(e) {
         res.writeHead(400);
 		res.end();
-        console.log("illegal request",e.message);
+        console.log("ERROR: Illegal request",e.message);
         return;
     }
    
