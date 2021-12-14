@@ -72,6 +72,7 @@ csrquery.getCSRList = async function(request) {
             const xml = await this.generateXML(query);
             if(this.redis) {
                 this.redis.set(hash,xml);
+                this.redis.expire(hash,process.env.REDIS_EXPIRES || 3600); //Default expiry, 5 minutes
             }
             return xml;
         }

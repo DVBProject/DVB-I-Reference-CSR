@@ -79,10 +79,18 @@ REDIS_HOST=localhost
 REDIS_PORT=34542
 REDIS_PASSWORD=redispassword
 ```
+
+Cached responses expire after 5 minutes. Expiry time can be configured with the following variable:
+```
+REDIS_EXPIRES=120
+```
+Expiry value is in seconds.
+
 Default values are:
 * Host: localhost
 * Port: 6379
 * no password
+* cached response expires after 5 minutes
 
 ## Backend Module usage
 
