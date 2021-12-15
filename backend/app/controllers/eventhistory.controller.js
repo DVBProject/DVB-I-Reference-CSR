@@ -44,9 +44,6 @@ exports.findOne = (req, res) => {
     EventHistory.findById(req.params.listId, (err, data) => {
       if (err) {
         if (err.Name === "not_found") {
-          /*res.status(404).send({
-            message: `Not found List with id ${req.params.listId}.`
-          });*/
           res.send([]);
         } else {
           res.status(500).send({
