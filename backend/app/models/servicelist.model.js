@@ -92,7 +92,14 @@ ServiceList.updateById = (id, List, result) => {
 
     console.log('update', List, id);
 
+    // verify needed data is not missing
+    List.Name = List.Name || "Not defined"
+    if( !List.lang || List.lang.length < 1) List.lang = [{a3: "Not defined"}]
+    List.URI = List.URI || "Not defined"
+    if(!List.Delivery || List.Delivery.length < 1) List.Delivery = ["DASHDelivery"]
+
     const deliveries = JSON.stringify(List.Delivery)
+
 
     // TODO: if provider can be changed, fetch the correct provider with the provider name...
 
@@ -121,7 +128,6 @@ ServiceList.updateById = (id, List, result) => {
 ServiceList.remove = async (id, result) => {
     console.log('remove', id);
 
-    // toinen tapa, dellaa ensin referenssit - poista tää kun se cascade on taulumaarityksissa mukana
     // delete rest of the tables
     await removeRelatedTables(id)
 
@@ -153,13 +159,16 @@ ServiceList.removeAll = result => {
 // promises for getting different parts of servicelist item
 //
 
-async function createRelatedTables(list, id) {        
+async function createRelatedTables(list, id) {
+    console.log("create related", id)
+
     let promises = []
     //console.time()
 
     // Create new List Name
     // TODO: update when we have more lang per name; now only saves with the first item on the languages list 
-    if(list.Name) {
+    if(list.Name && list.lang) {
+        //console.log("create name")
         promises.push(new Promise((resolve, reject) => {
             sql.query("INSERT INTO ServiceListName SET ServiceList = ?, Name = ?, lang = ?",  [id, list.Name, list.lang[0].a3], (err, res) => {
                 if (err) {
@@ -169,26 +178,36 @@ async function createRelatedTables(list, id) {
                 //console.log("created service list NAME", res)
                 resolve()
             })
-        }).catch(err => {return err}) )
+        }).catch(err => {
+            console.log("name", err)
+            //return err
+        }) )
     }
 
     // Create new URI, 
     // TODO: support for several per list ? 
     if(list.URI !== undefined) {
+        //console.log("create uri")
         promises.push(new Promise((resolve, reject) => {
             sql.query("INSERT INTO ServiceListURI SET URI = ?, ServiceList = ?",  [list.URI, id], (err, res) => {
                 if (err) {
-                    console.log("INSERT INTO ServiceListURI error: ", err);
+                    console.log("INSERT INTO ServiceListURI error: ", err)
                     reject()
                 }
                 //console.log("created service list URI", res)
                 resolve()
             })
-        }).catch(err => {return err}) )
+        }).catch(err => {
+            console.log("URI", err)
+            //return err
+            }) 
+        )
+            
     }
 
     // Create new languages for this service list
     if(list.lang && list.lang.length) {
+        //console.log("create lang")
         for(let index in list.lang) {
             if(list.lang[index].a3 !== undefined) {
                 promises.push(new Promise((resolve, reject) => {
@@ -200,13 +219,17 @@ async function createRelatedTables(list, id) {
                         //console.log("created service list lang", res)
                         resolve()
                     }) 
-                }).catch(err => {return err}) )
+                }).catch(err => {
+                    console.log("lang", err)
+                    //return err
+                }) )
             }
         }
     }
 
     // Target countries
     if(list.Countries && list.Countries.length) {
+        //console.log("create countries")
         for(let index in list.Countries) {
             promises.push(new Promise((resolve, reject) => {
                 sql.query("INSERT INTO TargetCountry SET Country = ?, ServiceList = ?",  [list.Countries[index].code, id], (err, res) => {
@@ -217,12 +240,16 @@ async function createRelatedTables(list, id) {
                     //console.log("created service list target country", res)
                     resolve()
                 })
-            }).catch(err => {return err}) )
+            }).catch(err => {
+                console.log("country", err)
+                //return err
+            }) )
         }
     }
 
     // Create genres
     if(list.Genres && list.Genres.length) {
+        //console.log("create genres")
         for(let index in list.Genres) {
             promises.push(new Promise((resolve, reject) => {
                 sql.query("INSERT INTO Genre SET Genre = ?, ServiceList = ?",  [list.Genres[index].value, id], (err, res) => {
@@ -233,7 +260,10 @@ async function createRelatedTables(list, id) {
                     //console.log("created service list Genre", res)
                     resolve()
                 })
-            }).catch(err => {return err}) )
+            }).catch(err => {
+                console.log("genres", err)
+                //return err
+            }) )
         }
     }
 
@@ -245,15 +275,17 @@ async function createRelatedTables(list, id) {
 // part of update - clear tables before creating new rows
 // 
 async function removeRelatedTables(list) {
+    console.log("remove related", list)
     // cycle all related tables... 
     let promises = []
-    promises.push( removeAllListEntries(list, "ServiceListName").catch(err => {return err}) )
-    promises.push( removeAllListEntries(list, "ServiceListURI").catch(err => {return err}) )
-    promises.push( removeAllListEntries(list, "Genre").catch(err => {return err}) )
+    promises.push( removeAllListEntries(list, "ServiceListName").catch(err => {console.log("ServiceListName failed") }) )
+    promises.push( removeAllListEntries(list, "ServiceListURI").catch(err => {console.log("ServiceListURI failed") }) )
+    promises.push( removeAllListEntries(list, "Genre").catch(err => {console.log("Genre failed") }) )
     promises.push( removeAllListEntries(list, "TargetCountry").catch(err => {
         console.log("target country failed") // debug
-        return err}) )
-    promises.push( removeAllListEntries(list, "Language").catch(err => {return err}) )
+        //return err
+    }) )
+    promises.push( removeAllListEntries(list, "Language").catch(err => {console.log("Language failed") }) )
 
     await Promise.all(promises).catch(err => console.log("ALL", err))
 }
