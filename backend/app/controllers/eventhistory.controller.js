@@ -17,7 +17,8 @@ exports.create = (data, result) => {
         Event : data.eventType || "Create",
         Time : Date.now(),
         ServiceList : data.id || 0,
-        Name: data.Name || "" 
+        Name: data.Name || "",
+        ContentJson: data.ContentJson || "" 
       })
 
     EventHistory.create(event, (err, data) => {

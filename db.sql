@@ -138,6 +138,7 @@ CREATE TABLE `EventHistory`
  `Time`          text NOT NULL ,
  `User`          integer NOT NULL ,
  `UserName`      text NOT NULL ,
+ `ContentJson`   text NOT NULL ,
  `Id`            integer NOT NULL AUTO_INCREMENT,
 
 PRIMARY KEY (`Id`)

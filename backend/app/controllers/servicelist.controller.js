@@ -36,7 +36,8 @@ exports.create = (req, res) => {
         const event = { 
           ...data,
           user: req.user,
-          eventType: "Create"
+          eventType: "Create",
+          //ContentJson: ""
         }
 
         EventHistory.create( event, (err, res) => {
@@ -110,6 +111,7 @@ exports.update = (req, res) => {
           user: req.user,
           eventType: "Update",
           Name: req.body.Name, //data.Names[0].Name // TODO vaihda kun listoille talletetaan useampi nimi
+          //ContentJson: ""
         }
 
         EventHistory.create( event, (err, res) => {
