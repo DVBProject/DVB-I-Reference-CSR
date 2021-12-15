@@ -41,6 +41,7 @@ app.use(require("./middleware/authentication"))
 // service routes
 require("./app/routes/provider.routes")(app);
 require("./app/routes/servicelist.routes")(app);
+require("./app/routes/eventhistory.routes")(app);
 
 // set port, listen for requests
 app.listen(PORT, () => {

@@ -264,13 +264,16 @@ async function removeRelatedTables(list) {
 async function getRestOfServiceList(list) {
     
     // Fetch provider name                
-    const names = await getNames(list).catch(err => {
-        console.log("getNames error: ", err)
+    const pnames = await getProviderNames(list).catch(err => {
+        console.log("getProviderNames error: ", err)
     })
-    if(names) {
-        list.Provider = names[0].Name
-        list.Names = names // remove ids before returning?
+    if(pnames) {
+        list.Provider = pnames[0].Name
+        list.Names = pnames // remove ids before returning?
     }
+
+    // TODO fetch list names
+    //list.Names = names
 
     // fetch TargetCountries
     const countries = await getTargetCountries(list).catch(err => {
@@ -371,7 +374,7 @@ function getLanguages(list) {
     })
  }
 
- function getNames(list) {
+ function getProviderNames(list) {
     return new Promise((resolve, reject) => {
         // get organization for provider
          sql.query(`SELECT * FROM ProviderOffering where ProviderOffering.Id = ${list.Provider}`, (err, res) => {

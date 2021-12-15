@@ -134,8 +134,10 @@ CREATE TABLE `EventHistory`
 (
  `Event`         text NOT NULL ,
  `ServiceList`   integer NOT NULL ,
+ `Name`          text NOT NULL ,
  `Time`          text NOT NULL ,
  `User`          integer NOT NULL ,
+ `UserName`      text NOT NULL ,
  `Id`            integer NOT NULL AUTO_INCREMENT,
 
 PRIMARY KEY (`Id`)

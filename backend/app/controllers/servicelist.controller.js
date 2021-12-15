@@ -22,7 +22,6 @@ exports.create = (req, res) => {
         Genres: req.body.Genres
     });
 
-    
   
     // Save List in the database
     ServiceList.create(serviceList, (err, data) => {
@@ -109,7 +108,8 @@ exports.update = (req, res) => {
         const event = { 
           id: req.params.listId,
           user: req.user,
-          eventType: "Update"
+          eventType: "Update",
+          Name: req.body.Name, //data.Names[0].Name // TODO vaihda kun listoille talletetaan useampi nimi
         }
 
         EventHistory.create( event, (err, res) => {
@@ -142,7 +142,7 @@ exports.delete = (req, res) => {
       const event = {
         id: req.params.listId,
         user: req.user,
-        eventType: "Delete"
+        eventType: "Delete",
       }
 
       EventHistory.create( event, (err, res) => {

@@ -17,7 +17,49 @@
           </button>
         </div>
       </div>
+
+      
+
     </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <h4>Lists</h4>
+      <div class="row h-50 overflow-scroll">         
+          <ul class="list-group">
+            <li class="list-group-item"
+              :class="{ active: index == currentIndex }"
+              v-for="(list, index) in lists"
+              :key="index"
+              @click="setActiveList(list, index)"
+            >
+              {{ list.Name }}
+            </li>
+          </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div v-if="currentList">
+        <h4>{{currentList.Name}}</h4>
+        
+        <ul class="list-group">
+          <li class="list-group-item"
+            v-for="(list, index) in listHistory"
+            :key="index"
+          >
+           {{list.Event}} / {{list.UserName}}: {{new Date(+list.Time).toLocaleString() }}
+          </li>
+        </ul>
+
+      </div>
+      <div v-else>
+        <br />
+        <p>Please click on a Service List...</p>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -27,6 +69,7 @@ import ServiceListDataService from "../../services/ServiceListDataService"
 import countries from "../../../../common/countries"
 import { deliveries, genres } from "../../../../common/dev_constants"
 import languages from "../../../../common/languages"
+import LoginService from "../../services/LoginService"
 
 export default {
   name: "settings",
@@ -34,9 +77,47 @@ export default {
       return {
           providers: 2,
           servicelists: 5,
+          lists: [],
+          currentList: null,
+          currentIndex: -1,
+          listHistory: [],
       };
   } ,
   methods: {
+    fetchLists() {
+      ServiceListDataService.getAll()
+        .then(response => {
+          if(response.data) {
+            this.lists = response.data;
+          }
+        })
+        .catch(e => {
+          console.log("lists", e);
+
+          // TODO: move this handler the service module
+          LoginService.reset()
+        });
+    },
+    fetchHistory() {
+      if(this.currentList) {
+        ServiceListDataService.getListHistory(this.currentList.Id)
+          .then(response => {
+            if(response.data) {
+              this.listHistory = response.data;
+            }
+          })
+          .catch(e => {
+            console.log("history", e);
+          });
+      }
+    },
+    setActiveList(list, index) {
+      this.currentList = list;
+      this.currentIndex = list ? index : -1;
+      if(this.currentList) this.fetchHistory()
+    },
+
+
     generateData() {
       console.log("genrateData");
       ProviderDataService.getAll()
@@ -120,7 +201,11 @@ export default {
             }
       
         });
-    }
+    },
+
+  },
+  mounted() {
+    this.fetchLists()
   }
 }
 </script>

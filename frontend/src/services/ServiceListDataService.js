@@ -31,6 +31,10 @@ class ServiceListDataService {
   findByTitle(title) {
     return http.get(`/servicelist?title=${title}`, configdata);
   }
+
+  getListHistory(id) {
+    return http.get(`/eventhistory/${id}`, configdata);
+  }
 }
 
 export default new ServiceListDataService();

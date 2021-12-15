@@ -13,9 +13,11 @@ exports.create = (data, result) => {
 
     const event = new EventHistory({
         User : data.user.Id,
+        UserName: data.user.Name,
         Event : data.eventType || "Create",
         Time : Date.now(),
-        ServiceList : data.id || 0 
+        ServiceList : data.id || 0,
+        Name: data.Name || "" 
       })
 
     EventHistory.create(event, (err, data) => {
@@ -37,7 +39,21 @@ exports.create = (data, result) => {
   }
 
 
+// Find event of a single List with a listId
+exports.findOne = (req, res) => {
+    EventHistory.findById(req.params.listId, (err, data) => {
+      if (err) {
+        if (err.Name === "not_found") {
+          /*res.status(404).send({
+            message: `Not found List with id ${req.params.listId}.`
+          });*/
+          res.send([]);
+        } else {
+          res.status(500).send({
+            message: "Error retrieving List with id " + req.params.listId
+          });
+        }
+      } else res.send(data);
+    });
+  };
 
-// findById
-
-// getAll ??
