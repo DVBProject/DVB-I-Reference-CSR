@@ -110,6 +110,7 @@
             Add Provider
             </button>
         </div>
+        <p>{{ message }}</p>
       </div>
     </div>
   </div>
@@ -117,7 +118,6 @@
 
 <script>
 import ProviderDataService from "../../services/ProviderDataService"
-import LoginService from "../../services/LoginService"
 
 export default {
   name: "add-provider",
@@ -142,7 +142,8 @@ export default {
       },
 
       ElectronicAddress: "",
-      Regulator: 1,      
+      Regulator: 1,
+      message: "",
     };
   },
   methods: {
@@ -200,11 +201,8 @@ export default {
                 }, 1000)
             })
             .catch(err => {
-                console.log(err);
-                // TODO: move this handler the service module
-                // error with fetch (unauthorized)
-                // clear session data & re-login
-                LoginService.reset()
+              console.log(err.response.data);
+                this.message = 'Error:'+err.response.data.message;
             });
     }
 

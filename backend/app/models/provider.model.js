@@ -12,6 +12,10 @@ const Provider = function(Provider) {
 };
 
 Provider.create = (newProvider, Names, result) => {
+    if(!Names || Names.length == 0) {
+        result({message: "Provider name required!"}, null);
+        return;
+    }
     sql.query("INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator) VALUES (?,?,?,?,?,?)",
      [newProvider.Kind,newProvider.ContactName,newProvider.Jurisdiction,newProvider.Address,newProvider.ElectronicAddress,newProvider.Regulator], (err, res) => {
         if (err) {
@@ -58,7 +62,7 @@ Provider.create = (newProvider, Names, result) => {
 };
 
 Provider.findById = (ProviderId, result) => {
-    sql.query(`SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind,EntityName.name, EntityName.type,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization,EntityName WHERE ProviderOffering.Id = ${ProviderId} AND ProviderOffering.Organization = Organization.Id AND EntityName.organization = Organization.Id`, async (err, res) => {
+    sql.query(`SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization,EntityName WHERE ProviderOffering.Id = ${ProviderId} AND ProviderOffering.Organization = Organization.Id `, async (err, res) => {
         if (err) {
             console.log("findById error: ", err);
             result(err, null);
