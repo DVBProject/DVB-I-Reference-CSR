@@ -92,10 +92,10 @@
 
       <label>Regulator:</label><br>
       <div class="btn-group btn-group-sm" role="group" aria-label="Basic radio toggle button group">
-        <input type="radio" class="btn-check" name="btnradio" id="btnradioYes" autocomplete="off" @change="regulatorRadio" checked>
+        <input type="radio" class="btn-check" name="btnradio" id="btnradioYes" autocomplete="off" @change="regulatorRadio" >
         <label class="btn btn-outline-primary" for="btnradioYes">Yes</label>
  
-        <input type="radio" class="btn-check" name="btnradio" id="btnradioNo" autocomplete="off" @change="regulatorRadio">
+        <input type="radio" class="btn-check" name="btnradio" id="btnradioNo" autocomplete="off" @change="regulatorRadio" checked>
         <label class="btn btn-outline-primary" for="btnradioNo">No</label>
       </div>
 
@@ -142,7 +142,7 @@ export default {
       },
 
       ElectronicAddress: "",
-      Regulator: 1,
+      Regulator: 0,
       message: "",
     };
   },
