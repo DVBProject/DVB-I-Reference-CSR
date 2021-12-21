@@ -156,3 +156,52 @@ exports.delete = (req, res) => {
   });
 };
 
+// delete all per provider
+exports.deleteProviderLists = async (req, providerId) => {
+
+  console.log("Delete lists for provider", providerId)
+  // get provider lists
+  const data = await ServiceList.getAllProviderServiceListOfferings(providerId).catch( err => {
+    console.log("getAllProviderServiceListOfferings", err)
+  })
+
+  //console.log(data)
+  // delete
+  if(data) {
+    let promises = []
+
+    for (var i = 0; i < data.length; i++) {
+      console.log(i, data[i].Id)
+      promises.push(new Promise((resolve, reject) => {
+
+        let listId = data[i].Id
+        ServiceList.remove(listId, (err, result) => {
+          if (err) {
+            reject(err)
+          } 
+          else {
+            resolve()
+
+            const event = {
+              id: listId,
+              user: req.user,
+              eventType: "Delete",
+            }
+
+            EventHistory.create( event, (err, res) => {
+              if (err) { 
+                console.log("delete provider lists, create event error:", err)
+              }
+            })
+          }
+        })
+
+      }).catch(err => {
+        console.log("delete provider lists error:", err)
+      }))
+    }
+
+    await Promise.all(promises).catch(err => console.log("ALL", err))
+  }  
+}
+

@@ -31,7 +31,7 @@
 
   <div v-if="currentProvider" class="edit-form row">
 
-    <div class="col-md-8">
+    <div class="col-sm-8">
       <h4>Edit Provider</h4>
       <form>
         
@@ -149,7 +149,7 @@
 
     </div>
 
-    <div class="col-md-4">
+    <div class="col-sm-4">
       <div class="btn-group btn-group-sm my-2" role="group">
         <button class="btn btn-outline-danger"
           @click="confirmDelete = !confirmDelete"
@@ -229,6 +229,7 @@ export default {
         })
         .catch(e => {
           console.log(e);
+          this.message = "Could not update Provider."
         });
     },
 
@@ -237,6 +238,7 @@ export default {
     },
 
     deleteProvider() {
+      this.confirmDelete = false
       ProviderDataService.delete(this.currentProvider.Id)
         .then(response => {
           console.log(response.data);
@@ -247,6 +249,7 @@ export default {
         })
         .catch(e => {
           console.log(e);
+          this.message = "Could not delete Provider."
         });
     },
 

@@ -171,7 +171,7 @@ Provider.updateById = (id, Provider, result) => {
 };
 
 Provider.remove = (id, result) => {
-    console.log('remove Provider')
+    console.log('remove Provider', id)
 sql.query("DELETE FROM ProviderOffering WHERE id = ?", id, (err, res) => {
     if (err) {
         console.log("error: ", err);

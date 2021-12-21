@@ -87,6 +87,22 @@ ServiceList.getAll = async result => {
     });
 };
 
+// when deleting all providers, must delete all related lists too (unless cascading is set up)
+//
+ServiceList.getAllProviderServiceListOfferings = async (providerId, result) => {
+    return new Promise((resolve, reject) => {
+    sql.query("SELECT * FROM ServiceListOffering where Provider = ?", providerId, async (err, res) => {
+            if (err) {
+                console.log("error: ", err)
+                reject(err)
+                return
+            }
+
+            resolve(res)
+        })
+    })
+}
+
 
 ServiceList.updateById = (id, List, result) => {
 
@@ -126,7 +142,7 @@ ServiceList.updateById = (id, List, result) => {
 }
 
 ServiceList.remove = async (id, result) => {
-    console.log('remove', id);
+    console.log('remove List', id);
 
     // delete rest of the tables
     await removeRelatedTables(id)
@@ -150,6 +166,9 @@ ServiceList.remove = async (id, result) => {
     });
 }
 
+
+//
+//
 ServiceList.removeAll = result => {
 }
 
@@ -179,7 +198,7 @@ async function createRelatedTables(list, id) {
                 resolve()
             })
         }).catch(err => {
-            console.log("name", err)
+            console.log("createRelatedTables name", err)
             //return err
         }) )
     }
@@ -198,7 +217,7 @@ async function createRelatedTables(list, id) {
                 resolve()
             })
         }).catch(err => {
-            console.log("URI", err)
+            console.log("createRelatedTables URI", err)
             //return err
             }) 
         )
@@ -220,7 +239,7 @@ async function createRelatedTables(list, id) {
                         resolve()
                     }) 
                 }).catch(err => {
-                    console.log("lang", err)
+                    console.log("createRelatedTables lang", err)
                     //return err
                 }) )
             }
@@ -241,7 +260,7 @@ async function createRelatedTables(list, id) {
                     resolve()
                 })
             }).catch(err => {
-                console.log("country", err)
+                console.log("createRelatedTables country", err)
                 //return err
             }) )
         }
@@ -261,13 +280,13 @@ async function createRelatedTables(list, id) {
                     resolve()
                 })
             }).catch(err => {
-                console.log("genres", err)
+                console.log("createRelatedTables genres", err)
                 //return err
             }) )
         }
     }
 
-    await Promise.all(promises).catch(err => console.log("ALL", err))
+    await Promise.all(promises).catch(err => console.log("createRelatedTables ALL", err))
 
     //console.timeEnd()  // 40ms vs 13ms   
 }

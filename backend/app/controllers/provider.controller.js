@@ -1,4 +1,5 @@
 const Provider = require("../models/provider.model.js");
+const ServiceList = require("./servicelist.controller")
 
 // Create and Save a new Customer
 exports.create = (req, res) => {
@@ -91,20 +92,24 @@ exports.update = (req, res) => {
   );
 };
 
-// Delete a Customer with the specified customerId in the request
-exports.delete = (req, res) => {
+// Delete a Provider with the specified customerId in the request
+exports.delete = async (req, res) => {
+
+  //console.log(req.params, req.body)
+  await ServiceList.deleteProviderLists(req, req.params.customerId)
+
   Provider.remove(req.params.customerId, (err, data) => {
     if (err) {
       if (err.kind === "not_found") {
         res.status(404).send({
-          message: `Not found Customer with id ${req.params.customerId}.`
+          message: `Not found Provider with id ${req.params.customerId}.`
         });
       } else {
         res.status(500).send({
-          message: "Could not delete Customer with id " + req.params.customerId
+          message: "Could not delete Provider with id " + req.params.customerId
         });
       }
-    } else res.send({ message: `Customer was deleted successfully!` });
+    } else res.send({ message: `Provider was deleted successfully!` });
   });
 };
 
