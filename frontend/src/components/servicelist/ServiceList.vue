@@ -183,7 +183,7 @@
   <div class="col-md-4">
     <div class="btn-group btn-group-sm my-2" role="group">
       <button class="btn btn-outline-danger mr-2"
-        @click="confirmDeleteList"
+        @click="confirmDelete = !confirmDelete"
       >
         Delete
       </button>
@@ -301,10 +301,6 @@ export default {
           console.log(e);
           this.message = 'Error deleting list';
         });
-    },
-
-    confirmDeleteList() {
-      this.confirmDelete = !this.confirmDelete
     },
 
     addDelivery(item) {
