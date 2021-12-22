@@ -1,4 +1,32 @@
  <template>
+
+ <transition name="modal">
+    <div v-if="confirmDelete">
+      <div class="modal-mask">
+        <div class="modal-wrapper" role="dialog" aria-labelledby="exampleModalCenterTitle">
+          <div class="modal-dialog modal-dialog-centered" tabindex="-1" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Delete List</h5>
+                <button type="button" class="close btn btn-outline-primary" data-dismiss="modal" aria-label="Close" @click="confirmDelete = !confirmDelete">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <p>Please confirm, delete Service List?</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" data-dismiss="modal" @click="confirmDelete = !confirmDelete">Cancel</button>
+                <button type="button" class="btn btn-danger" @click="deleteList">Delete</button>          
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+
+
   <div v-if="currentList"  class="list row">
     
   <div class="col-md-8">
@@ -155,7 +183,7 @@
   <div class="col-md-4">
     <div class="btn-group btn-group-sm my-2" role="group">
       <button class="btn btn-outline-danger mr-2"
-        @click="deleteList"
+        @click="confirmDeleteList"
       >
         Delete
       </button>
@@ -187,6 +215,7 @@ export default {
   name: "servicelist-edit",
   data() {
     return {
+      confirmDelete: false,
       currentList: null,
       message: '',
 
@@ -272,6 +301,10 @@ export default {
           console.log(e);
           this.message = 'Error deleting list';
         });
+    },
+
+    confirmDeleteList() {
+      this.confirmDelete = !this.confirmDelete
     },
 
     addDelivery(item) {
@@ -378,5 +411,21 @@ export default {
   text-align: left;
   max-width: 750px;
   margin: auto;
+}
+.modal-mask {
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, .5);
+  display: table;
+  transition: opacity .3s ease;
+}
+
+.modal-wrapper {
+  display: table-cell;
+  vertical-align: middle;
 }
 </style>
