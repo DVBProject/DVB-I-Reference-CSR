@@ -30,28 +30,28 @@
       <div v-if="currentProvider">
         <h4>Provider</h4>
         <div>
-          <label><strong>Kind:</strong></label> {{ currentProvider.Kind }}
+          <label><strong>Kind:</strong></label> {{ currentProvider.Kind || "Not defined" }}
         </div>
         <div>
-          <label><strong>Organization name:</strong></label> {{ currentProvider.Names[0] ? currentProvider.Names[0].name : "No name" }} {{ currentProvider.Names[0] && currentProvider.Names[0].type != "" ? "(Type:" +currentProvider.Names[0].type+")" : ""}}
+          <label><strong>Organization name:</strong></label> {{ currentProvider.Names[0] && currentProvider.Names[0].name != "" ? currentProvider.Names[0].name : "No name" }} {{ currentProvider.Names[0] && currentProvider.Names[0].type != "" ? "(Type:" +currentProvider.Names[0].type+")" : ""}}
         </div>
         <div>
-          <label><strong>Contact name:</strong></label> {{ currentProvider.ContactName }}
+          <label><strong>Contact name:</strong></label> {{ currentProvider.ContactName || "Not defined" }}
         </div>
          <div>
-          <label><strong>Jurisdiction:</strong></label> {{ currentProvider.Jurisdiction }}
+          <label><strong>Jurisdiction:</strong></label> {{ currentProvider.Jurisdiction || "Not defined" }}
         </div>
          <div>
-          <label><strong>Address:</strong></label> {{ currentProvider.Address }}
+          <label><strong>Address:</strong></label> {{ currentProvider.Address.trim() != '' ? currentProvider.Address : "Not defined" }}
         </div>
          <div>
-          <label><strong>Electronic address:</strong></label> {{ currentProvider.ElectronicAddress }}
+          <label><strong>Electronic address:</strong></label> {{ currentProvider.ElectronicAddress || "Not defined" }}
         </div>
         <div>
-          <label><strong>Regulator:</strong></label> {{ currentProvider.Regulator ? "True" : "False" }}
+          <label><strong>Regulator:</strong></label> {{ currentProvider.Regulator ? "Yes" : "No" }}
         </div>
 
-        <router-link :to="'/providers/' + currentProvider.Id" class="badge alert-warning">Edit</router-link>
+        <router-link :to="'/providers/' + currentProvider.Id" class="btn btn-outline-primary mt-1">Edit</router-link>
       </div>
       <div v-else>
         <br />
@@ -108,6 +108,7 @@ export default {
     setActiveProvider(provider, index) {
       this.currentProvider = provider;
       this.currentIndex = provider ? index : -1;
+      console.log(this.currentProvider)
     },
     
     searchTitle() {
