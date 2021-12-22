@@ -7,6 +7,7 @@
         <div class="input-group-append">
           <button class="btn btn-outline-secondary" type="button"
             @click="searchTitle"
+            disabled
           >
             Search
           </button>
