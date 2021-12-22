@@ -134,6 +134,11 @@ Provider.getAll = result => {
 Provider.updateById = (id, Provider, result) => {
     console.log('update Provider')//,Provider,id);
 
+    if(!Provider.Names || Provider.Names.length == 0) {
+        result({message: "Provider name required!"}, null);
+        return;
+    }
+
     sql.query("SELECT Organization FROM ProviderOffering WHERE Id = ?", id, (err, res) => {
         if (err) {
             console.log("error: ", err);
