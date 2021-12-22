@@ -31,10 +31,10 @@
       <div v-if="currentList">
         <h4>Selected List</h4>
         <div>
-          <label class="mx-1"><strong>Name:</strong></label> {{ currentList.Name }}
+          <label class="mx-1"><strong>Name:</strong></label> {{ currentList.Name || "Not defined" }}
         </div>
         <div>
-          <label class="mx-1"><strong>Provider:</strong></label> {{ currentList.Provider }}
+          <label class="mx-1"><strong>Provider:</strong></label> {{ currentList.Provider ||"Not defined" }}
         </div>
         
         <div class="d-flex">
@@ -45,6 +45,7 @@
             <template v-if="index > 0">,</template>
             <span class="mx-1">{{lang.Language}}</span>
             </template>
+            {{currentList.languages.length ? "" : "Not defined"}}
           </div>
         </div>
         
@@ -56,6 +57,7 @@
             <template v-if="index > 0">,</template>
             <span class="mx-1">{{tc.country}}</span>
             </template>
+            {{currentList.targetCountries.length ? "" : "Not defined"}}
           </div>
         </div>
 
@@ -67,12 +69,13 @@
             <template v-if="index > 0">,</template>
             <span >{{ genre }}</span>
             </template>
+            {{currentList.Genres.length ? "" : "Not defined"}}
           </div>
         </div>
 
 
         <div>
-          <label class="mx-1"><strong>URI:</strong></label> {{ currentList.URI }}
+          <label class="mx-1"><strong>URI:</strong></label> {{ currentList.URI || "Not defined" }}
         </div>
         <div>
           <label class="mx-1"><strong>Delivery:</strong></label> {{ Delivery }}
