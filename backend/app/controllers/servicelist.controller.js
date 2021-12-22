@@ -3,7 +3,7 @@ const EventHistory = require("../controllers/eventhistory.controller");
 
 // Create and Save a new List
 exports.create = (req, res) => {
-    // Validate request
+    // Validate request, user auth, TODO
     if (!req.body) {
       res.status(400).send({
         message: "Content can not be empty!"

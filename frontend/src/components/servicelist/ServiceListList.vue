@@ -85,7 +85,7 @@
         </div>
         
 
-        <router-link :to="'/servicelists/' + currentList.Id" class="badge alert-warning">Edit</router-link>
+        <router-link :to="'/servicelists/' + currentList.Id" class="btn btn-outline-primary mt-1">Edit</router-link>
       </div>
       <div v-else>
         <br />
