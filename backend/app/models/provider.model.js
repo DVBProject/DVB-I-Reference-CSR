@@ -172,27 +172,37 @@ Provider.updateById = (id, Provider, result) => {
 
 Provider.remove = (id, result) => {
     console.log('remove Provider')
-sql.query("DELETE FROM ProviderOffering WHERE id = ?", id, (err, res) => {
-    if (err) {
-        console.log("error: ", err);
-        result(err, null);
-        return;
-    }
+    sql.query("SELECT Organization FROM ProviderOffering WHERE Id = ?", id, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+        //console.log(res[0].Organization,id);
+        //delete organization, cascade will remove the provideroffering
+        const orgId = res[0].Organization
+        sql.query("DELETE FROM Organization WHERE id = ?", orgId, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
 
-    if (res.affectedRows == 0) {
-        // not found Provider with the id
-        result({ kind: "not_found" }, null);
-        return;
-    }
+        if (res.affectedRows == 0) {
+            // not found Provider with the id
+            result({ kind: "not_found" }, null);
+            return;
+        }
 
-    console.log("deleted Provider with id: ", id);
-    result(null, res);
-});
+        console.log("deleted Provider with id: ", id);
+        result(null, res);
+        });
+    });
 };
 
 Provider.removeAll = result => {
     console.log('remove ALL Providers')
-sql.query("DELETE FROM Providers", (err, res) => {
+    sql.query("DELETE FROM Providers", (err, res) => {
     if (err) {
     console.log("error: ", err);
     result(err, null);

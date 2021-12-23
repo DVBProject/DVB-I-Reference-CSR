@@ -144,16 +144,63 @@ CREATE TABLE `EventHistory`
 PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB;
 
+
+ALTER TABLE `EntityName`
+  DROP FOREIGN KEY `FK_19`;
+
+ALTER TABLE `EntityName`
+  ADD CONSTRAINT `FK_19` FOREIGN KEY `fkIdx_21` (`Organization`) REFERENCES `Organization` (`Id`) ON DELETE CASCADE;
+
+ALTER TABLE `ServiceListEntryPoints`
+  DROP FOREIGN KEY `FK_44`;
+
+ALTER TABLE `ServiceListEntryPoints`
+  ADD CONSTRAINT `FK_44` FOREIGN KEY `fkIdx_46` (`ServiceListRegistryEntity`) REFERENCES `Organization` (`Id`) ON DELETE CASCADE;
+
+ALTER TABLE `ProviderOffering`
+  DROP FOREIGN KEY `FK_47`;
+
+ALTER TABLE `ProviderOffering`
+  ADD CONSTRAINT `FK_47` FOREIGN KEY `fkIdx_49` (`Organization`) REFERENCES `Organization` (`Id`) ON DELETE CASCADE;
+
+ALTER TABLE `ServiceListOffering`
+  DROP FOREIGN KEY `FK_53`;
+
+ALTER TABLE `ServiceListOffering`
+  ADD CONSTRAINT `FK_53` FOREIGN KEY `fkIdx_55` (`Provider`) REFERENCES `ProviderOffering` (`Id`) ON DELETE CASCADE;
+
+ALTER TABLE `Genre`
+  DROP FOREIGN KEY `FK_134`;
+
+ALTER TABLE `Genre`
+  ADD CONSTRAINT `FK_134` FOREIGN KEY `fkIdx_136` (`ServiceList`) REFERENCES `ServiceListOffering` (`Id`) ON DELETE CASCADE;
+
+ALTER TABLE `Language`
+  DROP FOREIGN KEY `FK_174`;
+
+ALTER TABLE `Language`
+  ADD CONSTRAINT `FK_174` FOREIGN KEY `fkIdx_176` (`ServiceList`) REFERENCES `ServiceListOffering` (`Id`) ON DELETE CASCADE;
+
+ALTER TABLE `ServiceListURI`
+  DROP FOREIGN KEY `FK_67`;
+
+ALTER TABLE `ServiceListURI`
+  ADD CONSTRAINT `FK_67` FOREIGN KEY `fkIdx_69` (`ServiceList`) REFERENCES `ServiceListOffering` (`Id`) ON DELETE CASCADE;
+
+ALTER TABLE `TargetCountry`
+  DROP FOREIGN KEY `FK_116`;
+
+ALTER TABLE `TargetCountry`
+  ADD CONSTRAINT `FK_116` FOREIGN KEY `fkIdx_118` (`ServiceList`) REFERENCES `ServiceListOffering` (`Id`) ON DELETE CASCADE;
+
+ALTER TABLE `ServiceListName`
+  DROP FOREIGN KEY `FK_73`;
+
+ALTER TABLE `ServiceListName`
+  ADD CONSTRAINT `FK_73` FOREIGN KEY `fkIdx_75` (`ServiceList`) REFERENCES `ServiceListOffering` (`Id`) ON DELETE CASCADE;
+
 INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator) VALUES ('Repository provider','Contact','Jurisdiction','Address','Electronic address',1);
 INSERT INTO EntityName(Name,Type,Organization) VALUES("Repository provider","",1);
 INSERT INTO ServiceListEntryPoints(ServiceListRegistryEntity) VALUES (1);
-
-INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator) VALUES ('Servicelist provider','Contact','Jurisdiction','Address','Electronic address',0);
-INSERT INTO EntityName(Name,Type,Organization) VALUES("Servicelist provider","",2);
-INSERT INTO ProviderOffering(Organization,ServiceListRegistry) VALUES(2,1);
-
-INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator) VALUES ('Servicelist provider2','Contact','Jurisdiction','Address','Email',1);
-INSERT INTO EntityName(Name,Type,Organization) VALUES("Servicelist provider 2","",3);
-INSERT INTO ProviderOffering(Organization,ServiceListRegistry) VALUES(3,1);
 
 INSERT INTO User VALUES ('admin','$2a$08$B5kXMji7bHC8yOO1xIqeO.Vy3oPc.rkQUTG4bNG1hZWNBmcz9eaZe','admin',0,1);
