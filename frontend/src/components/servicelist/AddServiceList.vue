@@ -4,9 +4,60 @@
     <div class="col-md-8">
       <h4>Add Service List</h4>
 
-      <label>Service List Name:</label>
+      <label>Service List Names:</label>
+      <button class="btn btn-outline-primary mx-2 mb-1" type="button"
+            @click="addNameField"
+          >
+        +
+      </button>
+      <div class="input-group mb-3">
+
+        
+        <div class="col-sm-12 px-0"
+            v-for="(name, index) in Names"
+            :key="index">      
+
+          <div class="row my-0 mx-0">
+
+            <div class="form-floating px-0 col-sm-5">          
+              <input type="text" id="floatingInput" class="form-control mb-1" placeholder="Name"
+                  v-model="name.name"/>
+              <label for="floatingInput">Name</label>
+            </div>
+
+            <div class="form-floating px-0 col-sm-5">
+              <input class="form-control" list="datalistOptionsLanguages2" 
+                id="floatingInput2"
+                placeholder="Type to search..."
+                v-model="name.lang"
+                >
+                <label for="floatingInput2">Language</label>
+                <datalist id="datalistOptionsLanguages2">
+                  <option
+                      v-for="(item, index) in languages_ui"
+                      v-bind:key="index"
+                      v-bind:value="index"
+                      >
+                      {{item.name}}
+                  </option>
+                </datalist>
+            </div>
+
+          <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
+            :id="index"
+            @click="delNameField"
+            :disabled="Names.length <= 1"
+          >
+            -
+          </button>
+          </div>
+
+        </div>        
+      </div>
       <input type="text" class="form-control my-2" placeholder="List Name"
           v-model="Name"/>
+
+
       <label>URI:</label>
       <input type="text" class="form-control my-2" placeholder="URI"
           v-model="URI"/>
@@ -176,6 +227,7 @@ export default {
       languages_ui: [],
       SelectedLanguages: [],
       Name: "",
+      Names: [{name:"", lang:""}],
       URI: "",
       lang: "",
       Provider: 0,
@@ -204,6 +256,7 @@ export default {
     submitNewList() {
         const data = {
             Name: this.Name,
+            Names: this.Names,
             URI: this.URI,
             lang: this.SelectedLanguages,
             Provider: this.Provider,
@@ -225,6 +278,16 @@ export default {
             });
     },
 
+    addNameField() {
+      this.Names.push({name: "", lang: ""})
+    },
+
+    delNameField(item) {
+      console.log(item.target.id)
+      if(this.Names.length > 1) {
+        this.Names.splice(item.target.id, 1)
+      }
+    },
     addDelivery(item) {
       const valid = this.deliveries.findIndex( elem => {
         return elem === item.target.value
