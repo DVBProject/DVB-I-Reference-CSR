@@ -4,6 +4,7 @@ const EventHistory = require("../controllers/eventhistory.controller");
 // Create and Save a new List
 exports.create = (req, res) => {
     // Validate request, user auth, TODO
+    
     if (!req.body) {
       res.status(400).send({
         message: "Content can not be empty!"
@@ -13,6 +14,7 @@ exports.create = (req, res) => {
     // Create a List
     const serviceList = new ServiceList({
         Name: req.body.Name,
+        Names: req.body.Names,
         URI: req.body.URI,
         lang: req.body.lang,
         Provider: req.body.Provider,
@@ -35,6 +37,7 @@ exports.create = (req, res) => {
 
         const event = { 
           ...data,
+          Name: req.body.Names[0].name,
           user: req.user,
           eventType: "Create",
           //ContentJson: ""

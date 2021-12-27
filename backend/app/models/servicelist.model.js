@@ -3,12 +3,13 @@ const sql = require("./db.js");
 // constructor
 const ServiceList = function(serviceList) {
     this.Name = serviceList.Name
-    this.lang = serviceList.lang,
+    this.Names = serviceList.Names
+    this.lang = serviceList.lang
     this.URI = serviceList.URI
     this.Provider = serviceList.Provider
     this.regulatorList = serviceList.regulatorList
     this.Delivery = serviceList.Delivery
-    this.Countries = serviceList.Countries,
+    this.Countries = serviceList.Countries
     this.Genres = serviceList.Genres
 }
 
@@ -17,12 +18,12 @@ ServiceList.create = (newServiceList, result) => {
 
     // verify needed data is not missing
     newServiceList.Name = newServiceList.Name || "Not defined"
+    newServiceList.Names = newServiceList.Names || [{name:"Not defined", lang:"Not defined"}]
     if( !newServiceList.lang || newServiceList.lang.length < 1) newServiceList.lang = [{a3: "Not defined"}]
     newServiceList.URI = newServiceList.URI || "Not defined"
     if(!newServiceList.Delivery || newServiceList.Delivery.length < 1) newServiceList.Delivery = ["DASHDelivery"]
     const deliveries = JSON.stringify(newServiceList.Delivery)
 
-    // TODO: now only saves the first item on the delivery-list !!
     sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, Delivery = ?", [ newServiceList.Provider, newServiceList.regulatorList, deliveries ], async (err, res) => {
         if (err) {
             console.log("error: ", err);
@@ -184,23 +185,27 @@ async function createRelatedTables(list, id) {
     let promises = []
     //console.time()
 
-    // Create new List Name
-    // TODO: update when we have more lang per name; now only saves with the first item on the languages list 
-    if(list.Name && list.lang) {
-        //console.log("create name")
-        promises.push(new Promise((resolve, reject) => {
-            sql.query("INSERT INTO ServiceListName SET ServiceList = ?, Name = ?, lang = ?",  [id, list.Name, list.lang[0].a3], (err, res) => {
-                if (err) {
-                    console.log("INSERT INTO ServiceListName error: ", err);
-                    reject()
-                }
-                //console.log("created service list NAME", res)
-                resolve()
-            })
-        }).catch(err => {
-            console.log("createRelatedTables name", err)
-            //return err
-        }) )
+    // Create new List Names / name language
+    console.log("names:", list.Names)
+    if(list.Names) {
+        for(var i = 0; i < list.Names.length; i++) {
+            //console.log("create name")
+            if(list.Names[i].name && list.Names[i].lang) {
+                promises.push(new Promise((resolve, reject) => {
+                    sql.query("INSERT INTO ServiceListName SET ServiceList = ?, Name = ?, lang = ?",  [id, list.Names[i].name, list.Names[i].lang], (err, res) => {
+                        if (err) {
+                            console.log("INSERT INTO ServiceListName error: ", err);
+                            reject()
+                        }
+                        //console.log("created service list NAME", res)
+                        resolve()
+                    })
+                }).catch(err => {
+                    console.log("createRelatedTables name", err)
+                    //return err
+                }) )
+            }
+        }
     }
 
     // Create new URI, 
