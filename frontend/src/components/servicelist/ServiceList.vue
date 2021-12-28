@@ -253,7 +253,7 @@
 
 <script>
 import ServiceListDataService from "../../services/ServiceListDataService"
-import LoginService from "../../services/LoginService"
+//import LoginService from "../../services/LoginService"
 import countries from "../../../../common/countries"
 import { deliveries, genres } from "../../../../common/dev_constants"
 import languages from "../../../../common/languages"
@@ -307,10 +307,11 @@ export default {
         })
         .catch(e => {
           console.log(e);
-          // TODO: move this handler the service module
-          // error with fetch (unauthorized)
-          // clear session data & re-login
-          LoginService.reset()
+          // some error when fetching data, return to the list list
+          //LoginService.reset()
+          setTimeout(() => {
+            this.$router.push({ name: "servicelists" });
+          }, 1000)
         });
     },
     updateList() {
