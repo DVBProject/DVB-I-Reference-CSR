@@ -54,8 +54,6 @@
 
         </div>        
       </div>
-      <input type="text" class="form-control my-2" placeholder="List Name"
-          v-model="Name"/>
 
 
       <label>URI:</label>

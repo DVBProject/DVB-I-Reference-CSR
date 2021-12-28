@@ -39,7 +39,7 @@
         </div>
         
         <div class="d-flex">
-        <label class="mx-1"><strong>Language:</strong></label>
+        <label class="mx-1"><strong>Languages:</strong></label>
           <div class="d-flex justify-content-end">
             <template class="mx-1" v-for="(lang, index) in currentList.languages"
             :key="index">

@@ -34,9 +34,56 @@
     <form>
       <div class="form-group">
         <label for="Name">Name</label>
-        <input type="text" class="form-control my-2" id="Name"
-          v-model="currentList.Name"
-        />
+
+        <button class="btn btn-outline-primary mx-2 mb-1" type="button"
+            @click="addNameField"
+          >
+        +
+        </button>
+        <div class="input-group mb-3">
+
+          
+          <div class="col-sm-12 px-0"
+              v-for="(name, index) in Names"
+              :key="index">      
+
+            <div class="row my-0 mx-0">
+
+              <div class="form-floating px-0 col-sm-5">          
+                <input type="text" id="floatingInput" class="form-control mb-1" placeholder="Name"
+                    v-model="name.Name"/>
+                <label for="floatingInput">Name</label>
+              </div>
+
+              <div class="form-floating px-0 col-sm-5">
+                <input class="form-control" list="datalistOptionsLanguages2" 
+                  id="floatingInput2"
+                  placeholder="Type to search..."
+                  v-model="name.Lang"
+                  >
+                  <label for="floatingInput2">Language</label>
+                  <datalist id="datalistOptionsLanguages2">
+                    <option
+                        v-for="(item, index) in languages_ui"
+                        v-bind:key="index"
+                        v-bind:value="index"
+                        >
+                        {{item.name}}
+                    </option>
+                  </datalist>
+              </div>
+
+            <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
+              :id="index"
+              @click="delNameField"
+              :disabled="Names.length <= 1"
+            >
+              -
+            </button>
+            </div>
+
+          </div>        
+        </div>
       </div>
 
       
@@ -227,6 +274,7 @@ export default {
       SelectedCountries: [],
       languages_ui: [],
       SelectedLanguages: [],
+      Names: [],
     };
   },
   methods: {
@@ -254,6 +302,7 @@ export default {
           for(var cn in this.currentList.targetCountries) {
             this.addCountry(this.currentList.targetCountries[cn].country)
           }
+          this.Names = this.currentList.Names
           console.log(response.data);
         })
         .catch(e => {
@@ -270,7 +319,8 @@ export default {
         Delivery: this.SelectedDeliveries,
         lang: this.SelectedLanguages,
         Countries: this.SelectedCountries,
-        Genres: this.SelectedGenres
+        Genres: this.SelectedGenres,
+        Names: this.Names
       }
       //console.log("POST",this.currentList.Id, /*this.currentList*/ data);
       ServiceListDataService.update(this.currentList.Id, data)
@@ -301,6 +351,16 @@ export default {
           console.log(e);
           this.message = 'Error deleting list';
         });
+    },
+
+    addNameField() {
+      this.Names.push({name: "", lang: ""})
+    },
+    delNameField(item) {
+      console.log(item.target.id)
+      if(this.Names.length > 1) {
+        this.Names.splice(item.target.id, 1)
+      }
     },
 
     addDelivery(item) {
