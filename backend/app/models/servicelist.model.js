@@ -330,21 +330,21 @@ async function getRestOfServiceList(list) {
     }
 
     // fetch list names / langs
+    list.Names = [{Name: "Not defined", Lang: "Not defined"}]
+    list.Name = "Not defined"
+    list.lang = "Not defined"
     const names = await getNames(list).catch(err => {
         console.log("getNames error: ", err)
     })
-    if(names) {
-        list.Names = names
+    if(names) {        
         if(names.length) {
+            list.Names = names
             list.Name = names[0].Name || "Not defined"
             list.lang = names[0].Lang || "Not defined"  
-        }
-        else {
-            //console.log("no names for list", list.Id)
-            list.Names = [{Name: "Not defined", Lang: "Not defined"}]
-            list.Name = "Not defined"
-            list.lang = "Not defined"
-        }
+        }        
+    }
+    else {
+        console.log("no names for list", list.Id)        
     }
 
     // fetch TargetCountries
