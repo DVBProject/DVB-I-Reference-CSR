@@ -51,7 +51,7 @@
 
               <div class="form-floating px-0 col-sm-5">          
                 <input type="text" id="floatingInput" class="form-control mb-1" placeholder="Name"
-                    v-model="name.Name"/>
+                    v-model="name.name"/>
                 <label for="floatingInput">Name</label>
               </div>
 
@@ -59,7 +59,7 @@
                 <input class="form-control" list="datalistOptionsLanguages2" 
                   id="floatingInput2"
                   placeholder="Type to search..."
-                  v-model="name.Lang"
+                  v-model="name.lang"
                   >
                   <label for="floatingInput2">Language</label>
                   <datalist id="datalistOptionsLanguages2">

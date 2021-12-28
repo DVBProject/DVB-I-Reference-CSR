@@ -4,7 +4,7 @@ const EventHistory = require("../controllers/eventhistory.controller");
 // Create and Save a new List
 exports.create = (req, res) => {
     // Validate request, user auth, TODO
-    
+
     if (!req.body) {
       res.status(400).send({
         message: "Content can not be empty!"
@@ -113,7 +113,7 @@ exports.update = (req, res) => {
           id: req.params.listId,
           user: req.user,
           eventType: "Update",
-          Name: req.body.Name, //data.Names[0].Name // TODO vaihda kun listoille talletetaan useampi nimi
+          Name: req.body.Names[0].name,
           //ContentJson: ""
         }
 

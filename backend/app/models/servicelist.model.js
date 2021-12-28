@@ -112,18 +112,16 @@ ServiceList.updateById = (id, List, result) => {
 
     // verify needed data is not missing
     List.Name = List.Name || "Not defined"
+    List.Names = List.Names || [{name:"Not defined", lang:"Not defined"}]
     if( !List.lang || List.lang.length < 1) List.lang = [{a3: "Not defined"}]
     List.URI = List.URI || "Not defined"
     if(!List.Delivery || List.Delivery.length < 1) List.Delivery = ["DASHDelivery"]
 
     const deliveries = JSON.stringify(List.Delivery)
 
-
-    // TODO: if provider can be changed, fetch the correct provider with the provider name...
-
     sql.query(
-        "UPDATE ServiceListOffering SET regulatorList = ?, Delivery = ? WHERE Id = ?", // Provider = ?,
-        [List.regulatorList, deliveries, id], // List.Provider, 
+        "UPDATE ServiceListOffering SET regulatorList = ?, Delivery = ? WHERE Id = ?",
+        [List.regulatorList, deliveries, id], 
         async (err, res) => {
             if (err) {
                 console.log("error: ", err);
@@ -330,7 +328,7 @@ async function getRestOfServiceList(list) {
     }
 
     // fetch list names / langs
-    list.Names = [{Name: "Not defined", Lang: "Not defined"}]
+    list.Names = [{name: "Not defined", lang: "Not defined"}]
     list.Name = "Not defined"
     list.lang = "Not defined"
     const names = await getNames(list).catch(err => {
@@ -339,12 +337,12 @@ async function getRestOfServiceList(list) {
     if(names) {        
         if(names.length) {
             list.Names = names
-            list.Name = names[0].Name || "Not defined"
-            list.lang = names[0].Lang || "Not defined"  
+            list.Name = names[0].name || "Not defined"
+            list.lang = names[0].lang || "Not defined"  
         }        
     }
     else {
-        console.log("no names for list", list.Id)        
+        console.log("no names found for list", list.Id)        
     }
 
     // fetch TargetCountries
@@ -453,8 +451,12 @@ function getLanguages(list) {
                  console.log("error: ", err);
                  reject(err)
              }
-             else {          
-                 resolve(res)
+             else {
+                 let response = []
+                 res.forEach(item => {
+                     response.push({name: item.Name, lang: item.Lang})
+                 })        
+                 resolve(response)
              }
          })
     })
