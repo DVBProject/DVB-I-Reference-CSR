@@ -63,7 +63,8 @@ ServiceList.findById = (ListId, result) => {
 
 
 ServiceList.getAll = async result => {
-    sql.query("SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering where ServiceListName.ServiceList = ServiceListOffering.Id AND ServiceListURI.ServiceList = ServiceListOffering.Id", async (err, res) => {
+    //sql.query("SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering where ServiceListName.ServiceList = ServiceListOffering.Id AND ServiceListURI.ServiceList = ServiceListOffering.Id", async (err, res) => {
+    sql.query("SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering where ServiceListURI.ServiceList = ServiceListOffering.Id", async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(null, err);
@@ -325,11 +326,26 @@ async function getRestOfServiceList(list) {
     })
     if(pnames) {
         list.Provider = pnames[0].Name
-        list.Names = pnames // remove ids before returning?
+        //list.ProviderNames = pnames 
     }
 
-    // TODO fetch list names
-    //list.Names = names
+    // fetch list names / langs
+    const names = await getNames(list).catch(err => {
+        console.log("getNames error: ", err)
+    })
+    if(names) {
+        list.Names = names
+        if(names.length) {
+            list.Name = names[0].Name || "Not defined"
+            list.lang = names[0].Lang || "Not defined"  
+        }
+        else {
+            //console.log("no names for list", list.Id)
+            list.Names = [{Name: "Not defined", Lang: "Not defined"}]
+            list.Name = "Not defined"
+            list.lang = "Not defined"
+        }
+    }
 
     // fetch TargetCountries
     const countries = await getTargetCountries(list).catch(err => {
@@ -419,6 +435,20 @@ function getLanguages(list) {
  function getGenres(list) {
     return new Promise((resolve, reject) => {
          sql.query(`SELECT * FROM Genre where Genre.ServiceList = ${list.Id}`, (err, res) => {
+             if (err) {
+                 console.log("error: ", err);
+                 reject(err)
+             }
+             else {          
+                 resolve(res)
+             }
+         })
+    })
+ }
+
+ function getNames(list) {
+    return new Promise((resolve, reject) => {
+         sql.query(`SELECT * FROM ServiceListName where ServiceListName.ServiceList = ${list.Id}`, (err, res) => {
              if (err) {
                  console.log("error: ", err);
                  reject(err)
