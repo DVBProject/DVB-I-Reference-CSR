@@ -14,9 +14,13 @@
         </div>
       </div>
     </div>
+
+    </div>
+    <div class="list row">
+
     <div class="col-md-6">
       <h4>Service Lists</h4>
-      <ul class="list-group">
+      <ul class="list-group mainlist">
         <li class="list-group-item"
           :class="{ active: index == currentIndex }"
           v-for="(list, index) in lists"
@@ -167,5 +171,9 @@ export default {
   text-align: left;
   max-width: 750px;
   margin: auto;
+}
+.mainlist {
+  max-height: 70vh;  
+  overflow-y: scroll;
 }
 </style>
