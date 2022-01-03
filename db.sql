@@ -56,6 +56,7 @@ CREATE TABLE `ServiceListOffering`
  `Provider`      integer NOT NULL ,
  `regulatorList` tinyint NOT NULL ,
  `Delivery`      text NOT NULL ,
+ `Status`        text NOT NULL ,
  `Id`            integer NOT NULL AUTO_INCREMENT ,
 
 PRIMARY KEY (`Id`),

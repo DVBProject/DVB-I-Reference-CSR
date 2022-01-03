@@ -41,7 +41,7 @@ ServiceList.create = (newServiceList, result) => {
 
 
 ServiceList.findById = (ListId, result) => {
-    sql.query(`SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Id = ${ListId} AND ServiceListURI.ServiceList = ServiceListOffering.Id`, async (err, res) => {
+    sql.query(`SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Id = ${ListId} AND ServiceListURI.ServiceList = ServiceListOffering.Id`, async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -64,7 +64,7 @@ ServiceList.findById = (ListId, result) => {
 
 ServiceList.getAll = async result => {
     //sql.query("SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering where ServiceListName.ServiceList = ServiceListOffering.Id AND ServiceListURI.ServiceList = ServiceListOffering.Id", async (err, res) => {
-    sql.query("SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering where ServiceListURI.ServiceList = ServiceListOffering.Id", async (err, res) => {
+    sql.query("SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering where ServiceListURI.ServiceList = ServiceListOffering.Id", async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(null, err);
@@ -116,12 +116,13 @@ ServiceList.updateById = (id, List, result) => {
     if( !List.lang || List.lang.length < 1) List.lang = [{a3: "Not defined"}]
     List.URI = List.URI || "Not defined"
     if(!List.Delivery || List.Delivery.length < 1) List.Delivery = ["DASHDelivery"]
+    List.Status = List.Status || ""
 
     const deliveries = JSON.stringify(List.Delivery)
 
     sql.query(
-        "UPDATE ServiceListOffering SET regulatorList = ?, Delivery = ? WHERE Id = ?",
-        [List.regulatorList, deliveries, id], 
+        "UPDATE ServiceListOffering SET regulatorList = ?, Status = ?, Delivery = ? WHERE Id = ?",
+        [List.regulatorList, List.Status, deliveries, id], 
         async (err, res) => {
             if (err) {
                 console.log("error: ", err);

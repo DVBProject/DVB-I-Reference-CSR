@@ -44,7 +44,7 @@
       <div v-if="currentList">
         <h4>{{currentList.Name}}</h4>
         
-        <ul class="list-group">
+        <ul class="list-group mainlist">
           <li class="list-group-item"
             v-for="(list, index) in listHistory"
             :key="index"
