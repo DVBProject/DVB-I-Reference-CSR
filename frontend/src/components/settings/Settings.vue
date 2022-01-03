@@ -25,7 +25,7 @@
 
   <div class="row">
     <div class="col-md-6">
-      <h4>Lists</h4>
+      <h4>List event history</h4>
       <div class="row">         
           <ul class="list-group mainlist">
             <li class="list-group-item"

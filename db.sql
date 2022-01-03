@@ -125,6 +125,7 @@ CREATE TABLE `User`
  `Hash`          text NOT NULL ,
  `Role`          text NOT NULL ,
  `Organizations` text NOT NULL ,
+ `Providers`     text NOT NULL ,
  `Id`            integer NOT NULL AUTO_INCREMENT,
 
 PRIMARY KEY (`Id`)
