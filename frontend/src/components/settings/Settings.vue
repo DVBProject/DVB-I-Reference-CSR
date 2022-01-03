@@ -26,8 +26,8 @@
   <div class="row">
     <div class="col-md-6">
       <h4>Lists</h4>
-      <div class="row h-50 overflow-scroll">         
-          <ul class="list-group">
+      <div class="row">         
+          <ul class="list-group mainlist">
             <li class="list-group-item"
               :class="{ active: index == currentIndex }"
               v-for="(list, index) in lists"
@@ -209,3 +209,10 @@ export default {
   }
 }
 </script>
+
+<style>
+.mainlist {
+  max-height: 50vh;  
+  overflow-y: scroll;
+}
+</style>
