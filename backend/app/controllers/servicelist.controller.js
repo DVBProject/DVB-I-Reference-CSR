@@ -57,6 +57,7 @@ exports.create = (req, res) => {
 // Retrieve all Lists from the database.
 exports.findAll = (req, res) => {
   //console.log(req.url, req.ip, "user:", req.user.Name, req.user.Role)
+  // check that user is admin
 
   ServiceList.getAll((err, data) => {
     if (err)
@@ -67,6 +68,46 @@ exports.findAll = (req, res) => {
     else res.send(data);
   });
 };
+
+
+// Retrieve all Lists from the database.
+exports.findAllByProvider = (req, res) => {
+  //console.log(req.url, req.ip, "user:", req.user.Name, req.user.Role)
+
+  const providerId = req.params.providerId  // sanitize...
+  const user = req.user
+
+  if (user.Providers.indexOf(providerId) >= 0 || user.Role == 'admin') {
+    let provider = providerId
+    
+    ServiceList.getAllByProvider(provider, (err, data) => {
+      if (err)
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving lists."
+        })
+      else res.send(data)
+    })
+  }
+  else {
+    console.log("findAllByProvider error, no permission", user.Providers.indexOf(providerId), user.Role)
+    res.status(500).send({
+      message: "Unauthorised"
+    })
+  }
+
+}
+
+
+//
+//
+exports.findWithStatus = (req, result, status, provider = null ) => {
+  //console.log(req.url, req.ip, "user:", req.user.Name, req.user.Role)
+  ServiceList.getAllByStatus((err, data) => {
+      if (err) result(err, null)
+      else result(null, data)
+    }, status, provider ); // is status is null defaults to "active"
+}
 
 
 // Find a single List with a listId

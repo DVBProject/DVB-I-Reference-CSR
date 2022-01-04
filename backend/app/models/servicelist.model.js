@@ -61,6 +61,78 @@ ServiceList.findById = (ListId, result) => {
     });
 };
 
+// 
+//
+ServiceList.getAllByStatus = async (result, liststatus = 'active', provider = null) => {
+    let query = ''
+    if (provider) query = `SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Status = "${liststatus}" AND ServiceListOffering.Provider = ${provider} AND ServiceListURI.ServiceList = ServiceListOffering.Id`
+    else query = `SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Status = "${liststatus}" AND ServiceListURI.ServiceList = ServiceListOffering.Id`
+    sql.query(query, async (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+    
+        let promises = []
+        console.time("getStatus")
+        try {
+            for(i = 0; i < res.length; i++) {
+                let list = res[i]                
+                // fetch all the rest of relevant DB tables
+                //list = await getRestOfServiceList(list)
+                promises.push(new Promise(async (resolve, reject) => {
+                    list = await getRestOfServiceList(list)
+                    resolve()
+                }))
+            }
+        } catch(err) {
+            console.log("error: ", err)
+            result(null, err);
+            return;
+        }
+
+        await Promise.all(promises).catch(err => console.log("getStatus err", err))
+        console.timeEnd("getStatus")
+        //console.log("ServiceLists: ", res);
+        result(null, res);
+    })
+}
+
+ServiceList.getAllByProvider = async (provider, result) => {
+
+    sql.query(`SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering where ServiceListOffering.Provider = ${provider} AND ServiceListURI.ServiceList = ServiceListOffering.Id`, async (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(null, err);
+            return;
+        }
+
+        let promises = []
+        console.time("getAllByProvider")
+        try {
+            for(i = 0; i < res.length; i++) {
+                let list = res[i]                
+                // fetch all the rest of relevant DB tables
+                //list = await getRestOfServiceList(list)
+                promises.push(new Promise(async (resolve, reject) => {
+                    list = await getRestOfServiceList(list)
+                    resolve()
+                }))
+            }
+        } catch(err) {
+            console.log("error: ", err)
+            result(null, err);
+            return;
+        }
+
+        await Promise.all(promises).catch(err => console.log("getAllByProvider err", err))
+        console.timeEnd("getAllByProvider")
+        //console.log("ServiceLists: ", res);
+        result(null, res);
+    })
+}
+
 
 ServiceList.getAll = async result => {
     //sql.query("SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering where ServiceListName.ServiceList = ServiceListOffering.Id AND ServiceListURI.ServiceList = ServiceListOffering.Id", async (err, res) => {
@@ -70,19 +142,25 @@ ServiceList.getAll = async result => {
             result(null, err);
             return;
         }
-
+        let promises = []
         console.time("getAll")
         try {
             for(i = 0; i < res.length; i++) {
                 let list = res[i]                
                 // fetch all the rest of relevant DB tables
-                list = await getRestOfServiceList(list)
+                //list = await getRestOfServiceList(list)
+                promises.push(new Promise(async (resolve, reject) => {
+                    list = await getRestOfServiceList(list)
+                    resolve()
+                }))
             }
         } catch(err) {
             console.log("error: ", err)
             result(null, err);
             return;
         }
+
+        await Promise.all(promises).catch(err => console.log("getAll err", err))
         console.timeEnd("getAll")
         //console.log("ServiceLists: ", res);
         result(null, res);

@@ -16,5 +16,6 @@ module.exports = app => {
     // Delete a list with listId
     app.delete("/servicelist/:listId", servicelist.delete);
     
-  
+    // Retrieve all lists per provider
+    app.get("/servicelist/provider/:providerId", servicelist.findAllByProvider);
 };
