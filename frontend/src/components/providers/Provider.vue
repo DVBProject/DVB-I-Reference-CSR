@@ -280,7 +280,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .edit-form {
   text-align: left;
   max-width: 750px;

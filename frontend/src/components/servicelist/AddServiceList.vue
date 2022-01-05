@@ -381,7 +381,7 @@ export default {
 </script>
 
 
-<style>
+<style scoped>
 .list {
   text-align: left;
   max-width: 750px;

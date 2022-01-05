@@ -1,5 +1,6 @@
 <template>
-  <div class="list row">
+<div class="list">
+  <div class="row">
     <div class="col-md-8">
       <div class="input-group mb-3">
         <input type="text" class="form-control" placeholder="Search by title" disabled
@@ -59,6 +60,7 @@
         <p>Please click on a Provider...</p>
       </div>
     </div>
+  </div>
   </div>
 </template>
 
@@ -130,7 +132,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .list {
   text-align: left;
   max-width: 750px;

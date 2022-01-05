@@ -2,7 +2,7 @@
 <script>
 import LoginService from "../../services/LoginService"
 export default {
-  name: "setup",
+  name: "setup-view",
 
   mounted() {
       LoginService.setup()

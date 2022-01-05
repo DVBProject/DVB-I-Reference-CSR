@@ -35,6 +35,10 @@ class ServiceListDataService {
   getListHistory(id) {
     return http.get(`/eventhistory/${id}`, configdata);
   }
+
+  getByProvider(id) {
+    return http.get(`/servicelist/provider/${id}`, configdata);
+  }
 }
 
 export default new ServiceListDataService();

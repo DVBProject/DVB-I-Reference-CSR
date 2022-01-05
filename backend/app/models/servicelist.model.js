@@ -75,7 +75,7 @@ ServiceList.getAllByStatus = async (result, liststatus = 'active', provider = nu
         }
     
         let promises = []
-        console.time("getStatus")
+        //console.time("getStatus")
         try {
             for(i = 0; i < res.length; i++) {
                 let list = res[i]                
@@ -93,7 +93,7 @@ ServiceList.getAllByStatus = async (result, liststatus = 'active', provider = nu
         }
 
         await Promise.all(promises).catch(err => console.log("getStatus err", err))
-        console.timeEnd("getStatus")
+        //console.timeEnd("getStatus")
         //console.log("ServiceLists: ", res);
         result(null, res);
     })
@@ -109,7 +109,7 @@ ServiceList.getAllByProvider = async (provider, result) => {
         }
 
         let promises = []
-        console.time("getAllByProvider")
+        //console.time("getAllByProvider")
         try {
             for(i = 0; i < res.length; i++) {
                 let list = res[i]                
@@ -127,7 +127,7 @@ ServiceList.getAllByProvider = async (provider, result) => {
         }
 
         await Promise.all(promises).catch(err => console.log("getAllByProvider err", err))
-        console.timeEnd("getAllByProvider")
+        //console.timeEnd("getAllByProvider")
         //console.log("ServiceLists: ", res);
         result(null, res);
     })
@@ -143,7 +143,7 @@ ServiceList.getAll = async result => {
             return;
         }
         let promises = []
-        console.time("getAll")
+        //console.time("getAll")
         try {
             for(i = 0; i < res.length; i++) {
                 let list = res[i]                
@@ -161,7 +161,7 @@ ServiceList.getAll = async result => {
         }
 
         await Promise.all(promises).catch(err => console.log("getAll err", err))
-        console.timeEnd("getAll")
+        //console.timeEnd("getAll")
         //console.log("ServiceLists: ", res);
         result(null, res);
     });
