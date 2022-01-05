@@ -2,25 +2,27 @@
 <div class="list">
   <div class="row">
     <div class="col-md-8">
-      <div class="input-group mb-3">
-        <input type="text" class="form-control" placeholder="Search by title" disabled
-          v-model="title"/>
-        <div class="input-group-append">
-          <button class="btn btn-outline-secondary" type="button"
-            @click="searchTitle"
-            disabled
-          >
-            Search
-          </button>
+      <div class="btn-group btn-group-sm mb-2 " role="group" aria-label="Basic radio toggle button group">
+          <input type="radio" class="btn-check" name="btnradio" id="btnradioName" autocomplete="off" @change="filterRadio" :checked="filterType == 1">
+          <label class="btn btn-outline-primary" for="btnradioName">Name</label>
+  
+          <input type="radio" class="btn-check" name="btnradio" id="btnradioRegulator" autocomplete="off" @change="filterRadio" :checked="filterType == 2">
+          <label class="btn btn-outline-primary" for="btnradioRegulator">Regulator</label>
+
+          <input type="radio" class="btn-check" name="btnradio" id="btnradioNoRegulator" autocomplete="off" @change="filterRadio" :checked="filterType == 3">
+          <label class="btn btn-outline-primary" for="btnradioNoRegulator">Not Regulator</label>
         </div>
-      </div>
+        <div class="input-group mb-4">
+          <input type="text" class="form-control" placeholder="Filter by..." 
+            v-model="title"/>
+        </div>
     </div>
     <div class="col-md-6">
       <h4>Provider List</h4>
       <ul class="list-group mainlist">
         <li class="list-group-item"
           :class="{ active: index == currentIndex }"
-          v-for="(provider, index) in providers"
+          v-for="(provider, index) in filteredList"
           :key="index"
           @click="setActiveProvider(provider, index)"
         >
@@ -74,8 +76,26 @@ export default {
       providers: [],
       currentProvider: null,
       currentIndex: -1,
+      filterType: 1,
       title: ""
     };
+  },
+  computed: {
+    filteredList() {
+      let ll = this.providers.filter(elem => {
+        switch(this.filterType) {
+          case 1: {
+            return elem.Names.find(el => {
+                return el.name.includes(this.title)
+              })
+            }
+          case 2: return elem.Regulator
+          case 3: return !elem.Regulator
+          default: return null
+        }
+      })
+      return ll
+    }
   },
   methods: {
     retrieveProviders() {
@@ -111,7 +131,16 @@ export default {
     setActiveProvider(provider, index) {
       this.currentProvider = provider;
       this.currentIndex = provider ? index : -1;
-      console.log(this.currentProvider)
+      //console.log(this.currentProvider)
+    },
+
+    filterRadio(item) {
+      if(item.target.id === "btnradioName") this.filterType = 1
+      if(item.target.id === "btnradioRegulator") this.filterType = 2
+      if(item.target.id === "btnradioNoRegulator") this.filterType = 3
+
+      this.currentProvider = null
+      this.currentIndex = -1
     },
     
     searchTitle() {

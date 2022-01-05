@@ -177,6 +177,9 @@ export default {
       if(item.target.id === "btnradioName") this.filterType = 1
       if(item.target.id === "btnradioCountry") this.filterType = 2
       if(item.target.id === "btnradioProvider") this.filterType = 3
+
+      this.currentList = null
+      this.currentIndex = -1
     },
     
     searchTitle() {
