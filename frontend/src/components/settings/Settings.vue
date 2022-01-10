@@ -1,33 +1,35 @@
 <template>
-  <div class="list row">
-    <h4>Generate content</h4>
-    <div class="col-md-8">
-      <div class="input-group mb-3">
-        <label for="providers">Number of providers to generate</label>
-        <input id="providers" type="number" class="form-control" placeholder="Providers"
-          v-model="providers"/>
-        <label for="lists">Number of servicelists per provider</label>
-        <input id="lists" type="number" class="form-control" placeholder="Servicelists per providers"
-          v-model="servicelists"/>
+  <div class="list">
+    <div class="row">
+      <h4>Generate content</h4>
+      <div class="col-md-8">
         <div class="input-group mb-3">
-           <button class="btn btn-outline-secondary" type="button"
-            @click="generateData"
-          >
-            Generate test data
-          </button>
+          <label for="providers">Number of providers to generate</label>
+          <input id="providers" type="number" class="form-control" placeholder="Providers"
+            v-model="providers"/>
+          <label for="lists">Number of servicelists per provider</label>
+          <input id="lists" type="number" class="form-control" placeholder="Servicelists per providers"
+            v-model="servicelists"/>
+          <div class="input-group mb-3">
+            <button class="btn btn-outline-secondary" type="button"
+              @click="generateData"
+            >
+              Generate test data
+            </button>
+          </div>
         </div>
+
+        
+
       </div>
-
-      
-
     </div>
   </div>
 
   <div class="row">
     <div class="col-md-6">
-      <h4>Lists</h4>
-      <div class="row h-50 overflow-scroll">         
-          <ul class="list-group">
+      <h4>List event history</h4>
+               
+          <ul class="list-group historyList">
             <li class="list-group-item"
               :class="{ active: index == currentIndex }"
               v-for="(list, index) in lists"
@@ -37,14 +39,14 @@
               {{ list.Name }}
             </li>
           </ul>
-      </div>
+      
     </div>
 
     <div class="col-md-6">
       <div v-if="currentList">
         <h4>{{currentList.Name}}</h4>
         
-        <ul class="list-group">
+        <ul class="list-group historyList">
           <li class="list-group-item"
             v-for="(list, index) in listHistory"
             :key="index"
@@ -72,7 +74,7 @@ import languages from "../../../../common/languages"
 import LoginService from "../../services/LoginService"
 
 export default {
-  name: "settings",
+  name: "settings-view",
   data() {
       return {
           providers: 2,
@@ -81,6 +83,7 @@ export default {
           currentList: null,
           currentIndex: -1,
           listHistory: [],
+          providerList: [],
       };
   } ,
   methods: {
@@ -89,6 +92,7 @@ export default {
         .then(response => {
           if(response.data) {
             this.lists = response.data;
+            //console.log("lists", this.lists)
           }
         })
         .catch(e => {
@@ -111,6 +115,20 @@ export default {
           });
       }
     },
+    fetchByProvider() {
+      // now only for debugging the backend
+      ServiceListDataService.getByProvider(5)
+        .then(response => {
+            if(response.data) {
+              this.providerList = response.data;
+              //console.log("pp", this.providerList)
+            }
+          })
+          .catch(e => {
+            console.log("by provider", e);
+          })
+    },
+
     setActiveList(list, index) {
       this.currentList = list;
       this.currentIndex = list ? index : -1;
@@ -206,6 +224,16 @@ export default {
   },
   mounted() {
     this.fetchLists()
+
+    this.fetchByProvider()
   }
 }
 </script>
+
+<style scoped>
+
+.historyList {
+  max-height: 45vh;  
+  overflow-y: scroll;
+}
+</style>

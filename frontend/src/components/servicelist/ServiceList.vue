@@ -1,4 +1,32 @@
  <template>
+
+ <transition name="modal">
+    <div v-if="confirmDelete">
+      <div class="modal-mask">
+        <div class="modal-wrapper" role="dialog" aria-labelledby="exampleModalCenterTitle">
+          <div class="modal-dialog modal-dialog-centered" tabindex="-1" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Delete List</h5>
+                <button type="button" class="close btn btn-outline-primary" data-dismiss="modal" aria-label="Close" @click="confirmDelete = !confirmDelete">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <p>Please confirm, delete Service List?</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" data-dismiss="modal" @click="confirmDelete = !confirmDelete">Cancel</button>
+                <button type="button" class="btn btn-danger" @click="deleteList">Delete</button>          
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+
+
   <div v-if="currentList"  class="list row">
     
   <div class="col-md-8">
@@ -6,9 +34,56 @@
     <form>
       <div class="form-group">
         <label for="Name">Name</label>
-        <input type="text" class="form-control my-2" id="Name"
-          v-model="currentList.Name"
-        />
+
+        <button class="btn btn-outline-primary mx-2 mb-1" type="button"
+            @click="addNameField"
+          >
+        +
+        </button>
+        <div class="input-group mb-3">
+
+          
+          <div class="col-sm-12 px-0"
+              v-for="(name, index) in Names"
+              :key="index">      
+
+            <div class="row my-0 mx-0">
+
+              <div class="form-floating px-0 col-sm-5">          
+                <input type="text" id="floatingInput" class="form-control mb-1" placeholder="Name"
+                    v-model="name.name"/>
+                <label for="floatingInput">Name</label>
+              </div>
+
+              <div class="form-floating px-0 col-sm-5">
+                <input class="form-control" list="datalistOptionsLanguages2" 
+                  id="floatingInput2"
+                  placeholder="Type to search..."
+                  v-model="name.lang"
+                  >
+                  <label for="floatingInput2">Language</label>
+                  <datalist id="datalistOptionsLanguages2">
+                    <option
+                        v-for="(item, index) in languages_ui"
+                        v-bind:key="index"
+                        v-bind:value="index"
+                        >
+                        {{item.name}}
+                    </option>
+                  </datalist>
+              </div>
+
+            <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
+              :id="index"
+              @click="delNameField"
+              :disabled="Names.length <= 1"
+            >
+              -
+            </button>
+            </div>
+
+          </div>        
+        </div>
       </div>
 
       
@@ -155,7 +230,7 @@
   <div class="col-md-4">
     <div class="btn-group btn-group-sm my-2" role="group">
       <button class="btn btn-outline-danger mr-2"
-        @click="deleteList"
+        @click="confirmDelete = !confirmDelete"
       >
         Delete
       </button>
@@ -178,7 +253,7 @@
 
 <script>
 import ServiceListDataService from "../../services/ServiceListDataService"
-import LoginService from "../../services/LoginService"
+//import LoginService from "../../services/LoginService"
 import countries from "../../../../common/countries"
 import { deliveries, genres } from "../../../../common/dev_constants"
 import languages from "../../../../common/languages"
@@ -187,6 +262,7 @@ export default {
   name: "servicelist-edit",
   data() {
     return {
+      confirmDelete: false,
       currentList: null,
       message: '',
 
@@ -198,6 +274,7 @@ export default {
       SelectedCountries: [],
       languages_ui: [],
       SelectedLanguages: [],
+      Names: [],
     };
   },
   methods: {
@@ -225,14 +302,16 @@ export default {
           for(var cn in this.currentList.targetCountries) {
             this.addCountry(this.currentList.targetCountries[cn].country)
           }
+          this.Names = this.currentList.Names
           console.log(response.data);
         })
         .catch(e => {
           console.log(e);
-          // TODO: move this handler the service module
-          // error with fetch (unauthorized)
-          // clear session data & re-login
-          LoginService.reset()
+          // some error when fetching data, return to the list list
+          //LoginService.reset()
+          setTimeout(() => {
+            this.$router.push({ name: "servicelists" });
+          }, 1000)
         });
     },
     updateList() {
@@ -241,7 +320,8 @@ export default {
         Delivery: this.SelectedDeliveries,
         lang: this.SelectedLanguages,
         Countries: this.SelectedCountries,
-        Genres: this.SelectedGenres
+        Genres: this.SelectedGenres,
+        Names: this.Names
       }
       //console.log("POST",this.currentList.Id, /*this.currentList*/ data);
       ServiceListDataService.update(this.currentList.Id, data)
@@ -272,6 +352,16 @@ export default {
           console.log(e);
           this.message = 'Error deleting list';
         });
+    },
+
+    addNameField() {
+      this.Names.push({name: "", lang: ""})
+    },
+    delNameField(item) {
+      console.log(item.target.id)
+      if(this.Names.length > 1) {
+        this.Names.splice(item.target.id, 1)
+      }
     },
 
     addDelivery(item) {
@@ -369,7 +459,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .edit-form {
   max-width: 300px;
   margin: auto;
@@ -378,5 +468,21 @@ export default {
   text-align: left;
   max-width: 750px;
   margin: auto;
+}
+.modal-mask {
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, .5);
+  display: table;
+  transition: opacity .3s ease;
+}
+
+.modal-wrapper {
+  display: table-cell;
+  vertical-align: middle;
 }
 </style>

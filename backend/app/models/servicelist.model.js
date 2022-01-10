@@ -3,12 +3,13 @@ const sql = require("./db.js");
 // constructor
 const ServiceList = function(serviceList) {
     this.Name = serviceList.Name
-    this.lang = serviceList.lang,
+    this.Names = serviceList.Names
+    this.lang = serviceList.lang
     this.URI = serviceList.URI
     this.Provider = serviceList.Provider
     this.regulatorList = serviceList.regulatorList
     this.Delivery = serviceList.Delivery
-    this.Countries = serviceList.Countries,
+    this.Countries = serviceList.Countries
     this.Genres = serviceList.Genres
 }
 
@@ -17,12 +18,12 @@ ServiceList.create = (newServiceList, result) => {
 
     // verify needed data is not missing
     newServiceList.Name = newServiceList.Name || "Not defined"
+    newServiceList.Names = newServiceList.Names || [{name:"Not defined", lang:"Not defined"}]
     if( !newServiceList.lang || newServiceList.lang.length < 1) newServiceList.lang = [{a3: "Not defined"}]
     newServiceList.URI = newServiceList.URI || "Not defined"
     if(!newServiceList.Delivery || newServiceList.Delivery.length < 1) newServiceList.Delivery = ["DASHDelivery"]
     const deliveries = JSON.stringify(newServiceList.Delivery)
 
-    // TODO: now only saves the first item on the delivery-list !!
     sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, Delivery = ?", [ newServiceList.Provider, newServiceList.regulatorList, deliveries ], async (err, res) => {
         if (err) {
             console.log("error: ", err);
@@ -40,7 +41,7 @@ ServiceList.create = (newServiceList, result) => {
 
 
 ServiceList.findById = (ListId, result) => {
-    sql.query(`SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Id = ${ListId} AND ServiceListName.ServiceList = ServiceListOffering.Id AND ServiceListURI.ServiceList = ServiceListOffering.Id`, async (err, res) => {
+    sql.query(`SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Id = ${ListId} AND ServiceListURI.ServiceList = ServiceListOffering.Id`, async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -60,32 +61,127 @@ ServiceList.findById = (ListId, result) => {
     });
 };
 
-
-ServiceList.getAll = async result => {
-    sql.query("SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering where ServiceListName.ServiceList = ServiceListOffering.Id AND ServiceListURI.ServiceList = ServiceListOffering.Id", async (err, res) => {
+// 
+//
+ServiceList.getAllByStatus = async (result, liststatus = 'active', provider = null) => {
+    let query = ''
+    if (provider) query = `SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Status = "${liststatus}" AND ServiceListOffering.Provider = ${provider} AND ServiceListURI.ServiceList = ServiceListOffering.Id`
+    else query = `SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Status = "${liststatus}" AND ServiceListURI.ServiceList = ServiceListOffering.Id`
+    sql.query(query, async (err, res) => {
         if (err) {
             console.log("error: ", err);
-            result(null, err);
+            result(err, null);
             return;
         }
-
-        console.time("getAll")
+    
+        let promises = []
+        //console.time("getStatus")
         try {
             for(i = 0; i < res.length; i++) {
                 let list = res[i]                
                 // fetch all the rest of relevant DB tables
-                list = await getRestOfServiceList(list)
+                //list = await getRestOfServiceList(list)
+                promises.push(new Promise(async (resolve, reject) => {
+                    list = await getRestOfServiceList(list)
+                    resolve()
+                }))
             }
         } catch(err) {
             console.log("error: ", err)
             result(null, err);
             return;
         }
-        console.timeEnd("getAll")
+
+        await Promise.all(promises).catch(err => console.log("getStatus err", err))
+        //console.timeEnd("getStatus")
+        //console.log("ServiceLists: ", res);
+        result(null, res);
+    })
+}
+
+ServiceList.getAllByProvider = async (provider, result) => {
+
+    sql.query(`SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering where ServiceListOffering.Provider = ${provider} AND ServiceListURI.ServiceList = ServiceListOffering.Id`, async (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(null, err);
+            return;
+        }
+
+        let promises = []
+        //console.time("getAllByProvider")
+        try {
+            for(i = 0; i < res.length; i++) {
+                let list = res[i]                
+                // fetch all the rest of relevant DB tables
+                //list = await getRestOfServiceList(list)
+                promises.push(new Promise(async (resolve, reject) => {
+                    list = await getRestOfServiceList(list)
+                    resolve()
+                }))
+            }
+        } catch(err) {
+            console.log("error: ", err)
+            result(null, err);
+            return;
+        }
+
+        await Promise.all(promises).catch(err => console.log("getAllByProvider err", err))
+        //console.timeEnd("getAllByProvider")
+        //console.log("ServiceLists: ", res);
+        result(null, res);
+    })
+}
+
+
+ServiceList.getAll = async result => {
+    //sql.query("SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering where ServiceListName.ServiceList = ServiceListOffering.Id AND ServiceListURI.ServiceList = ServiceListOffering.Id", async (err, res) => {
+    sql.query("SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering where ServiceListURI.ServiceList = ServiceListOffering.Id", async (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(null, err);
+            return;
+        }
+        let promises = []
+        //console.time("getAll")
+        try {
+            for(i = 0; i < res.length; i++) {
+                let list = res[i]                
+                // fetch all the rest of relevant DB tables
+                //list = await getRestOfServiceList(list)
+                promises.push(new Promise(async (resolve, reject) => {
+                    list = await getRestOfServiceList(list)
+                    resolve()
+                }))
+            }
+        } catch(err) {
+            console.log("error: ", err)
+            result(null, err);
+            return;
+        }
+
+        await Promise.all(promises).catch(err => console.log("getAll err", err))
+        //console.timeEnd("getAll")
         //console.log("ServiceLists: ", res);
         result(null, res);
     });
 };
+
+// when deleting all providers, must delete all related lists too (unless cascading is set up)
+//
+ServiceList.getAllProviderServiceListOfferings = async (providerId, result) => {
+    return new Promise((resolve, reject) => {
+    sql.query("SELECT * FROM ServiceListOffering where Provider = ?", providerId, async (err, res) => {
+            if (err) {
+                console.log("error: ", err)
+                reject(err)
+                return
+            }
+
+            resolve(res)
+        })
+    })
+}
 
 
 ServiceList.updateById = (id, List, result) => {
@@ -94,18 +190,17 @@ ServiceList.updateById = (id, List, result) => {
 
     // verify needed data is not missing
     List.Name = List.Name || "Not defined"
+    List.Names = List.Names || [{name:"Not defined", lang:"Not defined"}]
     if( !List.lang || List.lang.length < 1) List.lang = [{a3: "Not defined"}]
     List.URI = List.URI || "Not defined"
     if(!List.Delivery || List.Delivery.length < 1) List.Delivery = ["DASHDelivery"]
+    List.Status = List.Status || ""
 
     const deliveries = JSON.stringify(List.Delivery)
 
-
-    // TODO: if provider can be changed, fetch the correct provider with the provider name...
-
     sql.query(
-        "UPDATE ServiceListOffering SET regulatorList = ?, Delivery = ? WHERE Id = ?", // Provider = ?,
-        [List.regulatorList, deliveries, id], // List.Provider, 
+        "UPDATE ServiceListOffering SET regulatorList = ?, Status = ?, Delivery = ? WHERE Id = ?",
+        [List.regulatorList, List.Status, deliveries, id], 
         async (err, res) => {
             if (err) {
                 console.log("error: ", err);
@@ -126,7 +221,7 @@ ServiceList.updateById = (id, List, result) => {
 }
 
 ServiceList.remove = async (id, result) => {
-    console.log('remove', id);
+    console.log('remove List', id);
 
     // delete rest of the tables
     await removeRelatedTables(id)
@@ -150,6 +245,9 @@ ServiceList.remove = async (id, result) => {
     });
 }
 
+
+//
+//
 ServiceList.removeAll = result => {
 }
 
@@ -165,23 +263,27 @@ async function createRelatedTables(list, id) {
     let promises = []
     //console.time()
 
-    // Create new List Name
-    // TODO: update when we have more lang per name; now only saves with the first item on the languages list 
-    if(list.Name && list.lang) {
-        //console.log("create name")
-        promises.push(new Promise((resolve, reject) => {
-            sql.query("INSERT INTO ServiceListName SET ServiceList = ?, Name = ?, lang = ?",  [id, list.Name, list.lang[0].a3], (err, res) => {
-                if (err) {
-                    console.log("INSERT INTO ServiceListName error: ", err);
-                    reject()
-                }
-                //console.log("created service list NAME", res)
-                resolve()
-            })
-        }).catch(err => {
-            console.log("name", err)
-            //return err
-        }) )
+    // Create new List Names / name language
+    console.log("names:", list.Names)
+    if(list.Names) {
+        for(var i = 0; i < list.Names.length; i++) {
+            //console.log("create name")
+            if(list.Names[i].name && list.Names[i].lang) {
+                promises.push(new Promise((resolve, reject) => {
+                    sql.query("INSERT INTO ServiceListName SET ServiceList = ?, Name = ?, lang = ?",  [id, list.Names[i].name, list.Names[i].lang], (err, res) => {
+                        if (err) {
+                            console.log("INSERT INTO ServiceListName error: ", err);
+                            reject()
+                        }
+                        //console.log("created service list NAME", res)
+                        resolve()
+                    })
+                }).catch(err => {
+                    console.log("createRelatedTables name", err)
+                    //return err
+                }) )
+            }
+        }
     }
 
     // Create new URI, 
@@ -198,7 +300,7 @@ async function createRelatedTables(list, id) {
                 resolve()
             })
         }).catch(err => {
-            console.log("URI", err)
+            console.log("createRelatedTables URI", err)
             //return err
             }) 
         )
@@ -220,7 +322,7 @@ async function createRelatedTables(list, id) {
                         resolve()
                     }) 
                 }).catch(err => {
-                    console.log("lang", err)
+                    console.log("createRelatedTables lang", err)
                     //return err
                 }) )
             }
@@ -241,7 +343,7 @@ async function createRelatedTables(list, id) {
                     resolve()
                 })
             }).catch(err => {
-                console.log("country", err)
+                console.log("createRelatedTables country", err)
                 //return err
             }) )
         }
@@ -261,13 +363,13 @@ async function createRelatedTables(list, id) {
                     resolve()
                 })
             }).catch(err => {
-                console.log("genres", err)
+                console.log("createRelatedTables genres", err)
                 //return err
             }) )
         }
     }
 
-    await Promise.all(promises).catch(err => console.log("ALL", err))
+    await Promise.all(promises).catch(err => console.log("createRelatedTables ALL", err))
 
     //console.timeEnd()  // 40ms vs 13ms   
 }
@@ -301,11 +403,26 @@ async function getRestOfServiceList(list) {
     })
     if(pnames) {
         list.Provider = pnames[0].Name
-        list.Names = pnames // remove ids before returning?
+        //list.ProviderNames = pnames 
     }
 
-    // TODO fetch list names
-    //list.Names = names
+    // fetch list names / langs
+    list.Names = [{name: "Not defined", lang: "Not defined"}]
+    list.Name = "Not defined"
+    list.lang = "Not defined"
+    const names = await getNames(list).catch(err => {
+        console.log("getNames error: ", err)
+    })
+    if(names) {        
+        if(names.length) {
+            list.Names = names
+            list.Name = names[0].name || "Not defined"
+            list.lang = names[0].lang || "Not defined"  
+        }        
+    }
+    else {
+        console.log("no names found for list", list.Id)        
+    }
 
     // fetch TargetCountries
     const countries = await getTargetCountries(list).catch(err => {
@@ -401,6 +518,24 @@ function getLanguages(list) {
              }
              else {          
                  resolve(res)
+             }
+         })
+    })
+ }
+
+ function getNames(list) {
+    return new Promise((resolve, reject) => {
+         sql.query(`SELECT * FROM ServiceListName where ServiceListName.ServiceList = ${list.Id}`, (err, res) => {
+             if (err) {
+                 console.log("error: ", err);
+                 reject(err)
+             }
+             else {
+                 let response = []
+                 res.forEach(item => {
+                     response.push({name: item.Name, lang: item.Lang})
+                 })        
+                 resolve(response)
              }
          })
     })

@@ -9,7 +9,7 @@ const EventHistory = function(eventHistory) {
     this.Time = eventHistory.Time
     this.ServiceList = eventHistory.ServiceList
     this.Name = eventHistory.Name
-    this.ContentJson = eventHistory.ContentJson
+    this.ContentJson = JSON.stringify( eventHistory.ContentJson )
 }
 
 
@@ -50,5 +50,5 @@ EventHistory.findById = (ListId, result) => {
 
 module.exports = EventHistory
 
-// findById
+
 

@@ -1,7 +1,37 @@
  <template>
+
+  
+  <transition name="modal">
+    <div v-if="confirmDelete">
+      <div class="modal-mask">
+        <div class="modal-wrapper" role="dialog" aria-labelledby="exampleModalCenterTitle">
+          <div class="modal-dialog modal-dialog-centered" tabindex="-1" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalCenterTitle">Delete Provider</h5>
+                <button type="button" class="close btn btn-outline-primary" data-dismiss="modal" aria-label="Close" @click="confirmDelete = !confirmDelete">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <p>ALL related Service Lists will also be deleted!</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" data-dismiss="modal" @click="confirmDelete = !confirmDelete">Cancel</button>
+                <button type="button" class="btn btn-danger" @click="deleteProvider">Delete</button>          
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+  
+
+
   <div v-if="currentProvider" class="edit-form row">
 
-    <div class="col-md-8">
+    <div class="col-sm-8">
       <h4>Edit Provider</h4>
       <form>
         
@@ -119,10 +149,10 @@
 
     </div>
 
-    <div class="col-md-4">
+    <div class="col-sm-4">
       <div class="btn-group btn-group-sm my-2" role="group">
-        <button class="btn btn-outline-danger "
-          @click="deleteProvider"
+        <button class="btn btn-outline-danger"
+          @click="confirmDelete = !confirmDelete"
         >
           Delete
         </button>
@@ -134,7 +164,7 @@
         </button>        
       </div>
       <p>{{ message }}</p>
-  </div>
+    </div>    
 
   </div>
 
@@ -142,6 +172,9 @@
     <br />
     <p>Provider was not found...</p>
   </div>
+
+  
+  
 </template>
 
 <script>
@@ -152,7 +185,8 @@ export default {
   data() {
     return {
       currentProvider: null,
-      message: ''
+      message: '',
+      confirmDelete: false
     };
   },
   methods: {
@@ -184,8 +218,8 @@ export default {
             Address: addrstring,
         }
 
-      //console.log("POST",this.currentProvider.Id, data)//this.currentProvider);
-      ProviderDataService.update(this.currentProvider.Id, data) //this.currentProvider)
+      //console.log("POST",this.currentProvider.Id, data)
+      ProviderDataService.update(this.currentProvider.Id, data) 
         .then(response => {
           console.log(response.data);
           this.message = 'The Provider was updated successfully!'
@@ -195,9 +229,16 @@ export default {
         })
         .catch(e => {
           console.log(e);
+          this.message = "Could not update Provider."
         });
     },
+
+    confirmDeleteProvider() {
+      this.confirmDelete = !this.confirmDelete
+    },
+
     deleteProvider() {
+      this.confirmDelete = false
       ProviderDataService.delete(this.currentProvider.Id)
         .then(response => {
           console.log(response.data);
@@ -208,8 +249,10 @@ export default {
         })
         .catch(e => {
           console.log(e);
+          this.message = "Could not delete Provider."
         });
     },
+
     addNameField() {
       this.currentProvider.Names.push({name: "", type: ""})
     },
@@ -217,6 +260,7 @@ export default {
       console.log(item.target.id)
       this.currentProvider.Names.splice(item.target.id, 1)
     },
+
     regulatorRadio(item) {
       if(item.target.id === "btnradioYes") {
         this.currentProvider.Regulator = 1
@@ -228,6 +272,7 @@ export default {
 
 
   },  
+
   mounted() {
     this.message = '';
     this.getProvider(this.$route.params.id);
@@ -235,10 +280,30 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .edit-form {
   text-align: left;
   max-width: 750px;
   margin: auto;
+}
+.test-form {
+  background: rgb(39, 39, 39);
+  border-radius: 0.5rem;
+}
+.modal-mask {
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, .5);
+  display: table;
+  transition: opacity .3s ease;
+}
+
+.modal-wrapper {
+  display: table-cell;
+  vertical-align: middle;
 }
 </style>
