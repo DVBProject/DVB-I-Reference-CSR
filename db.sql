@@ -125,7 +125,7 @@ CREATE TABLE `User`
  `Name`          text NOT NULL ,
  `Hash`          text NOT NULL ,
  `Role`          text NOT NULL ,
- `Organizations` text NOT NULL ,
+ `Organization`  integer NOT NULL ,
  `Providers`     text NOT NULL ,
  `Id`            integer NOT NULL AUTO_INCREMENT,
 

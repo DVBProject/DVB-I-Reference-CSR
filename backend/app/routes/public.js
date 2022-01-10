@@ -24,7 +24,7 @@ module.exports = app => {
                     username: username,
                     passwordhash: passwordHash,
                     role: "admin",
-                    organizations: "0",
+                    organization: 0,
                     providers: "0"
                 })
 
