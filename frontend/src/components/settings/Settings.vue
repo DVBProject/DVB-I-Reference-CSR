@@ -1,4 +1,5 @@
 <template>
+  <div>
   <div class="list">
     <div class="row">
       <h4>Generate content</h4>
@@ -62,6 +63,7 @@
       </div>
     </div>
 
+  </div>
   </div>
 </template>
 
@@ -190,14 +192,15 @@ export default {
                   genreList.push({name: genres[value].name, value: value});
                 }
                 const data = {
-                    Name: "Provider "+providerNumber+" ServiceList "+(i+1),
+                    Names: [{name: "Provider "+providerNumber+" ServiceList "+(i+1),lang: ""}],
                     URI: "https://serviceprovider-"+providerNumber+".net/servicelist"+i+".xml",
                     lang: languageList,
                     Provider: provider,
                     regulatorList: regulator,
                     Delivery: delivertyList,
                     Countries: countryList,
-                    Genres: genreList
+                    Genres: genreList,
+                    Status: ""
                 } 
                 ServiceListDataService.create(data)
                     .then(response => {

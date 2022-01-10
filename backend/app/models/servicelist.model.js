@@ -2,7 +2,6 @@ const sql = require("./db.js");
 
 // constructor
 const ServiceList = function(serviceList) {
-    this.Name = serviceList.Name
     this.Names = serviceList.Names
     this.lang = serviceList.lang
     this.URI = serviceList.URI
@@ -11,20 +10,20 @@ const ServiceList = function(serviceList) {
     this.Delivery = serviceList.Delivery
     this.Countries = serviceList.Countries
     this.Genres = serviceList.Genres
+    this.Status = serviceList.Status
 }
 
 
 ServiceList.create = (newServiceList, result) => {
 
     // verify needed data is not missing
-    newServiceList.Name = newServiceList.Name || "Not defined"
     newServiceList.Names = newServiceList.Names || [{name:"Not defined", lang:"Not defined"}]
     if( !newServiceList.lang || newServiceList.lang.length < 1) newServiceList.lang = [{a3: "Not defined"}]
     newServiceList.URI = newServiceList.URI || "Not defined"
     if(!newServiceList.Delivery || newServiceList.Delivery.length < 1) newServiceList.Delivery = ["DASHDelivery"]
     const deliveries = JSON.stringify(newServiceList.Delivery)
 
-    sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, Delivery = ?", [ newServiceList.Provider, newServiceList.regulatorList, deliveries ], async (err, res) => {
+    sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, Delivery = ?,Status = ?", [ newServiceList.Provider, newServiceList.regulatorList, deliveries, newServiceList.Status ], async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -189,7 +188,6 @@ ServiceList.updateById = (id, List, result) => {
     console.log('update', List, id);
 
     // verify needed data is not missing
-    List.Name = List.Name || "Not defined"
     List.Names = List.Names || [{name:"Not defined", lang:"Not defined"}]
     if( !List.lang || List.lang.length < 1) List.lang = [{a3: "Not defined"}]
     List.URI = List.URI || "Not defined"
@@ -268,7 +266,7 @@ async function createRelatedTables(list, id) {
     if(list.Names) {
         for(var i = 0; i < list.Names.length; i++) {
             //console.log("create name")
-            if(list.Names[i].name && list.Names[i].lang) {
+            if(list.Names[i].name) {
                 promises.push(new Promise((resolve, reject) => {
                     sql.query("INSERT INTO ServiceListName SET ServiceList = ?, Name = ?, lang = ?",  [id, list.Names[i].name, list.Names[i].lang], (err, res) => {
                         if (err) {

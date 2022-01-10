@@ -21,7 +21,8 @@ exports.create = (req, res) => {
         regulatorList: req.body.regulatorList,
         Delivery: req.body.Delivery,
         Countries: req.body.Countries,
-        Genres: req.body.Genres
+        Genres: req.body.Genres,
+        Status: req.body.Status
     });
 
   
