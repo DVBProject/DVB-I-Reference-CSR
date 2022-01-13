@@ -1,7 +1,7 @@
 module.exports = app => {
     const providers = require("../controllers/provider.controller.js");
   
-    // Create a new Customer
+    // Create a new provider
     app.post("/providers", providers.create);
   
     // Retrieve all providers

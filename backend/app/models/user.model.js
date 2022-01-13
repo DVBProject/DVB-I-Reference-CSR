@@ -5,7 +5,8 @@ const User = function(newuser) {
     this.Name = newuser.username
     this.Hash = newuser.passwordhash,
     this.Role = newuser.role
-    this.Organizations = newuser.organizations
+    this.Organization = newuser.organization
+    this.Providers = "";
 }
 
 User.create = (user) => {

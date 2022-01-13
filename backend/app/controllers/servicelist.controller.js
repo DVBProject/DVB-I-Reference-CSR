@@ -13,7 +13,6 @@ exports.create = (req, res) => {
   
     // Create a List
     const serviceList = new ServiceList({
-        Name: req.body.Name,
         Names: req.body.Names,
         URI: req.body.URI,
         lang: req.body.lang,
