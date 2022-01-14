@@ -249,7 +249,7 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
             entity = root.ele("ServiceListRegistryEntity",{'regulatorFlag': (organization["Regulator"] == 1 ? "true" : "false")});
         }
         else {
-            entity = root.ele("Provider");
+            entity = root.ele("Provider",{'regulatorFlag': (organization["Regulator"] == 1 ? "true" : "false")});
         }
         for(var name of names[0]) {
             var nameElement = entity.ele("Name",{},name.Name);
@@ -258,8 +258,41 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
                 nameElement.att("type",name.Type);                
             }
         }
-        entity.ele("Address");
-        entity.ele("ElectronicAddress");
+        if(organization.Jurisdiction) {
+            entity.ele("Jurisdiction",{},organization.Jurisdiction);
+        }
+        if(organization.Address) {
+            try {
+            const address = JSON.parse(organization.Address);
+            var addressElement = entity.ele("Address");
+            var postalAddress = addressElement.ele("mpeg7:PostalAddress");
+            postalAddress.ele("mpeg7:AddressLine",{},address.street + " " + address.postcode + " " +address.country);
+            }
+            catch(e) {
+                console.log(e);
+            }
+        }
+        if(organization.ElectronicAddress) {
+            try {
+                const electronicAddress = JSON.parse(organization.ElectronicAddress);
+                let electronicAddressElement = entity.ele("ElectronicAddress");
+                if(electronicAddress.Telephone) {
+                    electronicAddressElement.ele("mpeg7:Telephone",{},electronicAddress.Telephone)
+                }
+                if(electronicAddress.Fax) {
+                    electronicAddressElement.ele("mpeg7:Fax",{},electronicAddress.Fax)
+                }
+                if(electronicAddress.Telephone) {
+                    electronicAddressElement.ele("mpeg7:Email",{},electronicAddress.Email)
+                }
+                if(electronicAddress.Telephone) {
+                    electronicAddressElement.ele("mpeg7:Url",{},electronicAddress.Url)
+                }
+            }
+            catch(e) {
+                console.log(e);
+            }
+        }
     } catch(e) {
         console.log(e);
     }
