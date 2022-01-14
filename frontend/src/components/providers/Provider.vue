@@ -121,16 +121,29 @@
           <label for="floatingInputCountry">Country</label>
         </div>
 
-
-
         <div class="form-group">
           <label for="description">Electronic Address:</label>
-          <input type="text" class="form-control my-2" id="electronicaddress"
-            v-model="currentProvider.ElectronicAddress"
-          />
+           <div class="form-floating mb-1">
+          <input type="text" id="floatingInputTelephone" class="form-control my-2" placeholder="Telephone"
+              v-model="currentProvider.ElectronicAddress.Telephone"/>
+          <label for="floatingInputStreet">Telephone</label>
+          </div>
+          <div class="form-floating mb-1">
+            <input type="text" id="floatingInputFax" class="form-control my-2" placeholder="Fax"
+                v-model="currentProvider.ElectronicAddress.Fax"/>
+            <label for="floatingInputCity">Fax</label>
+          </div>
+          <div class="form-floating mb-1">
+            <input type="text" id="floatingInputEmail" class="form-control my-2" placeholder="Email"
+                v-model="currentProvider.ElectronicAddress.Email"/>
+            <label for="floatingInputPC">Email</label>
+          </div>
+          <div class="form-floating mb-1">
+            <input type="text" id="floatingInputUrl" class="form-control my-2" placeholder="Url"
+                v-model="currentProvider.ElectronicAddress.Url"/>
+            <label for="floatingInputCountry">Url</label>
+          </div>
         </div>
-
-
 
         <div class="form-group">
           <label for="description">Regulator:</label><br>
@@ -196,8 +209,20 @@ export default {
           this.currentProvider = response.data;
           try {
             this.currentProvider.Address = JSON.parse(response.data.Address)
+            if(!Object.prototype.hasOwnProperty.call(this.currentProvider.Address,"street")) {
+              throw "Invalid address";
+            }
           } catch {
-            this.currentProvider.Address = response.data.Address
+           this.currentProvider.Address = {steet: "",city: "",postcode:"",country: ""};
+          }
+          try {
+            this.currentProvider.ElectronicAddress = JSON.parse(response.data.ElectronicAddress);
+            if(!Object.prototype.hasOwnProperty.call(this.currentProvider.ElectronicAddress,"Email")) {
+              throw "Invalid electronic address";
+            }
+          } catch(e) {
+            console.log(e);
+            this.currentProvider.ElectronicAddress = {Telephone: "",Fax: "",Email:"",Url: ""};
           }
           if(!this.currentProvider.Names) this.currentProvider.Names = []
           console.log(response.data);
@@ -212,10 +237,12 @@ export default {
     },
     updateProvider() {
       const addrstring = JSON.stringify(this.currentProvider.Address)
+      const electronicaddrstring = JSON.stringify(this.currentProvider.ElectronicAddress)
 
       const data = {
             ...this.currentProvider,
             Address: addrstring,
+            ElectronicAddress: electronicaddrstring,
         }
 
       //console.log("POST",this.currentProvider.Id, data)

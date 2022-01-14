@@ -112,6 +112,13 @@ export default {
               //console.log(err)
             }
 
+            try {
+              let electronicaddr = JSON.parse(pr.ElectronicAddress)
+              pr.ElectronicAddress = "Tel:"+electronicaddr.Telephone + " Fax:" + electronicaddr.Fax + " Email:" + electronicaddr.Email + " Url:" + electronicaddr.Url
+            } catch (err) {
+              //console.log(err)
+            }
+
           })
           console.log(response.data);
         })
