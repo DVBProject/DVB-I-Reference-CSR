@@ -1,16 +1,147 @@
 <template>
   <div>
-  <div class="list">
-    <div class="row">
-      <h4>Generate content</h4>
-      <div class="col-md-8">
+    <div class="col-sm-8" v-if="this.provider">
+      <h4>CSR Provider Information</h4>
+      <form>
+        <label>Organization Names:</label>
+        <button class="btn btn-outline-primary mx-2 mb-1" type="button"
+              @click="addNameField"
+            >
+          +
+        </button>
         <div class="input-group mb-3">
+
+          
+          <div class="col-sm-12 px-0"
+              v-for="(name, index) in provider.Names"
+              :key="index">      
+
+            <div class="row my-0 mx-0">
+
+              <div class="form-floating px-0 col-sm-5">          
+                <input type="text" id="floatingInput" class="form-control mb-1" placeholder="Name"
+                    v-model="name.name"/>
+                <label for="floatingInput">Name</label>
+              </div>
+
+              <div class="form-floating px-0 col-sm-5">
+                <input type="text" id="floatingInput2" class="form-control mx-2 mb-1" placeholder="Type"
+                    v-model="name.type"/>
+                <label for="floatingInput2">Type</label>
+              </div>
+
+              <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
+                :id="index"
+                @click="delNameField"
+              >
+                -
+              </button>
+            </div>
+
+          </div>        
+        </div>
+
+        <div class="form-group">
+          <label>Organization Kind:</label>
+          <input type="text" class="form-control my-2" placeholder="Kind"
+              v-model="provider.Kind"/>
+        </div>
+        
+        <div class="form-group">
+          <label for="description">Contact name:</label>
+          <input type="text" class="form-control my-2" id="contactname"
+            v-model="provider.ContactName"
+          />
+        </div>
+        <div class="form-group">
+          <label for="description">Jurisdiction:</label>
+          <input type="text" class="form-control my-2" id="jurisdiction"
+            v-model="provider.Jurisdiction"
+          />
+        </div>
+        
+        <label for="description">Address:</label>
+        <div class="form-floating mb-1">
+          <input type="text" id="floatingInputStreet" class="form-control my-2" placeholder="Street"
+              v-model="provider.Address.street"/>
+          <label for="floatingInputStreet">Street</label>
+        </div>
+        <div class="form-floating mb-1">
+          <input type="text" id="floatingInputCity" class="form-control my-2" placeholder="City"
+              v-model="provider.Address.city"/>
+          <label for="floatingInputCity">City</label>
+        </div>
+        <div class="form-floating mb-1">
+          <input type="text" id="floatingInputPC" class="form-control my-2" placeholder="Post code"
+              v-model="provider.Address.postcode"/>
+          <label for="floatingInputPC">Post code</label>
+        </div>
+        <div class="form-floating mb-1">
+          <input type="text" id="floatingInputCountry" class="form-control my-2" placeholder="Country"
+              v-model="provider.Address.country"/>
+          <label for="floatingInputCountry">Country</label>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Electronic Address:</label>
+           <div class="form-floating mb-1">
+          <input type="text" id="floatingInputTelephone" class="form-control my-2" placeholder="Telephone"
+              v-model="provider.ElectronicAddress.Telephone"/>
+          <label for="floatingInputStreet">Telephone</label>
+          </div>
+          <div class="form-floating mb-1">
+            <input type="text" id="floatingInputFax" class="form-control my-2" placeholder="Fax"
+                v-model="provider.ElectronicAddress.Fax"/>
+            <label for="floatingInputCity">Fax</label>
+          </div>
+          <div class="form-floating mb-1">
+            <input type="text" id="floatingInputEmail" class="form-control my-2" placeholder="Email"
+                v-model="provider.ElectronicAddress.Email"/>
+            <label for="floatingInputPC">Email</label>
+          </div>
+          <div class="form-floating mb-1">
+            <input type="text" id="floatingInputUrl" class="form-control my-2" placeholder="Url"
+                v-model="provider.ElectronicAddress.Url"/>
+            <label for="floatingInputCountry">Url</label>
+          </div>
+
+        </div>
+
+        <div class="form-group">
+          <label for="description">Regulator:</label><br>
+          <div class="btn-group btn-group-sm my-2" role="group" aria-label="Basic radio toggle button group">
+            <input type="radio" class="btn-check" name="btnradio" id="btnradioYes" autocomplete="off" @change="regulatorRadio" :checked="provider.Regulator">
+            <label class="btn btn-outline-primary" for="btnradioYes">Yes</label>
+    
+            <input type="radio" class="btn-check" name="btnradio" id="btnradioNo" autocomplete="off" @change="regulatorRadio" :checked="!provider.Regulator">
+            <label class="btn btn-outline-primary" for="btnradioNo">No</label>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <button class="btn btn-outline-secondary" type="button"
+            @click="updateProvider"
+          >Save
+          </button>
+        </div>
+
+
+      </form>
+
+    </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h4>Generate content</h4>
+      <div class="col-md-5">
+        <div class="form-group">
           <label for="providers">Number of providers to generate</label>
-          <input id="providers" type="number" class="form-control" placeholder="Providers"
+          <input id="providers" type="number" size="3" class="form-control" placeholder="Providers"
             v-model="providers"/>
+        </div>
+        <div class="form-group">
           <label for="lists">Number of servicelists per provider</label>
-          <input id="lists" type="number" class="form-control" placeholder="Servicelists per providers"
+          <input id="lists" type="number" size="3" class="form-control" placeholder="Servicelists per providers"
             v-model="servicelists"/>
+        </div>
           <div class="input-group mb-3">
             <button class="btn btn-outline-secondary" type="button"
               @click="generateData"
@@ -18,10 +149,6 @@
               Generate test data
             </button>
           </div>
-        </div>
-
-        
-
       </div>
     </div>
   </div>
@@ -70,6 +197,7 @@
 <script>
 import ProviderDataService from "../../services/ProviderDataService"
 import ServiceListDataService from "../../services/ServiceListDataService"
+import ListProviderDataService from "../../services/ListProviderDataService"
 import countries from "../../../../common/countries"
 import { deliveries, genres } from "../../../../common/dev_constants"
 import languages from "../../../../common/languages"
@@ -86,6 +214,7 @@ export default {
           currentIndex: -1,
           listHistory: [],
           providerList: [],
+          provider: null,
       };
   } ,
   methods: {
@@ -223,12 +352,71 @@ export default {
       
         });
     },
+    addNameField() {
+      this.provider.Names.push({name: "", type: ""})
+    },
+    delNameField(item) {
+      this.provider.Names.splice(item.target.id, 1)
+    },
+    fetchListprovider() {
+      ListProviderDataService.get()
+        .then(response => {
+          if(response.data) {
+            this.provider = response.data;
+            try {
+              this.provider.Address = JSON.parse(response.data.Address);
+              if(!Object.prototype.hasOwnProperty.call(this.provider.Address,"street")) {
+                throw "Invalid address";
+              }
+            } catch(e) {
+              console.log(e);
+              this.provider.Address = {steet: "",city: "",postcode:"",country: ""};
+            }
+            try {
+              this.provider.ElectronicAddress = JSON.parse(response.data.ElectronicAddress);
+              if(!Object.prototype.hasOwnProperty.call(this.provider.ElectronicAddress,"Email")) {
+                throw "Invalid electronic address";
+              }
+            } catch(e) {
+              console.log(e);
+              this.provider.ElectronicAddress = {Telephone: "",Fax: "",Email:"",Url: ""};
+            }
+            console.log(this.provider);
+          }
+        })
+        .catch(e => {
+          console.log("lists", e);
 
+          // TODO: move this handler the service module
+          LoginService.reset()
+        });
+    },
+    updateProvider() {
+      const addrstring = JSON.stringify(this.provider.Address)
+      const electronicaddrstring = JSON.stringify(this.provider.ElectronicAddress)
+
+      const data = {
+            ...this.provider,
+            Address: addrstring,
+            ElectronicAddress: electronicaddrstring
+        }
+
+      //console.log("POST",this.currentProvider.Id, data)
+      ListProviderDataService.update( data) 
+        .then(response => {
+          console.log(response.data);
+          this.message = 'The Provider was updated successfully!'
+        })
+        .catch(e => {
+          console.log(e);
+          this.message = "Could not update Provider."
+        });
+    },
   },
   mounted() {
     this.fetchLists()
-
     this.fetchByProvider()
+    this.fetchListprovider();
   }
 }
 </script>
