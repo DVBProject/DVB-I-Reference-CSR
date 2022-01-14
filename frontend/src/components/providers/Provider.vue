@@ -100,25 +100,25 @@
 
         
         <label for="description">Address:</label>
-        <div class="form-floating mb-1">
-          <input type="text" id="floatingInputStreet" class="form-control my-2" placeholder="Street"
-              v-model="currentProvider.Address.street"/>
-          <label for="floatingInputStreet">Street</label>
+          <div class="form-floating mb-1">
+          <input type="text" id="floatingInputStreet" class="form-control my-2" placeholder="Name"
+              v-model="currentProvider.Address.Name"/>
+          <label for="floatingInputStreet">Name</label>
         </div>
         <div class="form-floating mb-1">
-          <input type="text" id="floatingInputCity" class="form-control my-2" placeholder="City"
-              v-model="currentProvider.Address.city"/>
-          <label for="floatingInputCity">City</label>
+          <input type="text" id="floatingInputCity" class="form-control my-2" placeholder="Addres line 1"
+              v-model="currentProvider.Address.AddressLine[0]"/>
+          <label for="floatingInputCity">Addres line 1</label>
         </div>
         <div class="form-floating mb-1">
-          <input type="text" id="floatingInputPC" class="form-control my-2" placeholder="Post code"
-              v-model="currentProvider.Address.postcode"/>
-          <label for="floatingInputPC">Post code</label>
+          <input type="text" id="floatingInputCity" class="form-control my-2" placeholder="Addres line 3"
+              v-model="currentProvider.Address.AddressLine[1]"/>
+          <label for="floatingInputCity">Addres line 2</label>
         </div>
         <div class="form-floating mb-1">
-          <input type="text" id="floatingInputCountry" class="form-control my-2" placeholder="Country"
-              v-model="currentProvider.Address.country"/>
-          <label for="floatingInputCountry">Country</label>
+          <input type="text" id="floatingInputCity" class="form-control my-2" placeholder="Addres line 3"
+              v-model="currentProvider.Address.AddressLine[2]"/>
+          <label for="floatingInputCity">Addres line 3</label>
         </div>
 
         <div class="form-group">
@@ -209,11 +209,11 @@ export default {
           this.currentProvider = response.data;
           try {
             this.currentProvider.Address = JSON.parse(response.data.Address)
-            if(!Object.prototype.hasOwnProperty.call(this.currentProvider.Address,"street")) {
+            if(!Object.prototype.hasOwnProperty.call(this.currentProvider.Address,"AddressLine")) {
               throw "Invalid address";
             }
           } catch {
-           this.currentProvider.Address = {steet: "",city: "",postcode:"",country: ""};
+           this.currentProvider.Address = {Name: "",AddressLine: ["","",""]};
           }
           try {
             this.currentProvider.ElectronicAddress = JSON.parse(response.data.ElectronicAddress);

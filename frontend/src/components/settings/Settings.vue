@@ -62,24 +62,24 @@
         
         <label for="description">Address:</label>
         <div class="form-floating mb-1">
-          <input type="text" id="floatingInputStreet" class="form-control my-2" placeholder="Street"
-              v-model="provider.Address.street"/>
-          <label for="floatingInputStreet">Street</label>
+          <input type="text" id="floatingInputStreet" class="form-control my-2" placeholder="Name"
+              v-model="provider.Address.Name"/>
+          <label for="floatingInputStreet">Name</label>
         </div>
         <div class="form-floating mb-1">
-          <input type="text" id="floatingInputCity" class="form-control my-2" placeholder="City"
-              v-model="provider.Address.city"/>
-          <label for="floatingInputCity">City</label>
+          <input type="text" id="floatingInputCity" class="form-control my-2" placeholder="Addres line 1"
+              v-model="provider.Address.AddressLine[0]"/>
+          <label for="floatingInputCity">Addres line 1</label>
         </div>
         <div class="form-floating mb-1">
-          <input type="text" id="floatingInputPC" class="form-control my-2" placeholder="Post code"
-              v-model="provider.Address.postcode"/>
-          <label for="floatingInputPC">Post code</label>
+          <input type="text" id="floatingInputCity" class="form-control my-2" placeholder="Addres line 3"
+              v-model="provider.Address.AddressLine[1]"/>
+          <label for="floatingInputCity">Addres line 2</label>
         </div>
         <div class="form-floating mb-1">
-          <input type="text" id="floatingInputCountry" class="form-control my-2" placeholder="Country"
-              v-model="provider.Address.country"/>
-          <label for="floatingInputCountry">Country</label>
+          <input type="text" id="floatingInputCity" class="form-control my-2" placeholder="Addres line 3"
+              v-model="provider.Address.AddressLine[2]"/>
+          <label for="floatingInputCity">Addres line 3</label>
         </div>
 
         <div class="form-group">
@@ -365,12 +365,12 @@ export default {
             this.provider = response.data;
             try {
               this.provider.Address = JSON.parse(response.data.Address);
-              if(!Object.prototype.hasOwnProperty.call(this.provider.Address,"street")) {
+              if(!Object.prototype.hasOwnProperty.call(this.provider.Address,"AddressLine")) {
                 throw "Invalid address";
               }
             } catch(e) {
               console.log(e);
-              this.provider.Address = {steet: "",city: "",postcode:"",country: ""};
+              this.provider.Address = {Name: "",AddressLine: ["","",""]};
             }
             try {
               this.provider.ElectronicAddress = JSON.parse(response.data.ElectronicAddress);
