@@ -1,4 +1,3 @@
-DROP database dvb_i_csr;
 CREATE DATABASE dvb_i_csr DEFAULT CHARACTER SET utf8 COLLATE utf8_swedish_ci;
 USE dvb_i_csr;
 
@@ -201,8 +200,21 @@ ALTER TABLE `ServiceListName`
 ALTER TABLE `ServiceListName`
   ADD CONSTRAINT `FK_73` FOREIGN KEY `fkIdx_75` (`ServiceList`) REFERENCES `ServiceListOffering` (`Id`) ON DELETE CASCADE;
 
-INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator) VALUES ('Repository provider','Contact','Jurisdiction','Address','Electronic address',1);
-INSERT INTO EntityName(Name,Type,Organization) VALUES("Repository provider","",1);
-INSERT INTO ServiceListEntryPoints(ServiceListRegistryEntity) VALUES (1);
+/*alter table to migrate from older versions without dropping database*/
+ALTER TABLE `ServiceListOffering`
+  ADD `Status` text NOT NULL;
 
-INSERT INTO User VALUES ('admin','$2a$08$B5kXMji7bHC8yOO1xIqeO.Vy3oPc.rkQUTG4bNG1hZWNBmcz9eaZe','admin',0,1);
+ALTER TABLE `User`
+  ADD `Providers` text NOT NULL;
+
+ALTER TABLE `User`
+  DROP COLUMN `Organizations`;
+
+ALTER TABLE `User`
+  ADD `Organization` TEXT NOT NULL;
+
+INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator),Id VALUES ('Repository provider','Contact','Jurisdiction','Address','Electronic address',1,1);
+INSERT INTO EntityName(Name,Type,Organization,Id) VALUES("Repository provider","",1,1);
+INSERT INTO ServiceListEntryPoints(ServiceListRegistryEntity,Id) VALUES (1,1);
+
+INSERT INTO User(Name,Hash,Role,Id,Providers,Organization) VALUES ('admin','$2a$08$B5kXMji7bHC8yOO1xIqeO.Vy3oPc.rkQUTG4bNG1hZWNBmcz9eaZe','admin',1,"",1);
