@@ -165,7 +165,7 @@ export default {
 
       Name: "",
       Type: "",
-      Names: [],
+      Names: [{name: "", type: ""}],
 
       ContactName: "",
       Jurisdiction: {
