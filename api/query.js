@@ -275,7 +275,7 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
                 }
             }
             catch(e) {
-                console.log("Invalid Address JSON:"+organization.Address);
+                console.log("Invalid Jurisdiction JSON:"+organization.Address);
             }
         }
         if(organization.Address) {
