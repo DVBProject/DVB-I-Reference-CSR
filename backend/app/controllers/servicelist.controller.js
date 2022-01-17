@@ -1,5 +1,6 @@
 const ServiceList = require("../models/servicelist.model.js");
 const EventHistory = require("../controllers/eventhistory.controller");
+const Providers = require("../controllers/provider.controller");
 
 // Create and Save a new List
 exports.create = (req, res) => {
@@ -58,15 +59,42 @@ exports.create = (req, res) => {
 exports.findAll = (req, res) => {
   //console.log(req.url, req.ip, "user:", req.user.Name, req.user.Role)
   // check that user is admin
+  if(!req.user) {
+    res.status(500).send({
+      message:
+        err.message || "Not authorized."
+    });
+    return
+  }
 
-  ServiceList.getAll((err, data) => {
-    if (err)
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving lists."
-      });
-    else res.send(data);
-  });
+  if (req.user.Role == "admin") {
+    ServiceList.getAll((err, data) => {
+      if (err)
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving lists."
+        });
+      else res.send(data);
+    });
+  }
+  else {
+    /*
+    // get users providers and their lists
+    let provs = JSON.parse(req.user.Providers)
+    let lists = []
+    //for p in provs 
+    // ServiceList.getAllByProvider(provider, (err, data) => {
+      // lists.push(data)
+
+    // res.send(lists)
+    */
+
+    res.status(500).send({
+      message:
+        err.message || "Not authorized."
+    })
+    console.log("Not auth: user asked getAll", req.user)
+  }
 };
 
 
@@ -99,9 +127,9 @@ exports.findAllByProvider = (req, res) => {
 }
 
 
+// find with status and by provider (optonal)
 //
-//
-exports.findWithStatus = (req, result, status, provider = null ) => {
+exports.findWithStatus = (req, result, status = 'active', provider = null ) => {
   //console.log(req.url, req.ip, "user:", req.user.Name, req.user.Role)
   ServiceList.getAllByStatus((err, data) => {
       if (err) result(err, null)

@@ -39,7 +39,7 @@ User.getAll = () => {
 
 User.findById = (Id) => {
     return new Promise((resolve, reject) => {
-        sql.query(`SELECT * FROM User WHERE User.Id = ${Id}`, (err, res) => {
+        sql.query(`SELECT * FROM User WHERE User.Id = ?`, [Id], (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 reject(err)
@@ -53,7 +53,7 @@ User.findById = (Id) => {
 
 User.findByName = (Name) => {
     return new Promise((resolve, reject) => {
-        sql.query(`SELECT * FROM User WHERE User.Name = "${Name}"`, (err, res) => {
+        sql.query(`SELECT * FROM User WHERE User.Name = ?`, [Name], (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 reject(err)

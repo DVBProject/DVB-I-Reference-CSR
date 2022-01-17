@@ -64,9 +64,10 @@ ServiceList.findById = (ListId, result) => {
 //
 ServiceList.getAllByStatus = async (result, liststatus = 'active', provider = null) => {
     let query = ''
-    if (provider) query = `SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Status = "${liststatus}" AND ServiceListOffering.Provider = ${provider} AND ServiceListURI.ServiceList = ServiceListOffering.Id`
-    else query = `SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Status = "${liststatus}" AND ServiceListURI.ServiceList = ServiceListOffering.Id`
-    sql.query(query, async (err, res) => {
+    // using query params
+    if (provider) query = `SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Status = ? AND ServiceListOffering.Provider = ? AND ServiceListURI.ServiceList = ServiceListOffering.Id`
+    else query = `SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Status = ? AND ServiceListURI.ServiceList = ServiceListOffering.Id`
+    sql.query(query, [liststatus, provider], async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -99,8 +100,8 @@ ServiceList.getAllByStatus = async (result, liststatus = 'active', provider = nu
 }
 
 ServiceList.getAllByProvider = async (provider, result) => {
-
-    sql.query(`SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering where ServiceListOffering.Provider = ${provider} AND ServiceListURI.ServiceList = ServiceListOffering.Id`, async (err, res) => {
+    
+    sql.query(`SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering where ServiceListOffering.Provider = ? AND ServiceListURI.ServiceList = ServiceListOffering.Id`, [provider], async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(null, err);

@@ -30,23 +30,36 @@ exports.create = (req, res) => {
           err.message || "Some error occurred while creating the Provider."
       });
     else res.send(data);
+
+    // add the new provider to users' providers
+    // 
   });
 };
 
 // Retrieve all Providers from the database.
 exports.findAll = (req, res) => {
-  Provider.getAll((err, data) => {
-    if (err)
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving providers."
-      });
-    else res.send(data);
-  });
+  if (req.user && req.user.Role == "admin") {
+    Provider.getAll((err, data) => {
+      if (err)
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving providers."
+        });
+      else res.send(data);
+    });
+  }
+  else {
+    res.status(500).send({
+      message:
+        err.message || "Not authorized."
+    })
+  }
 };
 
 // Find a single Customer with a customerId
 exports.findOne = (req, res) => {
+  // check user has rigths to this prov
+
   Provider.findById(req.params.customerId, (err, data) => {
     if (err) {
       if (err.kind === "not_found") {
@@ -64,6 +77,8 @@ exports.findOne = (req, res) => {
 
 // Update a Customer identified by the customerId in the request
 exports.update = (req, res) => {
+  // check user has rigths to this prov
+
   // Validate Request
   if (!req.body) {
     res.status(400).send({
@@ -94,7 +109,7 @@ exports.update = (req, res) => {
 
 // Delete a Provider with the specified customerId in the request
 exports.delete = async (req, res) => {
-
+  // check user has rigths to this prov
   //console.log(req.params, req.body)
   await ServiceList.deleteProviderLists(req, req.params.customerId)
 
