@@ -86,7 +86,7 @@ exports.update = (req, res) => {
     });
   }
 
-  console.log(req.body);
+  console.log("updating:", req.body);
 
   Provider.updateById(
     req.params.customerId,

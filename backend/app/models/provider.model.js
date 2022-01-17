@@ -66,7 +66,8 @@ Provider.create = (newProvider, Names, result) => {
 };
 
 Provider.findById = (ProviderId, result) => {
-    sql.query(`SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization,EntityName WHERE ProviderOffering.Id = ${ProviderId} AND ProviderOffering.Organization = Organization.Id `, async (err, res) => {
+    sql.query(`SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization,EntityName WHERE ProviderOffering.Id = ? AND ProviderOffering.Organization = Organization.Id `,
+       [ProviderId], async (err, res) => {
         if (err) {
             console.log("findById error: ", err);
             result(err, null);
@@ -229,7 +230,7 @@ Provider.removeAll = result => {
 
 function removeNames(id) {
     return new Promise((resolve, reject) => {
-        sql.query(`DELETE FROM EntityName where EntityName.Organization = ${id}`, (err, res) => {
+        sql.query(`DELETE FROM EntityName where EntityName.Organization = ?`, [id], (err, res) => {
             if (err) {
                 console.log("EntityName delete error: ", err);
                 reject(err)
@@ -245,6 +246,7 @@ async function createNames(orgId, provider) {
     let promises = []
     for(index in provider.Names) {
         const data = {...provider.Names[index], organization: orgId}
+        // nimet ei valttamatta talletu samaan jarj kuin UI:lla, fix: poista promise.all ja oota ne yksitellen..
         promises.push(
             new Promise((resolve, reject) => {
                 sql.query("INSERT INTO EntityName SET ?", data, (err, res) => {
@@ -261,7 +263,7 @@ async function createNames(orgId, provider) {
 
 function getNames(provider) {
     return new Promise((resolve, reject) => {
-         sql.query(`SELECT * FROM EntityName where EntityName.Organization = ${provider.Organization}`, (err, res) => {
+         sql.query(`SELECT * FROM EntityName where EntityName.Organization = ?`, [provider.Organization], (err, res) => {
              if (err) {
                  console.log("EntityName get error: ", err);
                  reject(err)
