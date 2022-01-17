@@ -104,19 +104,25 @@ export default {
           this.providers = response.data;
           this.providers.forEach(pr => {
             
+             try {
+              let jurisdiction = JSON.parse(pr.Jurisdiction)
+              pr.Jurisdiction = jurisdiction.Name + " " + jurisdiction.AddressLine[0] + " " + jurisdiction.AddressLine[1] + " " + jurisdiction.AddressLine[2]
+            } catch (err) {
+              pr.Jurisdiction = "";
+            }
             // parse address objects
             try {
               let addr = JSON.parse(pr.Address)
-              pr.Address = addr.street + " " + addr.city + " " + addr.postcode + " " + addr.country
+              pr.Address = addr.Name + " " + addr.AddressLine[0] + " " + addr.AddressLine[1] + " " + addr.AddressLine[2]
             } catch (err) {
-              //console.log(err)
+              pr.Address = "";
             }
 
             try {
               let electronicaddr = JSON.parse(pr.ElectronicAddress)
               pr.ElectronicAddress = "Tel:"+electronicaddr.Telephone + " Fax:" + electronicaddr.Fax + " Email:" + electronicaddr.Email + " Url:" + electronicaddr.Url
             } catch (err) {
-              //console.log(err)
+              pr.ElectronicAddress = "";
             }
 
           })
