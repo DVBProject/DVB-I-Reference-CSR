@@ -55,9 +55,26 @@
         </div>
         <div class="form-group">
           <label for="description">Jurisdiction:</label>
-          <input type="text" class="form-control my-2" id="jurisdiction"
-            v-model="provider.Jurisdiction"
-          />
+          <div class="form-floating mb-1">
+          <input type="text" id="jurisdictionInputName" class="form-control my-2" placeholder="Name"
+              v-model="provider.Jurisdiction.Name"/>
+          <label for="jurisdictionInputName">Name</label>
+          </div>
+          <div class="form-floating mb-1">
+            <input type="text" id="jurisdictionInputLine1" class="form-control my-2" placeholder="Address line 1"
+                v-model="provider.Jurisdiction.AddressLine[0]"/>
+            <label for="jurisdictionInputLine1">Address line 1</label>
+          </div>
+          <div class="form-floating mb-1">
+            <input type="text" id="jurisdictionInputLine2" class="form-control my-2" placeholder="Address line 3"
+                v-model="provider.Jurisdiction.AddressLine[1]"/>
+            <label for="jurisdictionInputLine2">Address line 2</label>
+          </div>
+          <div class="form-floating mb-1">
+            <input type="text" id="jurisdictionInputLine3" class="form-control my-2" placeholder="Address line 3"
+                v-model="provider.Jurisdiction.AddressLine[2]"/>
+            <label for="jurisdictionInputLine1">Address line 3</label>
+          </div>
         </div>
         
         <label for="description">Address:</label>
@@ -372,6 +389,16 @@ export default {
               console.log(e);
               this.provider.Address = {Name: "",AddressLine: ["","",""]};
             }
+
+            try {
+              this.provider.Jurisdiction = JSON.parse(response.data.Jurisdiction);
+              if(!Object.prototype.hasOwnProperty.call(this.provider.Jurisdiction,"AddressLine")) {
+                throw "Invalid address";
+              }
+            } catch(e) {
+              console.log(e);
+              this.provider.Jurisdiction = {Name: "",AddressLine: ["","",""]};
+            }
             try {
               this.provider.ElectronicAddress = JSON.parse(response.data.ElectronicAddress);
               if(!Object.prototype.hasOwnProperty.call(this.provider.ElectronicAddress,"Email")) {
@@ -393,11 +420,13 @@ export default {
     },
     updateProvider() {
       const addrstring = JSON.stringify(this.provider.Address)
+      const jurisdictionstring = JSON.stringify(this.provider.Jurisdiction)
       const electronicaddrstring = JSON.stringify(this.provider.ElectronicAddress)
 
       const data = {
             ...this.provider,
             Address: addrstring,
+            Jurisdiction: jurisdictionstring,
             ElectronicAddress: electronicaddrstring
         }
 
