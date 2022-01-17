@@ -40,7 +40,8 @@ ServiceList.create = (newServiceList, result) => {
 
 
 ServiceList.findById = (ListId, result) => {
-    sql.query(`SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Id = ${ListId} AND ServiceListURI.ServiceList = ServiceListOffering.Id`, async (err, res) => {
+    sql.query(`SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Id = ? AND ServiceListURI.ServiceList = ServiceListOffering.Id`, 
+       [ListId], async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -482,7 +483,7 @@ function removeAllListEntries(listId, tableName) {
 //
 function getTargetCountries(list) {
    return new Promise((resolve, reject) => {
-        sql.query(`SELECT * FROM TargetCountry where TargetCountry.ServiceList = ${list.Id}`, (err, res) => {
+        sql.query(`SELECT * FROM TargetCountry where TargetCountry.ServiceList = ?`, [list.Id], (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 reject(err)
@@ -496,7 +497,7 @@ function getTargetCountries(list) {
 
 function getLanguages(list) {
     return new Promise((resolve, reject) => {
-         sql.query(`SELECT * FROM Language where Language.ServiceList = ${list.Id}`, (err, res) => {
+         sql.query(`SELECT * FROM Language where Language.ServiceList = ?`, [list.Id], (err, res) => {
              if (err) {
                  console.log("error: ", err);
                  reject(err)
@@ -510,7 +511,7 @@ function getLanguages(list) {
 
  function getGenres(list) {
     return new Promise((resolve, reject) => {
-         sql.query(`SELECT * FROM Genre where Genre.ServiceList = ${list.Id}`, (err, res) => {
+         sql.query(`SELECT * FROM Genre where Genre.ServiceList = ?`, [list.Id], (err, res) => {
              if (err) {
                  console.log("error: ", err);
                  reject(err)
@@ -524,7 +525,7 @@ function getLanguages(list) {
 
  function getNames(list) {
     return new Promise((resolve, reject) => {
-         sql.query(`SELECT * FROM ServiceListName where ServiceListName.ServiceList = ${list.Id}`, (err, res) => {
+         sql.query(`SELECT * FROM ServiceListName where ServiceListName.ServiceList = ?`, [list.Id], (err, res) => {
              if (err) {
                  console.log("error: ", err);
                  reject(err)
@@ -543,14 +544,14 @@ function getLanguages(list) {
  function getProviderNames(list) {
     return new Promise((resolve, reject) => {
         // get organization for provider
-         sql.query(`SELECT * FROM ProviderOffering where ProviderOffering.Id = ${list.Provider}`, (err, res) => {
+         sql.query(`SELECT * FROM ProviderOffering where ProviderOffering.Id = ?`, [list.Provider], (err, res) => {
              if (err) {
                  console.log("error: ", err);
                  reject(err)
              }
              else {      
                  // get organization names 
-                 sql.query(`SELECT * FROM EntityName where EntityName.Organization = ${res[0].Organization}`, (err, res2) => {
+                 sql.query(`SELECT * FROM EntityName where EntityName.Organization = ?`, [res[0].Organization], (err, res2) => {
                     if (err) {
                         console.log("error: ", err);
                         reject(err)
