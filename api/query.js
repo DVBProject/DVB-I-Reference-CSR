@@ -258,6 +258,12 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
                 nameElement.att("type",name.Type);                
             }
         }
+        if(organization.Kind) {
+            entity.ele("Kind",{},organization.Kind);
+        }
+        if(organization.ContactName) {
+            entity.ele("ContactName",{},organization.ContactName);
+        }
         if(organization.Jurisdiction) {
             try {
                 var addressElement = entity.ele("Jurisdiction");
