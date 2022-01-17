@@ -294,14 +294,14 @@ export default {
             const providerNumber = providerList.length+1+z; 
             const keys = Object.keys(countries);
             let value = keys[Math.floor(Math.random() * keys.length)]
-            const addrstring = JSON.stringify({street: "Examplestreet "+providerNumber,city:"Exampletown",postcode: "00000",country: countries[value].name});
+            const addrstring = JSON.stringify({Name: "",AddressLine:["Examplestreet "+providerNumber,"Exampletown 00000",countries[value].name]});
             const data = {
               Kind: kinds[Math.floor(Math.random() * kinds.length)],
               Names: [{name: "Test provider "+providerNumber, type: ""},{name: "TP"+providerNumber, type: "variant"}],
               ContactName: "Contact Name "+providerNumber,
-              Jurisdiction: "Test location",
+              Jurisdiction: JSON.stringify({Name: "",AddressLine:["","",""]}),
               Address: addrstring,
-              ElectronicAddress: "example_contact"+providerNumber+"@example.com",
+              ElectronicAddress: JSON.stringify({Telephone:"",Email:"example_contact"+providerNumber+"@example.com",Fax: "",Url: ""}),
               Regulator: Math.round(Math.random()),
             }    
             console.log("add provider:", data)
