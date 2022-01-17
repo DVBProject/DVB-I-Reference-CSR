@@ -240,7 +240,7 @@ export default {
         .then(response => {
           this.providers = response.data;
           this.Provider = response.data[0].Id;
-          console.log("provirders:", response.data);
+          //console.log("provirders:", response.data);
         })
         .catch(e => {
           console.log(e);
