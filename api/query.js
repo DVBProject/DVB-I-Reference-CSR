@@ -260,19 +260,8 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
         }
         if(organization.Jurisdiction) {
             try {
-                const address = JSON.parse(organization.Jurisdiction);
-                var addressElement = entity.ele("Address");
-                if(address.Name) {
-                    addressElement.ele("mpeg7:Name",{},address.Name);
-                }
-                if(address.AddressLine) {
-                    var postalAddress = addressElement.ele("mpeg7:PostalAddress");
-                    for (var Line of address.AddressLine) {
-                        if(Line.length > 0) {
-                            postalAddress.ele("mpeg7:AddressLine",{},Line);
-                        }
-                    }
-                }
+                var addressElement = entity.ele("Jurisdiction");
+                this.generatePlaceType(addressElement,organization.Jurisdiction);
             }
             catch(e) {
                 console.log("Invalid Jurisdiction JSON:"+organization.Address);
@@ -280,19 +269,8 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
         }
         if(organization.Address) {
             try {
-                const address = JSON.parse(organization.Address);
                 var addressElement = entity.ele("Address");
-                if(address.Name) {
-                    addressElement.ele("mpeg7:Name",{},address.Name);
-                }
-                if(address.AddressLine) {
-                    var postalAddress = addressElement.ele("mpeg7:PostalAddress");
-                    for (var Line of address.AddressLine) {
-                        if(Line.length > 0) {
-                            postalAddress.ele("mpeg7:AddressLine",{},Line);
-                        }
-                    }
-                }
+                this.generatePlaceType(addressElement,organization.Address);
             }
             catch(e) {
                 console.log("Invalid Address JSON:"+organization.Address);
@@ -322,6 +300,22 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
     } catch(e) {
         console.log(e);
     }
+}
+
+csrquery.generatePlaceType = function(root,data) {
+    const address = JSON.parse(data);
+    if(address.Name) {
+        root.ele("mpeg7:Name",{},address.Name);
+    }
+    if(address.AddressLine) {
+        var postalAddress = root.ele("mpeg7:PostalAddress");
+        for (var Line of address.AddressLine) {
+            if(Line.length > 0) {
+                postalAddress.ele("mpeg7:AddressLine",{},Line);
+            }
+        }
+    }
+
 }
 
 csrquery.generateProviderXML = async function(provider,lists,root) {
