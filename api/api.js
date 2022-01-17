@@ -21,7 +21,7 @@ http.createServer(async function (req, res) {
     }
     
     var request =  url.parse(req.url,true);
-    if(!request.pathname || !request.pathname.endsWith("/query")) {
+    if(!request.pathname || !request.pathname.endsWith("/query")) {
         res.writeHead(400);
 		res.end();
         console.log("ERROR: Wrong pathname:"+req.pathname);
