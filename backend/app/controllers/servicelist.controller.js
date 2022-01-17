@@ -160,14 +160,25 @@ exports.findOne = (req, res) => {
 exports.update = (req, res) => {
   // check for auth,
   // Validate Request & user, TODO
+
+  const listId = req.params.listId
+
   if (!req.body) {
     res.status(400).send({
       message: "Content can not be empty!"
     });
+    return
+  }
+
+  if (isNaN(listId)) {
+    res.status(400).send({
+      message: "Invalid request!"
+    });
+    return
   }
 
   ServiceList.updateById(
-    req.params.listId,
+    listId,
     new ServiceList(req.body),
     (err, data) => {
       if (err) {         
