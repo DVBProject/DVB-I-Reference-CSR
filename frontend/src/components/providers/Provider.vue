@@ -93,32 +93,49 @@
         </div>
         <div class="form-group">
           <label for="description">Jurisdiction:</label>
-          <input type="text" class="form-control my-2" id="jurisdiction"
-            v-model="currentProvider.Jurisdiction"
-          />
+          <div class="form-floating mb-1">
+          <input type="text" id="jurisdictionInputName" class="form-control my-2" placeholder="Name"
+              v-model="currentProvider.Jurisdiction.Name"/>
+          <label for="jurisdictionInputName">Name</label>
+          </div>
+          <div class="form-floating mb-1">
+            <input type="text" id="jurisdictionInputLine1" class="form-control my-2" placeholder="Address line 1"
+                v-model="currentProvider.Jurisdiction.AddressLine[0]"/>
+            <label for="jurisdictionInputLine1">Address line 1</label>
+          </div>
+          <div class="form-floating mb-1">
+            <input type="text" id="jurisdictionInputLine2" class="form-control my-2" placeholder="Address line 3"
+                v-model="currentProvider.Jurisdiction.AddressLine[1]"/>
+            <label for="jurisdictionInputLine2">Address line 2</label>
+          </div>
+          <div class="form-floating mb-1">
+            <input type="text" id="jurisdictionInputLine3" class="form-control my-2" placeholder="Address line 3"
+                v-model="currentProvider.Jurisdiction.AddressLine[2]"/>
+            <label for="jurisdictionInputLine1">Address line 3</label>
+          </div>
         </div>
 
         
         <label for="description">Address:</label>
           <div class="form-floating mb-1">
-          <input type="text" id="floatingInputStreet" class="form-control my-2" placeholder="Name"
+          <input type="text" id="floatingInputName" class="form-control my-2" placeholder="Name"
               v-model="currentProvider.Address.Name"/>
-          <label for="floatingInputStreet">Name</label>
+          <label for="floatingInputName">Name</label>
         </div>
         <div class="form-floating mb-1">
-          <input type="text" id="floatingInputCity" class="form-control my-2" placeholder="Addres line 1"
+          <input type="text" id="floatingInputLine1" class="form-control my-2" placeholder="Address line 1"
               v-model="currentProvider.Address.AddressLine[0]"/>
-          <label for="floatingInputCity">Addres line 1</label>
+          <label for="floatingInputLine1">Address line 1</label>
         </div>
         <div class="form-floating mb-1">
-          <input type="text" id="floatingInputCity" class="form-control my-2" placeholder="Addres line 3"
+          <input type="text" id="floatingInputLine2" class="form-control my-2" placeholder="Address line 3"
               v-model="currentProvider.Address.AddressLine[1]"/>
-          <label for="floatingInputCity">Addres line 2</label>
+          <label for="floatingInputLine2">Address line 2</label>
         </div>
         <div class="form-floating mb-1">
-          <input type="text" id="floatingInputCity" class="form-control my-2" placeholder="Addres line 3"
+          <input type="text" id="floatingInputLine3" class="form-control my-2" placeholder="Address line 3"
               v-model="currentProvider.Address.AddressLine[2]"/>
-          <label for="floatingInputCity">Addres line 3</label>
+          <label for="floatingInputLine3">Address line 3</label>
         </div>
 
         <div class="form-group">
@@ -126,22 +143,22 @@
            <div class="form-floating mb-1">
           <input type="text" id="floatingInputTelephone" class="form-control my-2" placeholder="Telephone"
               v-model="currentProvider.ElectronicAddress.Telephone"/>
-          <label for="floatingInputStreet">Telephone</label>
+          <label for="floatingInputTelephone">Telephone</label>
           </div>
           <div class="form-floating mb-1">
             <input type="text" id="floatingInputFax" class="form-control my-2" placeholder="Fax"
                 v-model="currentProvider.ElectronicAddress.Fax"/>
-            <label for="floatingInputCity">Fax</label>
+            <label for="floatingInputFax">Fax</label>
           </div>
           <div class="form-floating mb-1">
             <input type="text" id="floatingInputEmail" class="form-control my-2" placeholder="Email"
                 v-model="currentProvider.ElectronicAddress.Email"/>
-            <label for="floatingInputPC">Email</label>
+            <label for="floatingInputEmail">Email</label>
           </div>
           <div class="form-floating mb-1">
             <input type="text" id="floatingInputUrl" class="form-control my-2" placeholder="Url"
                 v-model="currentProvider.ElectronicAddress.Url"/>
-            <label for="floatingInputCountry">Url</label>
+            <label for="floatingInputUrl">Url</label>
           </div>
         </div>
 
@@ -216,6 +233,14 @@ export default {
            this.currentProvider.Address = {Name: "",AddressLine: ["","",""]};
           }
           try {
+            this.currentProvider.Jurisdiction = JSON.parse(response.data.Jurisdiction)
+            if(!Object.prototype.hasOwnProperty.call(this.currentProvider.Jurisdiction,"AddressLine")) {
+              throw "Invalid address";
+            }
+          } catch {
+           this.currentProvider.Jurisdiction = {Name: "",AddressLine: ["","",""]};
+          }
+          try {
             this.currentProvider.ElectronicAddress = JSON.parse(response.data.ElectronicAddress);
             if(!Object.prototype.hasOwnProperty.call(this.currentProvider.ElectronicAddress,"Email")) {
               throw "Invalid electronic address";
@@ -237,12 +262,14 @@ export default {
     },
     updateProvider() {
       const addrstring = JSON.stringify(this.currentProvider.Address)
+      const jurisdictionstring = JSON.stringify(this.currentProvider.Jurisdiction)
       const electronicaddrstring = JSON.stringify(this.currentProvider.ElectronicAddress)
 
       const data = {
             ...this.currentProvider,
             Address: addrstring,
             ElectronicAddress: electronicaddrstring,
+            Jurisdiction: jurisdictionstring
         }
 
       //console.log("POST",this.currentProvider.Id, data)
