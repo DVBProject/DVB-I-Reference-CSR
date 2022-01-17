@@ -259,17 +259,43 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
             }
         }
         if(organization.Jurisdiction) {
-            entity.ele("Jurisdiction",{},organization.Jurisdiction);
+            try {
+                const address = JSON.parse(organization.Jurisdiction);
+                var addressElement = entity.ele("Address");
+                if(address.Name) {
+                    addressElement.ele("mpeg7:Name",{},address.Name);
+                }
+                if(address.AddressLine) {
+                    var postalAddress = addressElement.ele("mpeg7:PostalAddress");
+                    for (var Line of address.AddressLine) {
+                        if(Line.length > 0) {
+                            postalAddress.ele("mpeg7:AddressLine",{},Line);
+                        }
+                    }
+                }
+            }
+            catch(e) {
+                console.log("Invalid Address JSON:"+organization.Address);
+            }
         }
         if(organization.Address) {
             try {
-            const address = JSON.parse(organization.Address);
-            var addressElement = entity.ele("Address");
-            var postalAddress = addressElement.ele("mpeg7:PostalAddress");
-            postalAddress.ele("mpeg7:AddressLine",{},address.street + " " + address.postcode + " " +address.country);
+                const address = JSON.parse(organization.Address);
+                var addressElement = entity.ele("Address");
+                if(address.Name) {
+                    addressElement.ele("mpeg7:Name",{},address.Name);
+                }
+                if(address.AddressLine) {
+                    var postalAddress = addressElement.ele("mpeg7:PostalAddress");
+                    for (var Line of address.AddressLine) {
+                        if(Line.length > 0) {
+                            postalAddress.ele("mpeg7:AddressLine",{},Line);
+                        }
+                    }
+                }
             }
             catch(e) {
-                console.log(e);
+                console.log("Invalid Address JSON:"+organization.Address);
             }
         }
         if(organization.ElectronicAddress) {
@@ -290,7 +316,7 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
                 }
             }
             catch(e) {
-                console.log(e);
+                console.log("Invalid Electronicaddress JSON:"+organization.ElectronicAddress);
             }
         }
     } catch(e) {
