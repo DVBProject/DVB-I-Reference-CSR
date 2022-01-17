@@ -54,41 +54,77 @@
       <input type="text" class="form-control my-2" placeholder="Contact Name"
           v-model="ContactName"/>
 
-      <label>Jurisdiction:</label>
-      <input type="text" class="form-control my-2" placeholder="Jurisdiction"
-          v-model="Jurisdiction"/>
-
-
-      <label>Address:</label>
- 
-      <div class="form-floating mb-1">
-        <input type="text" id="floatingInputStreet" class="form-control my-2" placeholder="Street"
-            v-model="Address.street"/>
-        <label for="floatingInputStreet">Street</label>
-      </div>
-      <div class="form-floating mb-1">
-        <input type="text" id="floatingInputCity" class="form-control my-2" placeholder="City"
-            v-model="Address.city"/>
-        <label for="floatingInputCity">City</label>
-      </div>
-      <div class="form-floating mb-1">
-        <input type="text" id="floatingInputPC" class="form-control my-2" placeholder="Post code"
-            v-model="Address.postcode"/>
-        <label for="floatingInputPC">Post code</label>
-      </div>
-      <div class="form-floating mb-1">
-        <input type="text" id="floatingInputCountry" class="form-control my-2" placeholder="Country"
-            v-model="Address.country"/>
-        <label for="floatingInputCountry">Country</label>
+      <div class="form-group">
+        <label for="description">Jurisdiction:</label>
+        <div class="form-floating mb-1">
+        <input type="text" id="jurisdictionInputName" class="form-control my-2" placeholder="Name"
+            v-model="Jurisdiction.Name"/>
+        <label for="jurisdictionInputName">Name</label>
+        </div>
+        <div class="form-floating mb-1">
+          <input type="text" id="jurisdictionInputLine1" class="form-control my-2" placeholder="Address line 1"
+              v-model="Jurisdiction.AddressLine[0]"/>
+          <label for="jurisdictionInputLine1">Address line 1</label>
+        </div>
+        <div class="form-floating mb-1">
+          <input type="text" id="jurisdictionInputLine2" class="form-control my-2" placeholder="Address line 3"
+              v-model="Jurisdiction.AddressLine[1]"/>
+          <label for="jurisdictionInputLine2">Address line 2</label>
+        </div>
+        <div class="form-floating mb-1">
+          <input type="text" id="jurisdictionInputLine3" class="form-control my-2" placeholder="Address line 3"
+              v-model="Jurisdiction.AddressLine[2]"/>
+          <label for="jurisdictionInputLine1">Address line 3</label>
+        </div>
       </div>
 
+      
+      <label for="description">Address:</label>
+        <div class="form-floating mb-1">
+        <input type="text" id="floatingInputName" class="form-control my-2" placeholder="Name"
+            v-model="Address.Name"/>
+        <label for="floatingInputName">Name</label>
+      </div>
+      <div class="form-floating mb-1">
+        <input type="text" id="floatingInputLine1" class="form-control my-2" placeholder="Address line 1"
+            v-model="Address.AddressLine[0]"/>
+        <label for="floatingInputLine1">Address line 1</label>
+      </div>
+      <div class="form-floating mb-1">
+        <input type="text" id="floatingInputLine2" class="form-control my-2" placeholder="Address line 3"
+            v-model="Address.AddressLine[1]"/>
+        <label for="floatingInputLine2">Address line 2</label>
+      </div>
+      <div class="form-floating mb-1">
+        <input type="text" id="floatingInputLine3" class="form-control my-2" placeholder="Address line 3"
+            v-model="Address.AddressLine[2]"/>
+        <label for="floatingInputLine3">Address line 3</label>
+      </div>
 
-
-
-
-      <label>Electronic Address:</label>
-      <input type="text" class="form-control my-2" placeholder="ElectronicAddress"
-          v-model="ElectronicAddress"/>
+      <div class="form-group">
+        <label for="description">Electronic Address:</label>
+          <div class="form-floating mb-1">
+        <input type="text" id="floatingInputTelephone" class="form-control my-2" placeholder="Telephone"
+            v-model="ElectronicAddress.Telephone"/>
+        <label for="floatingInputTelephone">Telephone</label>
+        </div>
+        <div class="form-floating mb-1">
+          <input type="text" id="floatingInputFax" class="form-control my-2" placeholder="Fax"
+              v-model="ElectronicAddress.Fax"/>
+          <label for="floatingInputFax">Fax</label>
+        </div>
+        <div class="form-floating mb-1">
+          <input type="text" id="floatingInputEmail" class="form-control my-2" placeholder="Email"
+              v-model="ElectronicAddress.Email"/>
+          <label for="floatingInputEmail">Email</label>
+        </div>
+        <div class="form-floating mb-1">
+          <input type="text" id="floatingInputUrl" class="form-control my-2" placeholder="Url"
+              v-model="ElectronicAddress.Url"/>
+          <label for="floatingInputUrl">Url</label>
+        </div>
+      </div>
+      
 
       <label>Regulator:</label><br>
       <div class="btn-group btn-group-sm" role="group" aria-label="Basic radio toggle button group">
@@ -132,16 +168,17 @@ export default {
       Names: [],
 
       ContactName: "",
-      Jurisdiction: "",
-
-      Address: {
-        street: "",
-        city: "",
-        postcode: "",
-        country: ""
+      Jurisdiction: {
+        Name: "",
+        AddressLine: ["","",""]
       },
 
-      ElectronicAddress: "",
+      Address: {
+        Name: "",
+        AddressLine: ["","",""]
+      },
+
+      ElectronicAddress: {Telephone: "",Fax: "",Email:"",Url: ""},
       Regulator: 0,
       message: "",
     };
@@ -180,15 +217,16 @@ export default {
     
     submitProvider() {
         const addrstring = JSON.stringify(this.Address)
+        const jurisdictionstring = JSON.stringify(this.Jurisdiction)
+        const electronicaddr = JSON.stringify(this.ElectronicAddress);
         const data = {
             Kind: this.Kind,
             Names: this.Names, //JSON.stringify(this.Names),
-            name: this.Name,
             type: this.Type,
             ContactName: this.ContactName,
-            Jurisdiction: this.Jurisdiction,
+            Jurisdiction: jurisdictionstring,
             Address: addrstring,
-            ElectronicAddress: this.ElectronicAddress,
+            ElectronicAddress: electronicaddr,
             Regulator: this.Regulator,
         } 
         console.log("add provider:", data)
