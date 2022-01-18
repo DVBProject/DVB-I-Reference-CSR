@@ -48,7 +48,7 @@ csrquery.init = function() {
 
 }
 
-csrquery.getCSRList = async function(request) {
+csrquery.getCSRList = async function(request,useCache) {
         const params  = qs.parse(request.query);
         var keys = Object.keys(params);
         keys.sort();
@@ -61,7 +61,7 @@ csrquery.getCSRList = async function(request) {
         //we could check the parameters from the key
         const hash = md5(JSON.stringify(ordered));
         let cached = null;
-        if(this.redis) {
+        if(this.redis && useCache) {
             cached = await this.getCachedResponse(hash);
         }
         if(cached) {
@@ -70,9 +70,9 @@ csrquery.getCSRList = async function(request) {
         else {
             const query = this.parseCSRQuery(request);
             const xml = await this.generateXML(query);
-            if(this.redis) {
+            if(this.redis && useCache) {
                 this.redis.set(hash,xml);
-                this.redis.expire(hash,process.env.REDIS_EXPIRES || 3600); //Default expiry, 5 minutes
+                this.redis.expire(hash,parseInt(process.env.REDIS_EXPIRES) || 300); //Default expiry, 5 minutes
             }
             return xml;
         }

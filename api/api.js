@@ -21,6 +21,23 @@ http.createServer(async function (req, res) {
     }
     
     var request =  url.parse(req.url,true);
+
+    if(request.pathname && request.pathname.endsWith("/query-nocache")) {
+        try {
+            const list = await csrquery.getCSRList(request,false);
+            res.writeHead(200);
+            res.write(list);
+            res.end();
+            console.log('"'+req.url+'"','"'+req.headers['user-agent']+'"');
+            return;
+        }
+        catch(e) {
+            res.writeHead(400);
+            res.end();
+            console.log("ERROR: Illegal request",e.message);
+            return;
+        }
+    }
     if(!request.pathname || !request.pathname.endsWith("/query")) {
         res.writeHead(400);
 		res.end();
@@ -28,7 +45,7 @@ http.createServer(async function (req, res) {
         return;
     }
     try {
-        const list = await csrquery.getCSRList(request);
+        const list = await csrquery.getCSRList(request,true);
         res.writeHead(200);
         res.write(list);
         res.end();
