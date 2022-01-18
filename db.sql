@@ -213,7 +213,7 @@ ALTER TABLE `User`
 ALTER TABLE `User`
   ADD `Organization` TEXT NOT NULL;
 
-INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator),Id VALUES ('Repository provider','Contact','Jurisdiction','Address','Electronic address',1,1);
+INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator,Id) VALUES ('Repository provider','Contact','Jurisdiction','Address','Electronic address',1,1);
 INSERT INTO EntityName(Name,Type,Organization,Id) VALUES("Repository provider","",1,1);
 INSERT INTO ServiceListEntryPoints(ServiceListRegistryEntity,Id) VALUES (1,1);
 
