@@ -230,7 +230,17 @@ export default {
               throw "Invalid address";
             }
           } catch {
-           this.currentProvider.Address = {Name: "",AddressLine: ["","",""]};
+            const oldData = this.currentProvider.Address;
+            this.currentProvider.Address = {Name: "",AddressLine: ["","",""]};
+            if(oldData.street) {
+              this.currentProvider.Address.AddressLine[0] = oldData.street;
+            }
+            if(oldData.city && oldData.postcode) {
+              this.currentProvider.Address.AddressLine[1] = oldData.city+ " "+ oldData.postcode;
+            }
+            if(oldData.country) {
+              this.currentProvider.Address.AddressLine[2] = oldData.country;
+            }
           }
           try {
             this.currentProvider.Jurisdiction = JSON.parse(response.data.Jurisdiction)
@@ -238,7 +248,7 @@ export default {
               throw "Invalid address";
             }
           } catch {
-           this.currentProvider.Jurisdiction = {Name: "",AddressLine: ["","",""]};
+           this.currentProvider.Jurisdiction = {Name: "",AddressLine: [this.currentProvider.Jurisdiction,"",""]};
           }
           try {
             this.currentProvider.ElectronicAddress = JSON.parse(response.data.ElectronicAddress);
@@ -247,7 +257,7 @@ export default {
             }
           } catch(e) {
             console.log(e);
-            this.currentProvider.ElectronicAddress = {Telephone: "",Fax: "",Email:"",Url: ""};
+            this.currentProvider.ElectronicAddress = {Telephone: "",Fax: "",Email:this.currentProvider.ElectronicAddress,Url: ""};
           }
           if(!this.currentProvider.Names) this.currentProvider.Names = []
           console.log(response.data);
