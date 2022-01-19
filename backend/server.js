@@ -43,6 +43,7 @@ require("./app/routes/provider.routes")(app);
 require("./app/routes/servicelist.routes")(app);
 require("./app/routes/eventhistory.routes")(app);
 require("./app/routes/listprovider.routes")(app);
+require("./app/routes/user.routes")(app);
 
 // set port, listen for requests
 app.listen(PORT, () => {

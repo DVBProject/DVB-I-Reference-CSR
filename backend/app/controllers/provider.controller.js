@@ -49,6 +49,8 @@ exports.findAll = (req, res) => {
     });
   }
   else {
+    // TODO:  fetch all providers for this user
+
     res.status(500).send({
       message:
         err.message || "Not authorized."
@@ -58,7 +60,7 @@ exports.findAll = (req, res) => {
 
 // Find a single Customer with a customerId
 exports.findOne = (req, res) => {
-  // check user has rigths to this prov
+  // check user has rigths to this prov TODO
 
   Provider.findById(req.params.customerId, (err, data) => {
     if (err) {
@@ -77,7 +79,7 @@ exports.findOne = (req, res) => {
 
 // Update a Customer identified by the customerId in the request
 exports.update = (req, res) => {
-  // check user has rigths to this prov
+  // check user has rigths to this prov TODO
 
   // Validate Request
   if (!req.body) {

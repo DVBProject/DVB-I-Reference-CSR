@@ -30,13 +30,18 @@ User.getAll = () => {
                 console.log("error: ", err);
                 reject(err)
             }
-            else {          
+            else {
+                // return everything but the pass hash
+                res.forEach(element => {
+                    delete element['Hash']
+                })
                 resolve(res)
             }
         })  
     })
 }
 
+// used by admin operations, remove user hash from response
 User.findById = (Id) => {
     return new Promise((resolve, reject) => {
         sql.query(`SELECT * FROM User WHERE User.Id = ?`, [Id], (err, res) => {
@@ -44,13 +49,17 @@ User.findById = (Id) => {
                 console.log("error: ", err);
                 reject(err)
             }
-            else {          
+            else {
+                res.forEach(element => {
+                    delete element['Hash']
+                })       
                 resolve(res)
             }
         })  
     })
 }
 
+// used by auth, so will retrn hash
 User.findByName = (Name) => {
     return new Promise((resolve, reject) => {
         sql.query(`SELECT * FROM User WHERE User.Name = ?`, [Name], (err, res) => {
