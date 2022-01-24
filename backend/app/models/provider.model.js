@@ -131,7 +131,7 @@ Provider.getAll = result => {
             return;
         }
 
-        console.log("Providers: ", res);
+        console.log("Providers: ", res.length);
         result(null, res);
     });
 };

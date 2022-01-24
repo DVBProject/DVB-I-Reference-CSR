@@ -61,8 +61,7 @@ exports.findAll = (req, res) => {
   // check that user is admin
   if(!req.user) {
     res.status(500).send({
-      message:
-        err.message || "Not authorized."
+      message: "Not authorized."
     });
     return
   }
@@ -90,8 +89,7 @@ exports.findAll = (req, res) => {
     */
 
     res.status(500).send({
-      message:
-        err.message || "Not authorized."
+      message: "Not authorized."
     })
     console.log("Not auth: user asked getAll", req.user)
   }

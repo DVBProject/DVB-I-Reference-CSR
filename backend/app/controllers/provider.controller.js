@@ -52,8 +52,7 @@ exports.findAll = (req, res) => {
     // TODO:  fetch all providers for this user
 
     res.status(500).send({
-      message:
-        err.message || "Not authorized."
+      message: "Not authorized."
     })
   }
 };
