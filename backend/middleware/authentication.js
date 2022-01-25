@@ -19,11 +19,12 @@ module.exports = async (req, res, next) => {
         }
 
         const user = await User.findById(Id)
-        req.user = user[0]
 
-        if(!req.user) {
+        if(!user || user.length < 1) {
             return res.status(403).json({ success: false })
         }
+
+        req.user = user[0]
         
         return next()
     }

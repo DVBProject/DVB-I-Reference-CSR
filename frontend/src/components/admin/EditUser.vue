@@ -27,14 +27,14 @@
   </transition>
 
   <transition name="passwdModal">
-    <div v-if="changePassword">
+    <div v-if="confirmPassword">
       <div class="modal-mask">
         <div class="modal-wrapper" role="dialog" aria-labelledby="exampleModalCenterTitle">
           <div class="modal-dialog modal-dialog-centered" tabindex="-1" role="document">
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalCenterTitle">Delete User</h5>
-                <button type="button" class="close btn btn-outline-primary" data-dismiss="modal" aria-label="Close" @click="confirmDelete = !confirmDelete">
+                <button type="button" class="close btn btn-outline-primary" data-dismiss="modal" aria-label="Close" @click="confirmPassword = !confirmPassword">
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
@@ -42,8 +42,8 @@
                 <p>Please confirm, delete User?</p>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-outline-primary" data-dismiss="modal" @click="confirmDelete = !confirmDelete">Cancel</button>
-                <button type="button" class="btn btn-danger" @click="deleteUser">Delete</button>          
+                <button type="button" class="btn btn-outline-primary" data-dismiss="modal" @click="confirmPassword = !confirmPassword">Cancel</button>
+                <button type="button" class="btn btn-danger" @click="changePassword">Change</button>          
               </div>
             </div>
           </div>
@@ -72,17 +72,6 @@
           v-model="currentUser.Email"
         />
       </div>
-
-      <div class="form-group">
-        <label for="Provider">Providers</label>
-        <input type="text" class="form-control my-2" id="Provider" disabled
-          v-model="currentUser.Providers"
-        />
-      </div>
-
-
-
-
 
 
       <div class="my-2">
@@ -129,6 +118,7 @@
     <div class="btn-group btn-group-sm my-2" role="group">
       <button class="btn btn-outline-danger mr-2"
         @click="confirmDelete = !confirmDelete"
+        :disabled="currentUser.Id == 1"
       >
         Delete
       </button>
@@ -150,8 +140,6 @@
 </template>
 
 <script>
-//import ServiceListDataService from "../../services/ServiceListDataService"
-
 import ProviderDataService from "../../services/ProviderDataService"
 import UserDataService from "../../services/UserDataService"
 
@@ -161,6 +149,7 @@ export default {
   data() {
     return {
       confirmDelete: false,
+      confirmPassword: false,
       currentUser: null,
       message: '',
 
@@ -180,6 +169,11 @@ export default {
             this.Names = this.currentUser.Names
             console.log(response.data);
             this.admin = this.currentUser.Role == "admin" ? true : false
+            try {
+              this.currentUser.Providers = JSON.parse(this.currentUser.Providers)
+            } catch {
+              console.log("Could not parse", this.currentUser.Providers)
+            }
             this.getProviders()
         })
         .catch(e => {
@@ -211,46 +205,48 @@ export default {
 
     updateUser() {
         let prov = []
-        this.SelectedProviders.forEach(sp => prov.push(sp.value))
+        
+        this.SelectedProviders.forEach(sp => prov.push(+sp.value))
         const data = { 
             ...this.currentUser,
-            Providers: prov,
+            Providers: JSON.stringify(prov),
             Role: this.admin ? "admin" : "user"
         }
-        console.log("POST",this.currentUser.Id, data);
-        return
-        /*
+        
         UserDataService.update(this.currentUser.Id, data)
             .then(response => {
-            console.log(response.data);
-            this.message = 'The list was updated successfully!';
+              console.log(response.data);
+              this.message = 'The user was updated successfully!'
 
-            setTimeout(() => {
-                this.$router.push({ name: "servicelists" });
-            }, 1000)
+              setTimeout(() => {
+                this.$router.push({ name: "admin" })
+              }, 1000)
             })
             .catch(e => {
-            console.log(e);
-            this.message = 'Error updating list';
-            });*/
+              console.log(e);
+              this.message = 'Error updating user'
+            })
     },
 
     deleteUser() {
       UserDataService.delete(this.currentUser.Id)
         .then(response => {
           console.log(response.data);
-          this.message = 'The list was deleted';
+          this.message = 'The user was deleted';
 
           setTimeout(() => {
-            this.$router.push({ name: "servicelists" });
+            this.$router.push({ name: "admin" });
           }, 1000)
         })
         .catch(e => {
           console.log(e);
-          this.message = 'Error deleting list';
+          this.message = 'Error deleting user';
         });
     },
 
+    changePassword() {
+      // todo
+    },
 
     addProvider(item) {
         const value = item.target ? item.target.value : item
@@ -264,11 +260,8 @@ export default {
         if(item.target) item.target.value = null
     },
     removeProvider(item) {
-        console.log(item.target.id)
         this.SelectedProviders.splice(item.target.id, 1)
     },
-
-
 
     regulatorRadio(item) {
         if(item.target.id === "btnradioYes") {
@@ -278,8 +271,6 @@ export default {
             this.admin = false
         }        
     }
-
-
   },
   mounted() {
     this.message = '';

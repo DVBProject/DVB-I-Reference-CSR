@@ -46,7 +46,8 @@ export default {
           console.log(this.$route)
           if(response.success) {
             if(this.$route.redirectedFrom) {
-              this.$router.push(this.$route.redirectedFrom.fullPath)
+              //this.$router.push(this.$route.redirectedFrom.fullPath)
+              this.$router.push("/")
             }
             else {
               this.$router.push("/")

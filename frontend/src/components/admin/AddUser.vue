@@ -1,101 +1,95 @@
  <template>
 
   <div class="list row">
-    
-  <div class="col-md-8">
-    <h4>ADD user</h4>
-    <form>
-
-      <div class="form-group">
-        <label for="URI">Name</label>
-        <input type="text" class="form-control my-2" id="Name"
-          v-model="currentUser.Name"
-        />
-      </div>
       
-      <div class="form-group">
-        <label for="URI">E-mail</label>
-        <input type="text" class="form-control my-2" id="Email"
-          v-model="currentUser.Email"
-        />
-      </div>
+    <div class="col-md-8">
+      <h4>Create a new User</h4>
+      <form>
 
-      <div class="form-group">
-        <label for="Provider">Providers</label>
-        <input type="text" class="form-control my-2" id="Provider" disabled
-          v-model="currentUser.Providers"
-        />
-      </div>
+        <div class="form-group">
+          <label for="URI">Username</label>
+          <input type="text" class="form-control my-2" id="Name"
+            v-model="Name"
+          />
+          <p class="small text-warning">{{ nameMessage }}</p>
+        </div>
+        
+        <div class="form-group">
+          <label for="URI">E-mail</label>
+          <input type="text" class="form-control my-2" id="Email"
+            v-model="Email"
+          />
+          <p class="small text-warning">{{ emailMessage }}</p>
+        </div>
 
+        <div class="form-group my-5">
+          <label for="Provider">Password</label>
+          <input type="password" class="form-control my-2" id="Password"
+            v-model="Password"
+          />
+          <label for="Provider">Re-type password</label>
+          <input type="password" class="form-control my-2" id="PasswordCheck"
+            v-model="PasswordCheck"
+          />
+          <p class="small text-warning">{{ passwordMessage }}</p>
+        </div>
 
-
-
-
-
-      <div class="my-2">
-        <label for="genreDataList" class="form-label">Providers:</label>
-        <input class="form-control" list="datalistOptionsGenre"
-            id="genreDataList" placeholder="Type to search..."
-            v-on:change="addProvider"
-            v-on:click="addProvider">
-            <datalist id="datalistOptionsGenre">
-            <option
-                v-for="(item, index) in providers_ui"
-                v-bind:key="index"
-                v-bind:value="item.Id"
-                >
-                {{item.Names[0].name}}
-            </option>
-          </datalist>
-
-          <div class="btn-group">
-            <ul class="px-0 btn-group-sm">
-              <li v-for="(item, index) in SelectedProviders" 
-                  v-bind:id="index"
+        <div class="my-2">
+          <label for="genreDataList" class="form-label">Providers:</label>
+          <input class="form-control" list="datalistOptionsGenre"
+              id="genreDataList" placeholder="Type to search..."
+              v-on:change="addProvider"
+              v-on:click="addProvider">
+              <datalist id="datalistOptionsGenre">
+              <option
+                  v-for="(item, index) in providers_ui"
                   v-bind:key="index"
-                  v-on:click="removeProvider"
-                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span v-bind:id="index" class="badge small bg-primary">x</span></li>
-            </ul>
-          </div>
-      </div>
+                  v-bind:value="item.Id"
+                  >
+                  {{item.Names[0].name}}
+              </option>
+            </datalist>
+
+            <div class="btn-group">
+              <ul class="px-0 btn-group-sm">
+                <li v-for="(item, index) in SelectedProviders" 
+                    v-bind:id="index"
+                    v-bind:key="index"
+                    v-on:click="removeProvider"
+                    class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span v-bind:id="index" class="badge small bg-primary">x</span></li>
+              </ul>
+            </div>
+        </div>
 
 
-      <label>Admin:</label><br>
-      <div class="btn-group btn-group-sm my-2" role="group" aria-label="Basic radio toggle button group">
-        <input type="radio" class="btn-check" name="btnradio" id="btnradioYes" autocomplete="off" @change="regulatorRadio" :checked="admin" :disabled="currentUser.Id == 1">
-        <label class="btn btn-outline-primary" for="btnradioYes">Yes</label>
- 
-        <input type="radio" class="btn-check" name="btnradio" id="btnradioNo" autocomplete="off" @change="regulatorRadio" :checked="!admin" :disabled="currentUser.Id == 1">
-        <label class="btn btn-outline-primary" for="btnradioNo">No</label>
-      </div>
+        <label>Admin:</label><br>
+        <div class="btn-group btn-group-sm my-2" role="group" aria-label="Basic radio toggle button group" >
+          <input type="radio" class="btn-check" name="btnradio" id="btnradioYes" autocomplete="off" @change="regulatorRadio" :checked="admin">
+          <label class="btn btn-outline-primary" for="btnradioYes">Yes</label>
+  
+          <input type="radio" class="btn-check" name="btnradio" id="btnradioNo" autocomplete="off" @change="regulatorRadio" :checked="!admin">
+          <label class="btn btn-outline-primary" for="btnradioNo">No</label>
+        </div>
 
-    </form>
-    
-  </div>
-  <div class="col-md-4">
-    <div class="btn-group btn-group-sm my-2" role="group">
-      <button class="btn btn-outline-danger mr-2"
-        @click="confirmDelete = !confirmDelete"
-      >
-        Delete
-      </button>
-
-      <button type="submit" class="btn btn-outline-primary"
-        @click="updateUser"
-      >
-        Update
-      </button>
+      </form>
+      
     </div>
-    <p>{{ message }}</p>
-  </div>
+    <div class="col-md-4">
+      <div class="btn-group btn-group-sm my-2" role="group">
+
+        <button type="submit" class="btn btn-outline-primary"
+          @click="createUser"
+        >
+          Create
+        </button>
+      </div>
+      <p class="small ">{{ message }}</p>
+    </div>
 
   </div>
-
 </template>
 
 <script>
-//import ServiceListDataService from "../../services/ServiceListDataService"
-
 import ProviderDataService from "../../services/ProviderDataService"
 import UserDataService from "../../services/UserDataService"
 
@@ -104,46 +98,27 @@ export default {
   name: "user-add",
   data() {
     return {
-      confirmDelete: false,
-      currentUser: null,
       message: '',
+      nameMessage: "",
+      passwordMessage: "",
+      emailMessage: "",
 
       providers_ui: [],
       SelectedProviders: [],
 
+      Name: "",
+      Email: "",
+      Password: "",
+      PasswordCheck: "",
+
       admin: false,
-      Names: [],
     };
   },
   methods: {
-    getUser(id) {
-      UserDataService.get(id)
-        .then(response => {
-            this.currentUser = response.data[0]
-
-            this.Names = this.currentUser.Names
-            console.log(response.data);
-            this.admin = this.currentUser.Role == "admin" ? true : false
-            this.getProviders()
-        })
-        .catch(e => {
-            console.log(e);
-            // some error when fetching data, return to the list list
-            
-            setTimeout(() => {
-                this.$router.push({ name: "servicelists" });
-            }, 1000)
-        })
-    },
     getProviders() {
         ProviderDataService.getAll()
         .then(response => {
-            this.providers_ui = response.data
-            if(this.currentUser) {                
-                for(var prov in this.currentUser.Providers) {
-                    this.addProvider(this.currentUser.Providers[prov])
-                }                
-            }
+            this.providers_ui = response.data            
         })
         .catch(e => {
             console.log(e)
@@ -153,46 +128,68 @@ export default {
         })
     },
 
-    updateUser() {
-        let prov = []
-        this.SelectedProviders.forEach(sp => prov.push(sp.value))
-        const data = { 
-            ...this.currentUser,
-            Providers: prov,
-            Role: this.admin ? "admin" : "user"
-        }
-        console.log("POST",this.currentUser.Id, data);
-        return
-        /*
-        UserDataService.update(this.currentUser.Id, data)
-            .then(response => {
-            console.log(response.data);
-            this.message = 'The list was updated successfully!';
+    validateFields() {
+      this.nameMessage = ""
+      this.passwordMessage = ""
+      this.emailMessage = ""
+      this.message = ""
+      let valid = true
 
-            setTimeout(() => {
-                this.$router.push({ name: "servicelists" });
-            }, 1000)
-            })
-            .catch(e => {
-            console.log(e);
-            this.message = 'Error updating list';
-            });*/
+      if(this.Name == "") {
+          this.nameMessage = "Name cannot be empty"
+          valid = false
+      }
+
+      
+
+      if(this.Password !== "") {
+        if(this.Password.length < 10) {
+          this.passwordMessage = "Pass length must be 10 or more. "
+          valid = false
+        }
+        if(this.Password !== this.PasswordCheck) {
+          this.passwordMessage += "Passwords do not match, please check!"
+          valid = false
+        }
+      } else {
+        this.passwordMessage = "Password cannot be empty"        
+        valid = false
+      }
+
+      if(!valid) {
+        this.message = "Please check all missing fields"        
+      }
+
+      return valid
     },
 
-    deleteUser() {
-      UserDataService.delete(this.currentUser.Id)
-        .then(response => {
-          console.log(response.data);
-          this.message = 'The list was deleted';
+    createUser() {
+      if( !this.validateFields() ) return
 
-          setTimeout(() => {
-            this.$router.push({ name: "servicelists" });
-          }, 1000)
-        })
-        .catch(e => {
-          console.log(e);
-          this.message = 'Error deleting list';
-        });
+      let prov = []
+      this.SelectedProviders.forEach(sp => prov.push(+sp.value))
+      const data = { 
+          Name: this.Name,
+          Email: this.Email || "Not defined",
+          Password: this.Password,
+          Providers: JSON.stringify(prov),
+          Role: this.admin ? "admin" : "user"
+      }
+      //console.log("POST", data);
+      
+      UserDataService.create(data)
+          .then(response => {
+            console.log(response.data);
+            this.message = 'The user was created successfully!';
+
+            setTimeout(() => {
+                this.$router.push({ name: "admin" });
+            }, 1000)
+          })
+          .catch(e => {
+            console.log(e);
+            this.message = 'Error creating user';
+          });
     },
 
 
@@ -208,11 +205,8 @@ export default {
         if(item.target) item.target.value = null
     },
     removeProvider(item) {
-        console.log(item.target.id)
         this.SelectedProviders.splice(item.target.id, 1)
     },
-
-
 
     regulatorRadio(item) {
         if(item.target.id === "btnradioYes") {
@@ -222,12 +216,9 @@ export default {
             this.admin = false
         }        
     }
-
-
   },
   mounted() {
-    this.message = '';
-    //this.getUser(this.$route.params.id)
+    this.getProviders()
   }
 };
 </script>
@@ -242,20 +233,5 @@ export default {
   max-width: 750px;
   margin: auto;
 }
-.modal-mask {
-  position: fixed;
-  z-index: 9998;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, .5);
-  display: table;
-  transition: opacity .3s ease;
-}
 
-.modal-wrapper {
-  display: table-cell;
-  vertical-align: middle;
-}
 </style>

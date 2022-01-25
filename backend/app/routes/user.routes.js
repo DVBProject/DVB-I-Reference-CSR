@@ -6,8 +6,8 @@ module.exports = app => {
 
     // Retrieve a single user
     app.get("/users/:userId", user.findOne);
-/*
-    // Create a new service user
+
+    // Create a new user
     app.post("/users", user.create);
   
     // Update a user with userId
@@ -15,6 +15,5 @@ module.exports = app => {
     
     // Delete a user with userId
     app.delete("/users/:userId", user.delete);
-*/
     
 };

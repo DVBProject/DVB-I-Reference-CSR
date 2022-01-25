@@ -1,6 +1,5 @@
 <template>
 
-
   <div class="list">
     <div class="row">
 
@@ -40,9 +39,6 @@
           <div>
             <label class="mx-1"><strong># Providers:</strong></label> {{ currentUser.Providers.length ||"Not defined" }}
           </div>
-          
-        
-          
 
           <router-link :to="'/admin/user/' + currentUser.Id" class="btn btn-outline-primary mt-1">Edit</router-link>
         </div>
@@ -56,7 +52,7 @@
 </template>
 
 <script>
-//import ServiceListDataService from "../../services/ServiceListDataService"
+
 import UserDataService from "../../services/UserDataService"
 
 
@@ -79,6 +75,13 @@ export default {
       UserDataService.getAll()
         .then(response => {
           this.users = response.data;
+          this.users.forEach(user => {
+            try {
+              user.Providers = JSON.parse(user.Providers)
+            } catch {
+              user.Providers = []
+            }
+          })
           console.log(response.data);
         })
         .catch(e => {
@@ -90,8 +93,8 @@ export default {
         });
     },
     setActiveUser(user, index) {
-      this.currentUser = user;
-      this.currentIndex = user ? index : -1;      
+      this.currentUser = user      
+      this.currentIndex = user ? index : -1    
     },
 
   },

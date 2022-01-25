@@ -2,11 +2,12 @@ const sql = require("./db.js");
 
 
 const User = function(newuser) {
-    this.Name = newuser.username
-    this.Hash = newuser.passwordhash,
-    this.Role = newuser.role
-    this.Organization = newuser.organization
-    this.Providers = "";
+    this.Name = newuser.Name
+    this.Email = newuser.Email
+    this.Hash = newuser.passwordhash
+    this.Role = newuser.Role
+    this.Organization = newuser.Organization
+    this.Providers = newuser.Providers
 }
 
 User.create = (user) => {
@@ -74,5 +75,69 @@ User.findByName = (Name) => {
     })
 }
 
+
+User.updateById = (Id, admin, newUser, result) => {
+    console.log('update User', Id);
+
+    // verify needed data is not missing
+    newUser.Name = newUser.Name || "Not defined"
+    newUser.Email = newUser.Email || "Not defined"
+    newUser.Role = newUser.Role || "user"
+    newUser.Providers = newUser.Providers || "[]"
+
+    if(admin) {
+        sql.query(
+            "UPDATE User SET Name = ?, Email = ?, Role = ?, Providers = ? WHERE Id = ?",
+            [newUser.Name, newUser.Email, newUser.Role, newUser.Providers, Id], 
+            async (err, res) => {
+                if (err) {
+                    console.log("error: ", err);
+                    result(err, null);
+                    return;
+                }
+
+                console.log("updated User: ", { Id: Id });
+                result(null, { Id: Id });
+            }
+        );
+    }
+    else { // regular user can only edit these fields
+        sql.query(
+            "UPDATE User SET Email = ?, Providers = ? WHERE Id = ?",
+            [newUser.Email, newUser.Providers, Id], 
+            async (err, res) => {
+                if (err) {
+                    console.log("error: ", err);
+                    result(err, null);
+                    return;
+                }
+
+                console.log("updated User: ", { Id: Id });
+                result(null, { Id: Id });
+            }
+        );
+    }
+}
+
+User.remove = async (id, result) => {
+    console.log('remove User', id);
+
+    sql.query("DELETE FROM User WHERE Id = ?", id, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return
+        }
+    
+        if (res.affectedRows == 0) {
+            console.log("not found User with the id", id)
+            result({ user: "not_found" }, null);
+            return
+        }
+        
+        console.log("deleted User with id: ", id);
+        result(null, res);
+    });
+}
 
 module.exports = User;
