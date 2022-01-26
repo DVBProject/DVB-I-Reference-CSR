@@ -37,7 +37,7 @@ exports.create = (req, res) => {
 };
 
 // Retrieve all Providers from the database.
-exports.findAll = (req, res) => {
+exports.findAll = async (req, res) => {
   if (req.user && req.user.Role == "admin") {
     Provider.getAll((err, data) => {
       if (err)
@@ -49,11 +49,29 @@ exports.findAll = (req, res) => {
     });
   }
   else {
-    // TODO:  fetch all providers for this user
+    // fetch all providers for this user
+    let provs = JSON.parse(req.user.Providers)
+    let result_data = []
+    let promises = []
+    for( p in provs ) {
+      promises.push(new Promise(async (resolve, reject) => {
+        Provider.findById(provs[p], (err, data) => {
+          if (err) {
+            reject(err)
+            console.log("error getting provider", provs[p])
+          }
+          else {        
+            result_data.push(data)  
+            resolve()
+          }
+        })
+      }).catch(err => {
+        console.log("get users providers error:", err)
+      }))      
+    }
 
-    res.status(500).send({
-      message: "Not authorized."
-    })
+    await Promise.all(promises).catch(err => console.log("ALL", err))
+    res.send(result_data)
   }
 };
 
