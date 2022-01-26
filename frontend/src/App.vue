@@ -43,7 +43,12 @@ export default {
     }
   },
   mounted() {
-    this.user_role = JSON.parse(sessionStorage.getItem('user')).is_admin
+    try {
+      this.user_role = JSON.parse(sessionStorage.getItem('user')).is_admin
+    }
+    catch {
+      this.user_role = false
+    }
   }
 }
 </script>
