@@ -1,5 +1,6 @@
 const Provider = require("../models/provider.model.js");
 const ServiceList = require("./servicelist.controller")
+const User = require("../models/user.model.js");
 
 // Create and Save a new Customer
 exports.create = (req, res) => {
@@ -29,10 +30,29 @@ exports.create = (req, res) => {
         message:
           err.message || "Some error occurred while creating the Provider."
       });
-    else res.send(data);
+    else {
+      
+      // add the new provider to users' providers
+      //
+      let updateData = req.user
+      updateData.Providers = JSON.parse(updateData.Providers)
+      updateData.Providers.push(data.id)
+      updateData.Providers = JSON.stringify(updateData.Providers)
+      User.updateById(
+        req.user.Id,
+        false,
+        new User(updateData),
+        (err, data) => {
+          if (err) {         
+            console.log("error adding provider to user", req.user.Id)        
+          } 
+          else {
+            console.log("added new provider to user", req.user.Id)   
+          }
+        })
 
-    // add the new provider to users' providers
-    // 
+        res.send(data);
+    }
   });
 };
 
@@ -121,12 +141,30 @@ exports.findOne = (req, res) => {
 exports.update = (req, res) => {
   // check user has rigths to this prov TODO
 
-  // Validate Request
-  if (!req.body) {
-    res.status(400).send({
-      message: "Content can not be empty!"
-    });
+  let validrequest = true
+
+  // providerId is a valid number
+  const providerId = req.params.customerId
+  if (isNaN(providerId)) {
+    validrequest = false
   }
+
+  // check user has rigths to this prov
+  if (req.user.Role !== 'admin') {
+    const providers = JSON.parse(req.user.Providers)
+    
+    if (!providers.includes(+providerId)) {
+        validrequest = false
+    }
+  }
+
+  if(!validrequest) {
+    res.status(400).send({
+      message: "Invalid request!"
+    })
+    return
+  }
+  
 
   console.log("updating:", req.body);
 
