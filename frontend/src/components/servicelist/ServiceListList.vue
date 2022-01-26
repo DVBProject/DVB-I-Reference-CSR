@@ -146,7 +146,7 @@ export default {
       ServiceListDataService.getAll()
         .then(response => {
           this.lists = response.data;
-          //console.log(response.data);
+          console.log(response.data);
         })
         .catch(e => {
           console.log(e);

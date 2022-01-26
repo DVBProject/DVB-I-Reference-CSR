@@ -105,17 +105,16 @@ ServiceList.getAllByProvider = async (provider, result) => {
     sql.query(`SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering where ServiceListOffering.Provider = ? AND ServiceListURI.ServiceList = ServiceListOffering.Id`, [provider], async (err, res) => {
         if (err) {
             console.log("error: ", err);
-            result(null, err);
+            result(err, null);
             return;
         }
 
         let promises = []
-        //console.time("getAllByProvider")
+        
         try {
             for(i = 0; i < res.length; i++) {
                 let list = res[i]                
-                // fetch all the rest of relevant DB tables
-                //list = await getRestOfServiceList(list)
+                
                 promises.push(new Promise(async (resolve, reject) => {
                     list = await getRestOfServiceList(list)
                     resolve()
@@ -123,13 +122,12 @@ ServiceList.getAllByProvider = async (provider, result) => {
             }
         } catch(err) {
             console.log("error: ", err)
-            result(null, err);
+            result(err, null);
             return;
         }
 
         await Promise.all(promises).catch(err => console.log("getAllByProvider err", err))
-        //console.timeEnd("getAllByProvider")
-        //console.log("ServiceLists: ", res);
+        
         result(null, res);
     })
 }
@@ -137,7 +135,8 @@ ServiceList.getAllByProvider = async (provider, result) => {
 
 ServiceList.getAll = async result => {
     //sql.query("SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering where ServiceListName.ServiceList = ServiceListOffering.Id AND ServiceListURI.ServiceList = ServiceListOffering.Id", async (err, res) => {
-    sql.query("SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering where ServiceListURI.ServiceList = ServiceListOffering.Id", async (err, res) => {
+    sql.query("SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering where ServiceListURI.ServiceList = ServiceListOffering.Id", 
+      async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(null, err);
@@ -168,7 +167,7 @@ ServiceList.getAll = async result => {
     });
 };
 
-// when deleting all providers, must delete all related lists too (unless cascading is set up)
+// when deleting all providers, must delete all related lists too
 //
 ServiceList.getAllProviderServiceListOfferings = async (providerId, result) => {
     return new Promise((resolve, reject) => {

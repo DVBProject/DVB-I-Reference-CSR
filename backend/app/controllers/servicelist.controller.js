@@ -56,7 +56,7 @@ exports.create = (req, res) => {
 
 
 // Retrieve all Lists from the database.
-exports.findAll = (req, res) => {
+exports.findAll = async (req, res) => {
   //console.log(req.url, req.ip, "user:", req.user.Name, req.user.Role)
   // check that user is admin
   if(!req.user) {
@@ -77,21 +77,31 @@ exports.findAll = (req, res) => {
     });
   }
   else {
-    /*
     // get users providers and their lists
     let provs = JSON.parse(req.user.Providers)
     let lists = []
-    //for p in provs 
-    // ServiceList.getAllByProvider(provider, (err, data) => {
-      // lists.push(data)
+    let promises = []
+    for( p in provs ) { 
+      promises.push(new Promise(async (resolve, reject) => {
+        ServiceList.getAllByProvider(provs[p], (err, data) => {
+          if (err) {
+            reject(err)
+            console.log("error getting list", provs[p])
+          }
+          else {
+            data.forEach(dd => lists.push(dd))            
+            resolve()
+          }
+        })
+      }).catch(err => {
+        console.log("get users lists error:", err)
+      }))
+      
+    }
+    await Promise.all(promises).catch(err => console.log("ALL", err))
+    //console.log(lists)
 
-    // res.send(lists)
-    */
-
-    res.status(500).send({
-      message: "Not authorized."
-    })
-    console.log("Not auth: user asked getAll", req.user)
+    res.send(lists)
   }
 };
 
