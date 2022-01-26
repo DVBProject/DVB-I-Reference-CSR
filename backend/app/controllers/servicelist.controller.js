@@ -148,6 +148,22 @@ exports.findWithStatus = (req, result, status = 'active', provider = null ) => {
 
 // Find a single List with a listId
 exports.findOne = (req, res) => {
+
+  let validrequest = true
+
+  // Id is a valid number
+  const listId = req.params.listId
+  if (isNaN(listId)) {
+    validrequest = false
+  }
+
+  if(!validrequest) {
+    res.status(400).send({
+      message: "Invalid request!"
+    })
+    return
+  }
+
   ServiceList.findById(req.params.listId, (err, data) => {
     if (err) {
       if (err.Name === "not_found") {
@@ -159,7 +175,22 @@ exports.findOne = (req, res) => {
           message: "Error retrieving List with id " + req.params.listId
         });
       }
-    } else res.send(data);
+    } 
+    else {
+      // check if the found list is by one of the user's providers (if not admin)
+      if (req.user.Role !== 'admin') {
+        const providers = JSON.parse(req.user.Providers)
+        
+        if (!providers.includes(data.ProviderId)) {
+          res.status(400).send({
+            message: "Invalid request!"
+          })
+          return
+        }
+      }
+
+      res.send(data);
+    } 
   });
 };
 

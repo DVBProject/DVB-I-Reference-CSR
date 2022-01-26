@@ -51,6 +51,7 @@ ServiceList.findById = (ListId, result) => {
         if (res.length) {  
             let list = res[0]            
             // fetch all the rest of relevant DB tables
+            list.ProviderId = list.Provider
             list = await getRestOfServiceList(list)          
             result(null, res[0]);
             return;
@@ -400,7 +401,7 @@ async function getRestOfServiceList(list) {
     const pnames = await getProviderNames(list).catch(err => {
         console.log("getProviderNames error: ", err)
     })
-    if(pnames) {
+    if(pnames) {        
         list.Provider = pnames[0].Name
         //list.ProviderNames = pnames 
     }

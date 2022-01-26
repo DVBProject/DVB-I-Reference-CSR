@@ -38,7 +38,7 @@ exports.create = (req, res) => {
 
 // Retrieve all Providers from the database.
 exports.findAll = async (req, res) => {
-  if (req.user && req.user.Role == "admin") {
+  if (req.user && req.user.Role === "admin") {
     Provider.getAll((err, data) => {
       if (err)
         res.status(500).send({
@@ -75,9 +75,32 @@ exports.findAll = async (req, res) => {
   }
 };
 
-// Find a single Customer with a customerId
+// Find a single Provider with a id
 exports.findOne = (req, res) => {
-  // check user has rigths to this prov TODO
+  
+  let validrequest = true
+
+  // providerId is a valid number
+  const providerId = req.params.customerId
+  if (isNaN(providerId)) {
+    validrequest = false
+  }
+
+  // check user has rigths to this prov
+  if (req.user.Role !== 'admin') {
+    const providers = JSON.parse(req.user.Providers)
+    
+    if (!providers.includes(+providerId)) {
+        validrequest = false
+    }
+  }
+
+  if(!validrequest) {
+    res.status(400).send({
+      message: "Invalid request!"
+    })
+    return
+  }
 
   Provider.findById(req.params.customerId, (err, data) => {
     if (err) {
