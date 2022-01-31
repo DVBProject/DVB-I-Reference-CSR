@@ -122,10 +122,11 @@ exports.findAll = async (req, res) => {
 exports.findAllByProvider = (req, res) => {
   //console.log(req.url, req.ip, "user:", req.user.Name, req.user.Role)
 
-  const providerId = req.params.providerId  // sanitize...
+  const providerId = +req.params.providerId  // sanitize...
   const user = req.user
+  const provs = JSON.parse(req.user.Providers)
 
-  if (user.Providers.indexOf(providerId) >= 0 || user.Role == 'admin') {
+  if (provs.includes(providerId) || user.Role == 'admin') {
     let provider = providerId
     
     ServiceList.getAllByProvider(provider, (err, data) => {
@@ -138,7 +139,7 @@ exports.findAllByProvider = (req, res) => {
     })
   }
   else {
-    console.log("findAllByProvider error, no permission", user.Providers.indexOf(providerId), user.Role)
+    console.log("findAllByProvider error, no permission", user.Role)
     res.status(500).send({
       message: "Unauthorised"
     })
@@ -210,7 +211,7 @@ exports.findOne = (req, res) => {
 // 
 exports.update = async (req, res) => {
   // check for auth,
-  // Validate Request & user, TODO
+  // 
 
   const listId = req.params.listId
 
