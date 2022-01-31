@@ -21,11 +21,11 @@ module.exports = app => {
                 const passwordHash = await bcrypt.hash(password, 8)
 
                 const user = new User ({
-                    username: username,
+                    Name: username,
                     passwordhash: passwordHash,
-                    role: "admin",
-                    organization: 0,
-                    providers: "0"
+                    Role: "admin",
+                    Organization: 0,
+                    Providers: ""
                 })
 
                 const newUser = await User.create(user)

@@ -84,6 +84,33 @@ const routes =  [
     component: () => import("./components/settings/Settings"),
   },
   {
+    path: "/admin",
+    name: "admin",
+    component: () => import("./components/admin/AdminView"),
+    meta: {
+      requiresAuth: true,
+      is_admin: true
+    }
+  },
+  {
+    path: "/admin/user/:id",
+    name: "user-edit",
+    component: () => import("./components/admin/EditUser"),
+    meta: {
+      requiresAuth: true,
+      is_admin: true
+    }
+  },
+  {
+    path: "/admin/add-user/",
+    name: "user-add",
+    component: () => import("./components/admin/AddUser"),
+    meta: {
+      requiresAuth: true,
+      is_admin: true
+    }
+  },
+  {
     // redirect for nonexistent routes
     path: "/:pathMatch(.*)*",
     name: "notfound",

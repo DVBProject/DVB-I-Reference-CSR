@@ -17,7 +17,10 @@
         <li class="nav-item">
           <router-link to="/add-provider" class="nav-link">Add Provider</router-link>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" v-if="user_role">
+          <router-link to="/admin" class="nav-link">Admin</router-link>
+        </li>
+        <li class="nav-item" v-if="user_role">
           <router-link to="/settings" class="nav-link">Settings</router-link>
         </li>
 
@@ -34,6 +37,19 @@
 <script>
 export default {
   name: 'App',
+  data() {
+    return {
+      user_role: false,
+    }
+  },
+  mounted() {
+    try {
+      this.user_role = JSON.parse(sessionStorage.getItem('user')).is_admin
+    }
+    catch {
+      this.user_role = false
+    }
+  }
 }
 </script>
 

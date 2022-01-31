@@ -1,14 +1,25 @@
 const ServiceList = require("../models/servicelist.model.js");
 const EventHistory = require("../controllers/eventhistory.controller");
+const Providers = require("../controllers/provider.controller");
 
 // Create and Save a new List
 exports.create = (req, res) => {
-    // Validate request, user auth, TODO
+    // better validation, TODO
 
     if (!req.body) {
       res.status(400).send({
         message: "Content can not be empty!"
       });
+      return
+    }
+
+    // provider check, user must "own" the provider to add a new list
+    const provs = JSON.parse(req.user.Providers)
+    if (!provs.includes(+req.body.Provider)) {
+      res.status(400).send({
+        message: "Invalid request"
+      });
+      return
     }
   
     // Create a List
@@ -21,7 +32,7 @@ exports.create = (req, res) => {
         Delivery: req.body.Delivery,
         Countries: req.body.Countries,
         Genres: req.body.Genres,
-        Status: req.body.Status
+        Status: "active"
     });
 
   
@@ -35,12 +46,14 @@ exports.create = (req, res) => {
       else {
         res.send(data);
 
+        // Log an event for this serviceList's event history
+        //
         const event = { 
           ...data,
           Name: req.body.Names[0].name,
           user: req.user,
           eventType: "Create",
-          //ContentJson: ""
+          //ContentJson: ""   // this field for actual update contents, possible undo feature
         }
 
         EventHistory.create( event, (err, res) => {
@@ -55,18 +68,53 @@ exports.create = (req, res) => {
 
 
 // Retrieve all Lists from the database.
-exports.findAll = (req, res) => {
+exports.findAll = async (req, res) => {
   //console.log(req.url, req.ip, "user:", req.user.Name, req.user.Role)
   // check that user is admin
+  if(!req.user) {
+    res.status(500).send({
+      message: "Not authorized."
+    });
+    return
+  }
 
-  ServiceList.getAll((err, data) => {
-    if (err)
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving lists."
-      });
-    else res.send(data);
-  });
+  if (req.user.Role == "admin") {
+    ServiceList.getAll((err, data) => {
+      if (err)
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving lists."
+        });
+      else res.send(data);
+    });
+  }
+  else {
+    // get users providers and their lists
+    let provs = JSON.parse(req.user.Providers)
+    let lists = []
+    let promises = []
+    for( p in provs ) { 
+      promises.push(new Promise(async (resolve, reject) => {
+        ServiceList.getAllByProvider(provs[p], (err, data) => {
+          if (err) {
+            reject(err)
+            console.log("error getting list", provs[p])
+          }
+          else {
+            data.forEach(dd => lists.push(dd))            
+            resolve()
+          }
+        })
+      }).catch(err => {
+        console.log("get users lists error:", err)
+      }))
+      
+    }
+    await Promise.all(promises).catch(err => console.log("ALL", err))
+    //console.log(lists)
+
+    res.send(lists)
+  }
 };
 
 
@@ -99,9 +147,9 @@ exports.findAllByProvider = (req, res) => {
 }
 
 
+// find with status and by provider (optonal)
 //
-//
-exports.findWithStatus = (req, result, status, provider = null ) => {
+exports.findWithStatus = (req, result, status = 'active', provider = null ) => {
   //console.log(req.url, req.ip, "user:", req.user.Name, req.user.Role)
   ServiceList.getAllByStatus((err, data) => {
       if (err) result(err, null)
@@ -112,6 +160,22 @@ exports.findWithStatus = (req, result, status, provider = null ) => {
 
 // Find a single List with a listId
 exports.findOne = (req, res) => {
+
+  let validrequest = true
+
+  // Id is a valid number
+  const listId = req.params.listId
+  if (isNaN(listId)) {
+    validrequest = false
+  }
+
+  if(!validrequest) {
+    res.status(400).send({
+      message: "Invalid request!"
+    })
+    return
+  }
+
   ServiceList.findById(req.params.listId, (err, data) => {
     if (err) {
       if (err.Name === "not_found") {
@@ -123,23 +187,69 @@ exports.findOne = (req, res) => {
           message: "Error retrieving List with id " + req.params.listId
         });
       }
-    } else res.send(data);
+    } 
+    else {
+      // check if the found list is by one of the user's providers (if not admin)
+      if (req.user.Role !== 'admin') {
+        const providers = JSON.parse(req.user.Providers)
+        
+        if (!providers.includes(data.ProviderId)) {
+          res.status(400).send({
+            message: "Invalid request!"
+          })
+          return
+        }
+      }
+
+      res.send(data);
+    } 
   });
 };
 
 // update
 // 
-exports.update = (req, res) => {
+exports.update = async (req, res) => {
   // check for auth,
   // Validate Request & user, TODO
+
+  const listId = req.params.listId
+
   if (!req.body) {
     res.status(400).send({
       message: "Content can not be empty!"
     });
+    return
+  }
+
+  if (isNaN(listId)) {
+    res.status(400).send({
+      message: "Invalid request!"
+    });
+    return
+  }
+
+  // check users ownership of list's provider
+  const listCheck = await ServiceList.listHeaderById(listId)
+  const provs = JSON.parse(req.user.Providers)
+  let valid = true
+  
+  if(listCheck) {
+    console.log("test")
+    if (!provs.includes(+listCheck.Provider)) {
+      valid = false
+    }
+  } 
+  else valid = false
+
+  if(!valid) {
+    res.status(400).send({
+      message: "Invalid request!"
+    });
+    return
   }
 
   ServiceList.updateById(
-    req.params.listId,
+    listId,
     new ServiceList(req.body),
     (err, data) => {
       if (err) {         

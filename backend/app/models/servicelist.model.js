@@ -40,7 +40,8 @@ ServiceList.create = (newServiceList, result) => {
 
 
 ServiceList.findById = (ListId, result) => {
-    sql.query(`SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Id = ${ListId} AND ServiceListURI.ServiceList = ServiceListOffering.Id`, async (err, res) => {
+    sql.query(`SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Id = ? AND ServiceListURI.ServiceList = ServiceListOffering.Id`, 
+       [ListId], async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -50,6 +51,7 @@ ServiceList.findById = (ListId, result) => {
         if (res.length) {  
             let list = res[0]            
             // fetch all the rest of relevant DB tables
+            list.ProviderId = list.Provider
             list = await getRestOfServiceList(list)          
             result(null, res[0]);
             return;
@@ -60,13 +62,38 @@ ServiceList.findById = (ListId, result) => {
     });
 };
 
+// internal, to check list provider ownership when user updates lists
+// 
+ServiceList.listHeaderById = (ListId) => {
+    return new Promise((resolve, reject) => {
+        sql.query(`SELECT ServiceListOffering.Id, ServiceListOffering.Provider FROM ServiceListOffering WHERE ServiceListOffering.Id = ? `, 
+        [ListId], async (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                reject(err);
+                return;
+            }
+        
+            if (res.length) {                    
+                resolve(res[0]);
+                return;
+            }
+            
+            // not found List with the id
+            reject({ Name: "not_found" });
+        });
+    })
+};
+
+
 // 
 //
 ServiceList.getAllByStatus = async (result, liststatus = 'active', provider = null) => {
     let query = ''
-    if (provider) query = `SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Status = "${liststatus}" AND ServiceListOffering.Provider = ${provider} AND ServiceListURI.ServiceList = ServiceListOffering.Id`
-    else query = `SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Status = "${liststatus}" AND ServiceListURI.ServiceList = ServiceListOffering.Id`
-    sql.query(query, async (err, res) => {
+    // using query params
+    if (provider) query = `SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Status = ? AND ServiceListOffering.Provider = ? AND ServiceListURI.ServiceList = ServiceListOffering.Id`
+    else query = `SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Status = ? AND ServiceListURI.ServiceList = ServiceListOffering.Id`
+    sql.query(query, [liststatus, provider], async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -99,21 +126,20 @@ ServiceList.getAllByStatus = async (result, liststatus = 'active', provider = nu
 }
 
 ServiceList.getAllByProvider = async (provider, result) => {
-
-    sql.query(`SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering where ServiceListOffering.Provider = ${provider} AND ServiceListURI.ServiceList = ServiceListOffering.Id`, async (err, res) => {
+    
+    sql.query(`SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering where ServiceListOffering.Provider = ? AND ServiceListURI.ServiceList = ServiceListOffering.Id`, [provider], async (err, res) => {
         if (err) {
             console.log("error: ", err);
-            result(null, err);
+            result(err, null);
             return;
         }
 
         let promises = []
-        //console.time("getAllByProvider")
+        
         try {
             for(i = 0; i < res.length; i++) {
                 let list = res[i]                
-                // fetch all the rest of relevant DB tables
-                //list = await getRestOfServiceList(list)
+                
                 promises.push(new Promise(async (resolve, reject) => {
                     list = await getRestOfServiceList(list)
                     resolve()
@@ -121,13 +147,12 @@ ServiceList.getAllByProvider = async (provider, result) => {
             }
         } catch(err) {
             console.log("error: ", err)
-            result(null, err);
+            result(err, null);
             return;
         }
 
         await Promise.all(promises).catch(err => console.log("getAllByProvider err", err))
-        //console.timeEnd("getAllByProvider")
-        //console.log("ServiceLists: ", res);
+        
         result(null, res);
     })
 }
@@ -135,7 +160,8 @@ ServiceList.getAllByProvider = async (provider, result) => {
 
 ServiceList.getAll = async result => {
     //sql.query("SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering where ServiceListName.ServiceList = ServiceListOffering.Id AND ServiceListURI.ServiceList = ServiceListOffering.Id", async (err, res) => {
-    sql.query("SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering where ServiceListURI.ServiceList = ServiceListOffering.Id", async (err, res) => {
+    sql.query("SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering where ServiceListURI.ServiceList = ServiceListOffering.Id", 
+      async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(null, err);
@@ -166,7 +192,7 @@ ServiceList.getAll = async result => {
     });
 };
 
-// when deleting all providers, must delete all related lists too (unless cascading is set up)
+// when deleting all providers, must delete all related lists too
 //
 ServiceList.getAllProviderServiceListOfferings = async (providerId, result) => {
     return new Promise((resolve, reject) => {
@@ -399,7 +425,7 @@ async function getRestOfServiceList(list) {
     const pnames = await getProviderNames(list).catch(err => {
         console.log("getProviderNames error: ", err)
     })
-    if(pnames) {
+    if(pnames) {        
         list.Provider = pnames[0].Name
         //list.ProviderNames = pnames 
     }
@@ -481,7 +507,7 @@ function removeAllListEntries(listId, tableName) {
 //
 function getTargetCountries(list) {
    return new Promise((resolve, reject) => {
-        sql.query(`SELECT * FROM TargetCountry where TargetCountry.ServiceList = ${list.Id}`, (err, res) => {
+        sql.query(`SELECT * FROM TargetCountry where TargetCountry.ServiceList = ?`, [list.Id], (err, res) => {
             if (err) {
                 console.log("error: ", err);
                 reject(err)
@@ -495,7 +521,7 @@ function getTargetCountries(list) {
 
 function getLanguages(list) {
     return new Promise((resolve, reject) => {
-         sql.query(`SELECT * FROM Language where Language.ServiceList = ${list.Id}`, (err, res) => {
+         sql.query(`SELECT * FROM Language where Language.ServiceList = ?`, [list.Id], (err, res) => {
              if (err) {
                  console.log("error: ", err);
                  reject(err)
@@ -509,7 +535,7 @@ function getLanguages(list) {
 
  function getGenres(list) {
     return new Promise((resolve, reject) => {
-         sql.query(`SELECT * FROM Genre where Genre.ServiceList = ${list.Id}`, (err, res) => {
+         sql.query(`SELECT * FROM Genre where Genre.ServiceList = ?`, [list.Id], (err, res) => {
              if (err) {
                  console.log("error: ", err);
                  reject(err)
@@ -523,7 +549,7 @@ function getLanguages(list) {
 
  function getNames(list) {
     return new Promise((resolve, reject) => {
-         sql.query(`SELECT * FROM ServiceListName where ServiceListName.ServiceList = ${list.Id}`, (err, res) => {
+         sql.query(`SELECT * FROM ServiceListName where ServiceListName.ServiceList = ?`, [list.Id], (err, res) => {
              if (err) {
                  console.log("error: ", err);
                  reject(err)
@@ -542,14 +568,14 @@ function getLanguages(list) {
  function getProviderNames(list) {
     return new Promise((resolve, reject) => {
         // get organization for provider
-         sql.query(`SELECT * FROM ProviderOffering where ProviderOffering.Id = ${list.Provider}`, (err, res) => {
+         sql.query(`SELECT * FROM ProviderOffering where ProviderOffering.Id = ?`, [list.Provider], (err, res) => {
              if (err) {
                  console.log("error: ", err);
                  reject(err)
              }
              else {      
                  // get organization names 
-                 sql.query(`SELECT * FROM EntityName where EntityName.Organization = ${res[0].Organization}`, (err, res2) => {
+                 sql.query(`SELECT * FROM EntityName where EntityName.Organization = ?`, [res[0].Organization], (err, res2) => {
                     if (err) {
                         console.log("error: ", err);
                         reject(err)
