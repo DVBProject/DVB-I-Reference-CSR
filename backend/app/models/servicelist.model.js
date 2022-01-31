@@ -62,6 +62,30 @@ ServiceList.findById = (ListId, result) => {
     });
 };
 
+// internal, to check list provider ownership when user updates lists
+// 
+ServiceList.listHeaderById = (ListId) => {
+    return new Promise((resolve, reject) => {
+        sql.query(`SELECT ServiceListOffering.Id, ServiceListOffering.Provider FROM ServiceListOffering WHERE ServiceListOffering.Id = ? `, 
+        [ListId], async (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                reject(err);
+                return;
+            }
+        
+            if (res.length) {                    
+                resolve(res[0]);
+                return;
+            }
+            
+            // not found List with the id
+            reject({ Name: "not_found" });
+        });
+    })
+};
+
+
 // 
 //
 ServiceList.getAllByStatus = async (result, liststatus = 'active', provider = null) => {

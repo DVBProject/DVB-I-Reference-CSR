@@ -4,12 +4,22 @@ const Providers = require("../controllers/provider.controller");
 
 // Create and Save a new List
 exports.create = (req, res) => {
-    // Validate request, user auth, TODO
+    // better validation, TODO
 
     if (!req.body) {
       res.status(400).send({
         message: "Content can not be empty!"
       });
+      return
+    }
+
+    // provider check, user must "own" the provider to add a new list
+    const provs = JSON.parse(req.user.Providers)
+    if (!provs.includes(+req.body.Provider)) {
+      res.status(400).send({
+        message: "Invalid request"
+      });
+      return
     }
   
     // Create a List
@@ -22,7 +32,7 @@ exports.create = (req, res) => {
         Delivery: req.body.Delivery,
         Countries: req.body.Countries,
         Genres: req.body.Genres,
-        Status: req.body.Status
+        Status: "active"
     });
 
   
@@ -36,12 +46,14 @@ exports.create = (req, res) => {
       else {
         res.send(data);
 
+        // Log an event for this serviceList's event history
+        //
         const event = { 
           ...data,
           Name: req.body.Names[0].name,
           user: req.user,
           eventType: "Create",
-          //ContentJson: ""
+          //ContentJson: ""   // this field for actual update contents, possible undo feature
         }
 
         EventHistory.create( event, (err, res) => {
@@ -196,7 +208,7 @@ exports.findOne = (req, res) => {
 
 // update
 // 
-exports.update = (req, res) => {
+exports.update = async (req, res) => {
   // check for auth,
   // Validate Request & user, TODO
 
@@ -210,6 +222,26 @@ exports.update = (req, res) => {
   }
 
   if (isNaN(listId)) {
+    res.status(400).send({
+      message: "Invalid request!"
+    });
+    return
+  }
+
+  // check users ownership of list's provider
+  const listCheck = await ServiceList.listHeaderById(listId)
+  const provs = JSON.parse(req.user.Providers)
+  let valid = true
+  
+  if(listCheck) {
+    console.log("test")
+    if (!provs.includes(+listCheck.Provider)) {
+      valid = false
+    }
+  } 
+  else valid = false
+
+  if(!valid) {
     res.status(400).send({
       message: "Invalid request!"
     });
