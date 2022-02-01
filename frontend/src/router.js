@@ -79,7 +79,7 @@ const routes =  [
     name: "settings",
     meta: {
       requiresAuth: true,
-      //is_admin: true
+      is_admin: true
     },
     component: () => import("./components/settings/Settings"),
   },
