@@ -143,8 +143,8 @@ export default {
       
 
       if(this.Password !== "") {
-        if(this.Password.length < 10) {
-          this.passwordMessage = "Pass length must be 10 or more. "
+        if(this.Password.length < 12) {
+          this.passwordMessage = "Pass length must be 12 or more. "
           valid = false
         }
         if(this.Password !== this.PasswordCheck) {
