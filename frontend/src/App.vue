@@ -28,8 +28,8 @@
           <i class="bi-person-square nav-link nav-icon" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" id="profileButton" aria-label="profile"></i>         
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileButton">
             <li v-if="!user"><a class="dropdown-item" href="/login">Sign in</a></li>
-            <li v-if="!user"><a class="dropdown-item" href="#">Register</a></li>
-            <li v-if="user"><a class="dropdown-item" href="#">Profile</a></li>
+            <li v-if="false"><a class="dropdown-item" href="#">Register</a></li>
+            <li v-if="user"><a class="dropdown-item" :href="'/profile/' + user.Id" >Profile</a></li>
             <li v-if="user"><hr class="dropdown-divider"></li>
             <li v-if="user"><a class="dropdown-item" href="/logout">Log out</a></li>
           </ul>
