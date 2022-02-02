@@ -17,21 +17,21 @@
         <li class="nav-item">
           <router-link to="/add-provider" class="nav-link">Add Provider</router-link>
         </li>
-        <li class="nav-item" v-if="user_role">
+        <li class="nav-item" v-if="user && user.role">
           <router-link to="/admin" class="nav-link">Admin</router-link>
         </li>
-        <li class="nav-item" v-if="user_role">
+        <li class="nav-item" v-if="user && user.role">
           <router-link to="/settings" class="nav-link">Settings</router-link>
         </li>
 
         <li class="nav-item dropdown">
           <i class="bi-person-square nav-link nav-icon" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" id="profileButton" aria-label="profile"></i>         
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileButton">
-            <li><a class="dropdown-item" href="/login">Sign in</a></li>
-            <li><a class="dropdown-item" href="#">Register</a></li>
-            <li><a class="dropdown-item" href="#">Profile</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="/logout">Log out</a></li>
+            <li v-if="!user"><a class="dropdown-item" href="/login">Sign in</a></li>
+            <li v-if="!user"><a class="dropdown-item" href="#">Register</a></li>
+            <li v-if="user"><a class="dropdown-item" href="#">Profile</a></li>
+            <li v-if="user"><hr class="dropdown-divider"></li>
+            <li v-if="user"><a class="dropdown-item" href="/logout">Log out</a></li>
           </ul>
         </li>
 
@@ -50,16 +50,23 @@ export default {
   name: 'App',
   data() {
     return {
-      user_role: false,
+      
+    }
+  },
+  computed: {
+    user() {
+      let user = false
+      try {
+        user = JSON.parse(sessionStorage.getItem('user'))
+      }
+      catch {
+        user = false
+      }
+      return user
     }
   },
   mounted() {
-    try {
-      this.user_role = JSON.parse(sessionStorage.getItem('user')).is_admin
-    }
-    catch {
-      this.user_role = false
-    }
+
   }
 }
 </script>

@@ -44,10 +44,11 @@ class LoginService {
   }
 
   reset() {
+    console.log("reset")
     // clear session information
     sessionStorage.clear()
     // reload previous view & trigger re-login
-    window.history.go("/")
+    window.location = "/"
   }
 
   // ui-routing middleware
