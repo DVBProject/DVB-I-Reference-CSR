@@ -1,5 +1,8 @@
 import http from "../http-common";
 
+let configdata = {
+  headers: { 'Authorization': sessionStorage.getItem("auth") }
+}
 
 class LoginService {
 
@@ -22,7 +25,16 @@ class LoginService {
     }
   }
 
-  // TODO: handler for request auth exceptions
+  async logout() {
+    await http.get("/logout", configdata).catch(err => {
+      console.log(err)
+    })
+    // clear session storage
+    sessionStorage.clear()
+  }
+
+
+  // TODO: handler for request auth exceptions (currently views will redirect to /)
   //
 
 

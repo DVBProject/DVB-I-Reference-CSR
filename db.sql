@@ -127,6 +127,7 @@ CREATE TABLE `User`
  `Organization`  integer NOT NULL ,
  `Providers`     text NOT NULL ,
  `Email`         text NOT NULL ,
+ `Session`       integer NOT NULL ,
  `Id`            integer NOT NULL AUTO_INCREMENT,
 
 PRIMARY KEY (`Id`)
