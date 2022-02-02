@@ -127,6 +127,7 @@ CREATE TABLE `User`
  `Organization`  integer NOT NULL ,
  `Providers`     text NOT NULL ,
  `Email`         text NOT NULL ,
+ `Session`       integer NOT NULL ,
  `Id`            integer NOT NULL AUTO_INCREMENT,
 
 PRIMARY KEY (`Id`)
@@ -221,4 +222,4 @@ INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress
 INSERT INTO EntityName(Name,Type,Organization,Id) VALUES("Repository provider","",1,1);
 INSERT INTO ServiceListEntryPoints(ServiceListRegistryEntity,Id) VALUES (1,1);
 
-INSERT INTO User(Name,Hash,Role,Id,Providers,Organization,Email) VALUES ('admin','$2a$08$B5kXMji7bHC8yOO1xIqeO.Vy3oPc.rkQUTG4bNG1hZWNBmcz9eaZe','admin',1,"[]",1,"");
+INSERT INTO User(Name,Hash,Role,Id,Providers,Organization,Email,Session) VALUES ('admin','$2a$08$B5kXMji7bHC8yOO1xIqeO.Vy3oPc.rkQUTG4bNG1hZWNBmcz9eaZe','admin',1,"[]",1,"",1);

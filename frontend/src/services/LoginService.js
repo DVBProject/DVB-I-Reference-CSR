@@ -63,7 +63,7 @@ class LoginService {
       else {
         let user = JSON.parse( sessionStorage.getItem('user') )
         if (to.matched.some(record => record.meta.is_admin)) {
-          if (user.is_admin) {
+          if (user.role) {
             next()
           } 
           else {
