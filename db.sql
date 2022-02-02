@@ -214,8 +214,11 @@ ALTER TABLE `User`
 ALTER TABLE `User`
   ADD `Organization` TEXT NOT NULL;
 
+ALTER TABLE `User`
+  ADD `Email` TEXT NOT NULL;
+
 INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator,Id) VALUES ('Repository provider','Contact','Jurisdiction','Address','Electronic address',1,1);
 INSERT INTO EntityName(Name,Type,Organization,Id) VALUES("Repository provider","",1,1);
 INSERT INTO ServiceListEntryPoints(ServiceListRegistryEntity,Id) VALUES (1,1);
 
-INSERT INTO User(Name,Hash,Role,Id,Providers,Organization) VALUES ('admin','$2a$08$B5kXMji7bHC8yOO1xIqeO.Vy3oPc.rkQUTG4bNG1hZWNBmcz9eaZe','admin',1,"",1);
+INSERT INTO User(Name,Hash,Role,Id,Providers,Organization,Email) VALUES ('admin','$2a$08$B5kXMji7bHC8yOO1xIqeO.Vy3oPc.rkQUTG4bNG1hZWNBmcz9eaZe','admin',1,"[]",1,"");
