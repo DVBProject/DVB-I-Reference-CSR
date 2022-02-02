@@ -1,5 +1,6 @@
 const User = require("../models/user.model.js");
 const bcrypt = require("bcryptjs")
+const jwt = require("jsonwebtoken")
 
 
 // create
@@ -30,7 +31,8 @@ exports.create = async (req, res) => {
       passwordhash: passwordHash,
       Role: Role,
       Organization: 0,
-      Providers: Providers
+      Providers: Providers,
+      Session: 1
   })
 
   const newUser =  await User.create(user)
@@ -205,4 +207,25 @@ exports.delete = (req, res) => {
       res.send({ message: `User was deleted successfully!` });
     }
   })
+}
+
+
+// log out
+exports.logout = (req, res) => {
+  console.log("User logged out:", req.user.Id, req.user.Name)
+
+  const { Id, Session } = req.user
+
+  let newSession = Session + 1
+  if(newSession > 1000) newSession = 1
+
+  User.updateSession( Id, newSession, (err, data) => {
+      if (err) { 
+        console.log("error with logout:", err)
+        res.status(400).json({ success: false })
+      } 
+      else {
+        res.send({success: true})
+      }
+    })
 }

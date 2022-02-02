@@ -25,7 +25,8 @@ module.exports = app => {
                     passwordhash: passwordHash,
                     Role: "admin",
                     Organization: 0,
-                    Providers: ""
+                    Providers: "",
+                    Session: 1
                 })
 
                 const newUser = await User.create(user)
@@ -63,13 +64,13 @@ module.exports = app => {
                 ip
             } = req
 
-            const user = await  User.findByName(username)
+            const user = await User.findByName(username)
 
             if(!user || user.length < 1) {
                 return res.status(401).json({ success: false, error: "general error" })
             }
 
-            const { Id, Hash, Role } = user[0]
+            const { Id, Hash, Role, Session } = user[0]
 
             const match = await bcrypt.compare(password, Hash)
             if(!match) {
@@ -78,8 +79,8 @@ module.exports = app => {
             }
 
             // create token
-            const token = await jwt.sign({Id, Role}, req.app.get("jwtstring"), {expiresIn: "12h"})
-            
+            const token = jwt.sign({Id, Role, Session}, req.app.get("jwtstring"), {expiresIn: "6h"})
+
             // log the login: "user logged in from ip"
             let user_data = {
                 is_admin: Role === "admin"

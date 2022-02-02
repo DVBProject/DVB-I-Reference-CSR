@@ -3,6 +3,7 @@ import { createWebHistory, createRouter } from "vue-router";
 import LoginService from "./services/LoginService";
 
 import Login from "./components/Login/Login"
+import Logout from "./components/Login/Logout"
 
 const routes =  [
   {
@@ -64,6 +65,12 @@ const routes =  [
     name: "login",
     component: Login
   },
+  {
+    path: "/logout",
+    name: "logout",
+    component: Logout
+  },
+  
   {
     path: "/setup",
     alias: "/setup",

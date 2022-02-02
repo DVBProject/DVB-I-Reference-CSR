@@ -15,5 +15,7 @@ module.exports = app => {
     
     // Delete a user with userId
     app.delete("/users/:userId", user.delete);
-    
+
+    // log out a users token
+    app.get("/logout", user.logout);    
 };

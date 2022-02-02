@@ -24,6 +24,17 @@
           <router-link to="/settings" class="nav-link">Settings</router-link>
         </li>
 
+        <li class="nav-item dropdown">
+          <i class="bi-person-square nav-link nav-icon" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" id="profileButton" aria-label="profile"></i>         
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileButton">
+            <li><a class="dropdown-item" href="/login">Sign in</a></li>
+            <li><a class="dropdown-item" href="#">Register</a></li>
+            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/logout">Log out</a></li>
+          </ul>
+        </li>
+
       </div>
     </nav>
 
@@ -60,5 +71,9 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+
+.nav-icon {
+  font-size: 1.1rem;
 }
 </style>

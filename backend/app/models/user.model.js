@@ -8,6 +8,7 @@ const User = function(newuser) {
     this.Role = newuser.Role
     this.Organization = newuser.Organization
     this.Providers = newuser.Providers
+    this.Session = newuser.Session
 }
 
 User.create = (user) => {
@@ -138,6 +139,23 @@ User.remove = async (id, result) => {
         console.log("deleted User with id: ", id);
         result(null, res);
     });
+}
+
+// updateSession
+User.updateSession = (Id, Session, result) => {
+    
+    sql.query("UPDATE User SET Session = ? WHERE Id = ?", [Session, Id], 
+        (err, res) => {
+            if (err) {
+                console.log("error with logout update: ", err)
+                result(err, null)
+                return
+            }
+
+            //console.log("Logged out User: ", { Id: Id })
+            result(null, { Id: Id })
+        }
+    );
 }
 
 module.exports = User;
