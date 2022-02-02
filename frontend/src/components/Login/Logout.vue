@@ -31,7 +31,8 @@ export default {
           }
 
           setTimeout(() => {
-            this.$router.push("/");
+            //this.$router.push("/");
+            window.location = "/"
           }, 3000)          
 
         })

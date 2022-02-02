@@ -5,7 +5,7 @@
       <h4>Please enter log-in</h4>
       <div class="input-group mb-3">
         <form name="loginform" @submit.prevent="submitLogin">
-          <input type="text" class="form-control" placeholder="username"
+          <input type="text" class="form-control" placeholder="username" autofocus
             v-model="username"/>
           <input type="password" class="form-control" placeholder="password"
             v-model="password" @keyup.enter="submitLogin"/>
@@ -36,8 +36,6 @@ export default {
   },
   methods: {
     submitLogin() {
-      // TODO: validate & check input
-
       const data = {username: this.username, password: this.password}
 
       LoginService.login(data)
@@ -45,13 +43,7 @@ export default {
           console.log("login ui", response)
           console.log(this.$route)
           if(response.success) {
-            if(this.$route.redirectedFrom) {
-              //this.$router.push(this.$route.redirectedFrom.fullPath)
-              this.$router.push("/")
-            }
-            else {
-              this.$router.push("/")
-            }
+            window.location = "/"     
           }
           else {
             this.message = "Could not log in"

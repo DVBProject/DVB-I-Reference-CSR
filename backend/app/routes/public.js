@@ -83,7 +83,7 @@ module.exports = app => {
 
             // log the login: "user logged in from ip"
             let user_data = {
-                is_admin: Role === "admin"
+                role: Role === "admin"
             }
             return res.status(200).json({ success: true, token, user: user_data })
 
