@@ -29,7 +29,7 @@
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileButton">
             <li v-if="!user"><a class="dropdown-item" href="/login">Sign in</a></li>
             <li v-if="false"><a class="dropdown-item" href="#">Register</a></li>
-            <li v-if="user"><a class="dropdown-item" :href="'/profile/' + user.Id" >Profile</a></li>
+            <li v-if="user"><a class="dropdown-item" href="/profile" >Profile</a></li>
             <li v-if="user"><hr class="dropdown-divider"></li>
             <li v-if="user"><a class="dropdown-item" href="/logout">Log out</a></li>
           </ul>
