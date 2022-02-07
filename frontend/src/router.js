@@ -118,6 +118,14 @@ const routes =  [
     }
   },
   {
+    path: "/profile/:id",
+    name: "profile",
+    component: () => import("./components/User/Profile"),
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     // redirect for nonexistent routes
     path: "/:pathMatch(.*)*",
     name: "notfound",
