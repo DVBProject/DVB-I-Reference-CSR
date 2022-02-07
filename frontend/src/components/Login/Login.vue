@@ -15,6 +15,7 @@
             >
               Login
             </button>
+            <p>{{ message }}</p>
           </div>
         </form>
       </div>

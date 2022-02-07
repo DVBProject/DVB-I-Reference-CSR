@@ -27,6 +27,10 @@ class UserDataService {
   delete(id) {
     return http.delete(`/users/${id}`, configdata);
   }
+
+  changePwd(data) {
+    return http.post("/pwd", data, configdata);
+  }
   
 }
 

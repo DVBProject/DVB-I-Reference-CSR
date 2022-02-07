@@ -118,7 +118,7 @@ const routes =  [
     }
   },
   {
-    path: "/profile/:id",
+    path: "/profile",
     name: "profile",
     component: () => import("./components/User/Profile"),
     meta: {

@@ -39,7 +39,7 @@
                 </button>
               </div>
               <div class="modal-body">
-                <p>Please confirm, delete User?</p>
+                <p>PASSWD?</p>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-outline-primary" data-dismiss="modal" @click="confirmPassword = !confirmPassword">Cancel</button>
