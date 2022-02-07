@@ -14,7 +14,14 @@ exports.create = (req, res) => {
     }
 
     // provider check, user must "own" the provider to add a new list
-    const provs = JSON.parse(req.user.Providers)
+    //const provs = JSON.parse(req.user.Providers)
+    let provs = []
+    try {
+      provs = JSON.parse(req.user.Providers)
+    } catch {
+      console.log("user data corrupt", req.user)
+    }
+
     if (!provs.includes(+req.body.Provider)) {
       res.status(400).send({
         message: "Invalid request"
@@ -90,7 +97,13 @@ exports.findAll = async (req, res) => {
   }
   else {
     // get users providers and their lists
-    let provs = JSON.parse(req.user.Providers)
+    //let provs = JSON.parse(req.user.Providers)
+    let provs = []
+    try {
+      provs = JSON.parse(req.user.Providers)
+    } catch {
+      console.log("user data corrupt", req.user)
+    }
     let lists = []
     let promises = []
     for( p in provs ) { 
@@ -124,7 +137,14 @@ exports.findAllByProvider = (req, res) => {
 
   const providerId = +req.params.providerId  // sanitize...
   const user = req.user
-  const provs = JSON.parse(req.user.Providers)
+  //const provs = JSON.parse(req.user.Providers)
+  let provs = []
+  try {
+    provs = JSON.parse(req.user.Providers)
+  } catch {
+    console.log("user data corrupt", req.user)
+  }
+
 
   if (provs.includes(providerId) || user.Role == 'admin') {
     let provider = providerId
@@ -192,7 +212,13 @@ exports.findOne = (req, res) => {
     else {
       // check if the found list is by one of the user's providers (if not admin)
       if (req.user.Role !== 'admin') {
-        const providers = JSON.parse(req.user.Providers)
+        //const providers = JSON.parse(req.user.Providers)
+        let providers = []
+        try {
+          providers = JSON.parse(req.user.Providers)
+        } catch {
+          console.log("user data corrupt", req.user)
+        }
         
         if (!providers.includes(data.ProviderId)) {
           res.status(400).send({
@@ -231,7 +257,14 @@ exports.update = async (req, res) => {
 
   // check users ownership of list's provider
   const listCheck = await ServiceList.listHeaderById(listId)
-  const provs = JSON.parse(req.user.Providers)
+  //const provs = JSON.parse(req.user.Providers)
+  let provs = []
+  try {
+    provs = JSON.parse(req.user.Providers)
+  } catch {
+    console.log("user data corrupt", req.user)
+  }
+  
   let valid = true
   
   if(listCheck) {

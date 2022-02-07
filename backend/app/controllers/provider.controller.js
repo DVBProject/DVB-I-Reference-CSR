@@ -35,9 +35,13 @@ exports.create = (req, res) => {
       // add the new provider to users' providers
       //
       let updateData = req.user
-      updateData.Providers = JSON.parse(updateData.Providers)
-      updateData.Providers.push(data.id)
-      updateData.Providers = JSON.stringify(updateData.Providers)
+      try {
+        updateData.Providers = JSON.parse(updateData.Providers)
+        updateData.Providers.push(data.id)
+        updateData.Providers = JSON.stringify(updateData.Providers)
+      } catch {
+        console.log("user data or new provider id corrupted", req.user)
+      }
       User.updateById(
         req.user.Id,
         false,
@@ -70,7 +74,14 @@ exports.findAll = async (req, res) => {
   }
   else {
     // fetch all providers for this user
-    let provs = JSON.parse(req.user.Providers)
+    //let provs = JSON.parse(req.user.Providers)
+    let provs = []
+    try {
+      provs = JSON.parse(req.user.Providers)
+    } catch {
+      console.log("user data corrupt", req.user)
+    }
+
     let result_data = []
     let promises = []
     for( p in provs ) {
@@ -108,7 +119,13 @@ exports.findOne = (req, res) => {
 
   // check user has rigths to this prov
   if (req.user.Role !== 'admin') {
-    const providers = JSON.parse(req.user.Providers)
+    //const providers = JSON.parse(req.user.Providers)
+    let providers = []
+    try {
+      providers = JSON.parse(req.user.Providers)
+    } catch {
+      console.log("user data corrupt", req.user)
+    }
     
     if (!providers.includes(+providerId)) {
         validrequest = false
@@ -151,7 +168,13 @@ exports.update = (req, res) => {
 
   // check user has rigths to this prov
   if (req.user.Role !== 'admin') {
-    const providers = JSON.parse(req.user.Providers)
+    //const providers = JSON.parse(req.user.Providers)
+    let providers = []
+    try {
+      providers = JSON.parse(req.user.Providers)
+    } catch {
+      console.log("user data corrupt", req.user)
+    }
     
     if (!providers.includes(+providerId)) {
         validrequest = false

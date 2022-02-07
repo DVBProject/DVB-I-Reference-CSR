@@ -21,7 +21,14 @@ ServiceList.create = (newServiceList, result) => {
     if( !newServiceList.lang || newServiceList.lang.length < 1) newServiceList.lang = [{a3: "Not defined"}]
     newServiceList.URI = newServiceList.URI || "Not defined"
     if(!newServiceList.Delivery || newServiceList.Delivery.length < 1) newServiceList.Delivery = ["DASHDelivery"]
-    const deliveries = JSON.stringify(newServiceList.Delivery)
+
+    //const deliveries = JSON.stringify(newServiceList.Delivery)
+    let deliveries =  ["DASHDelivery"]
+    try {
+        deliveries = JSON.stringify(List.Delivery)
+    } catch {
+        console.log("updateById: possible corrupt query", req.user)
+    }
 
     sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, Delivery = ?,Status = ?", [ newServiceList.Provider, newServiceList.regulatorList, deliveries, newServiceList.Status ], async (err, res) => {
         if (err) {
@@ -220,7 +227,12 @@ ServiceList.updateById = (id, List, result) => {
     if(!List.Delivery || List.Delivery.length < 1) List.Delivery = ["DASHDelivery"]
     List.Status = List.Status || ""
 
-    const deliveries = JSON.stringify(List.Delivery)
+    let deliveries =  ["DASHDelivery"]
+    try {
+        deliveries = JSON.stringify(List.Delivery)
+    } catch {
+        console.log("updateById: possible corrupt query", req.user)
+    }
 
     sql.query(
         "UPDATE ServiceListOffering SET regulatorList = ?, Status = ?, Delivery = ? WHERE Id = ?",
