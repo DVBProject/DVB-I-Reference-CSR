@@ -57,7 +57,7 @@ import UserDataService from "../../services/UserDataService"
 
 
 export default {
-  name: "admin",
+  name: "admin-view",
   data() {
     return {
       users: [],

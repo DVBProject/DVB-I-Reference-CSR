@@ -124,7 +124,7 @@ import UserDataService from "../../services/UserDataService"
 
 
 export default {
-  name: "profile",
+  name: "profile-view",
   data() {
     return {
       confirmPassword: false,
