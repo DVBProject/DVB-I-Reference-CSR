@@ -206,13 +206,11 @@
 import ServiceListDataService from "../../services/ServiceListDataService"
 import ProviderDataService from "../../services/ProviderDataService"
 import LoginService from "../../services/LoginService"
-//import Multiselect from 'vue-multiselect'
 import { deliveries,genres } from "../../../../common/dev_constants"
 import languages from "../../../../common/languages"
 import countries from "../../../../common/countries"
 export default {
   name: "add-servicelist",
-  //components: { Multiselect },
   data() {
     return {
       providers: [],
@@ -365,7 +363,6 @@ export default {
     }
 
     
-
   },
   mounted() {
     // phase1 insert values from fixed lists (dev_constants.js)
