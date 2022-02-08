@@ -96,13 +96,80 @@ exports.findAll = (req, res) => {
       })
     }
     else {  
-      res.status(500).send({
-        message:
-          err.message || "Not authorized."
+      // return just users own data
+      const id = req.user.Id
+      User.findById(id) 
+      .then(  data => {
+        delete data[0]['Session']  
+        delete data[0]['Role']    
+        res.send(data);
       })
-      console.log("Not auth: user asked getAll", req.user)
+      .catch(err => {
+          if (err.Name === "not_found") {
+              res.status(404).send({
+                message: `Not found user with id ${req.params.userId}.`
+              });
+          } 
+          else {
+              res.status(500).send({
+                  message: "Error retrieving user with id " + req.params.userId
+              });
+          }
+      })
     }
 };
+
+exports.changePassword = async (req, res) => {
+
+  let validrequest = true
+
+  if (!req.body) {
+    validrequest = false
+  }
+
+  if(!validrequest) {
+    res.status(400).send({
+      message: "Invalid request!"
+    })
+    return
+  }
+
+  let updateData = req.body
+
+  const user = await User.findByName(req.user.Name)
+
+  if(!user || user.length < 1) {
+      return res.status(401).json({ success: false, error: "general error" })
+  }
+
+  const { Id, Hash, Role, Session } = user[0]
+
+  const match = await bcrypt.compare(updateData.Password, Hash)
+  if(!match) {
+      // old pwd is incorrect
+      return res.status(401).json({ success: false, error: "general error" })
+  }
+
+  // get new hash
+  const newHash = await bcrypt.hash(updateData.NewPassword, 8)
+
+  // update new password hash
+  User.updatePwd(
+    Id,
+    newHash,
+    (err, data) => {
+      if (err) {         
+        res.status(500).send({
+          message: "Error updating User with id " + req.user.Id
+        })        
+      } 
+      else {
+        console.log("password changed for user", req.user.Id)
+        res.send(data)
+      }
+    })
+
+}
 
 
 // update

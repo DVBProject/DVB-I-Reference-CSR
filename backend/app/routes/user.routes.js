@@ -17,5 +17,8 @@ module.exports = app => {
     app.delete("/users/:userId", user.delete);
 
     // log out a users token
-    app.get("/logout", user.logout);    
+    app.get("/logout", user.logout);  
+    
+    // change password
+    app.post("/pwd", user.changePassword)
 };

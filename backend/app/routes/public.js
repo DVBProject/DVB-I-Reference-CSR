@@ -79,12 +79,14 @@ module.exports = app => {
             }
 
             // create token
-            const token = jwt.sign({Id, Role, Session}, req.app.get("jwtstring"), {expiresIn: "6h"})
+            // include user IP in token ? todo
+            const token = jwt.sign({Id, Role, Session}, req.app.get("jwtstring"), {expiresIn: "4h"})
 
             // log the login: "user logged in from ip"
+            console.log("User", Id, "logged in from IP", ip)
             let user_data = {
                 role: Role === "admin",
-                Id
+                //Id
             }
             return res.status(200).json({ success: true, token, user: user_data })
 

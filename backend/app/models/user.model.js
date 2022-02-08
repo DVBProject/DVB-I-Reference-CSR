@@ -158,4 +158,22 @@ User.updateSession = (Id, Session, result) => {
     );
 }
 
+User.updatePwd = (Id, Hash, result) => {
+    sql.query(
+        "UPDATE User SET Hash = ? WHERE Id = ?",
+        [Hash, Id], 
+        async (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+
+            console.log("updated User: ", { Id: Id });
+            result(null, { Id: Id });
+        }
+    );
+}
+
+
 module.exports = User;
