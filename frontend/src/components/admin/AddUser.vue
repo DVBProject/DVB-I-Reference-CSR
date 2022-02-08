@@ -140,6 +140,20 @@ export default {
           valid = false
       }
 
+      if(this.Email == "") {
+          this.emailMessage = "Email cannot be empty"
+          valid = false
+      } 
+      else {      
+        if(!this.Email.includes("@")) {
+            this.emailMessage = "Please check that the e-mail is correct"
+            valid = false
+        }
+        else if(!this.Email.split("@")[1].includes(".")) {
+            this.emailMessage = "Please check that the e-mail is correct"
+            valid = false
+        }
+      }
       
 
       if(this.Password !== "") {

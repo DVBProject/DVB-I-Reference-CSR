@@ -64,6 +64,7 @@
         <input type="text" class="form-control my-2" id="Name"
           v-model="currentUser.Name"
         />
+        <p class="small text-warning">{{ nameMessage }}</p>
       </div>
       
       <div class="form-group">
@@ -71,6 +72,7 @@
         <input type="text" class="form-control my-2" id="Email"
           v-model="currentUser.Email"
         />
+        <p class="small text-warning">{{ emailMessage }}</p>
       </div>
 
 
@@ -129,7 +131,7 @@
         Update
       </button>
     </div>
-    <p>{{ message }}</p>
+    <p class="small ">{{ message }}</p>
   </div>
 
   </div>
@@ -152,6 +154,7 @@ export default {
       confirmPassword: false,
       currentUser: null,
       message: '',
+      emailMessage: '',
 
       providers_ui: [],
       SelectedProviders: [],
@@ -203,7 +206,42 @@ export default {
         })
     },
 
+    validateFields() {
+      this.nameMessage = ""
+      this.emailMessage = ""
+      this.message = ""
+      let valid = true
+
+      if(this.currentUser.Name == "") {
+          this.nameMessage = "Name cannot be empty"
+          valid = false
+      }
+
+      if(this.currentUser.Email == "") {
+          this.emailMessage = "Email cannot be empty"
+          valid = false
+      } 
+      else {      
+        if(!this.currentUser.Email.includes("@")) {
+            this.emailMessage = "Please check that the e-mail is correct"
+            valid = false
+        }
+        else if(!this.currentUser.Email.split("@")[1].includes(".")) {
+            this.emailMessage = "Please check that the e-mail is correct"
+            valid = false
+        }
+      }
+      
+
+      if(!valid) {
+        this.message = "Please check all missing fields"        
+      }
+
+      return valid
+    },
+
     updateUser() {
+        if( !this.validateFields() ) return
         let prov = []
         
         this.SelectedProviders.forEach(sp => prov.push(+sp.value))

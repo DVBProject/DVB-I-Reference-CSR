@@ -64,7 +64,8 @@
         <label for="URI">E-mail</label>
         <input type="text" class="form-control my-2" id="Email"
           v-model="currentUser.Email"
-        />
+        /> 
+        <p class="small text-warning">{{ emailMessage }}</p>
       </div>
 
 
@@ -78,7 +79,7 @@
                   v-bind:id="index"
                   v-bind:key="index"
                   
-                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} </li>
+                  class="btn btn-outline-secondary mx-1 my-1">{{item.name}} </li>
             </ul>
           </div>
       </div>
@@ -97,7 +98,7 @@
         Update
       </button>
     </div>
-    <p>{{ message }}</p>
+    <p class="small">{{ message }}</p>
   </div>
 
   <div class="form-group">
@@ -129,6 +130,7 @@ export default {
       confirmPassword: false,
       currentUser: null,
       message: '',
+      emailMessage: '',
       passwordMessage: "",
       oldpasswordMessage: "",
 
@@ -187,6 +189,7 @@ export default {
     },
 
     updateUser() {
+        if( !this.validateFields() ) return
         let prov = []
         
         this.SelectedProviders.forEach(sp => prov.push(+sp.value))
@@ -273,11 +276,26 @@ export default {
       this.message = ""
       let valid = true
 
+      /*
       if(this.Name == "") {
           this.nameMessage = "Name cannot be empty"
           valid = false
-      }
+      } */
 
+      if(this.currentUser.Email == "") {
+          this.emailMessage = "Email cannot be empty"
+          valid = false
+      } 
+      else {      
+        if(!this.currentUser.Email.includes("@")) {
+            this.emailMessage = "Please check that the e-mail is correct"
+            valid = false
+        }
+        else if(!this.currentUser.Email.split("@")[1].includes(".")) {
+            this.emailMessage = "Please check that the e-mail is correct"
+            valid = false
+        }
+      }
       if(!valid) {
         this.message = "Please check all missing fields"        
       }
