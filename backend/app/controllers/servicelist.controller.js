@@ -172,6 +172,16 @@ exports.findAllByProvider = (req, res) => {
 //
 exports.findWithStatus = (req, result, status = 'active', provider = null ) => {
   //console.log(req.url, req.ip, "user:", req.user.Name, req.user.Role)
+
+  /*
+  // check status validity
+  if(['active','suspended','deleted'].indexOf(status) == -1) {
+    console.log("invalid status")
+    result("err: invalid status", null)
+    return
+  }
+  */
+
   ServiceList.getAllByStatus((err, data) => {
       if (err) result(err, null)
       else result(null, data)

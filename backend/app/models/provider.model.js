@@ -12,7 +12,7 @@ const Provider = function(Provider) {
 };
 
 Provider.create = (newProvider, Names, result) => {
-    if(!Names || Names.length == 0) {
+    if(!Names || Names.length == 0) {
         result({message: "Provider name required!"}, null);
         return;
     }
@@ -246,9 +246,9 @@ async function createNames(orgId, provider) {
     let promises = []
     for(index in provider.Names) {
         const data = {...provider.Names[index], organization: orgId}
-        // nimet ei valttamatta talletu samaan jarj kuin UI:lla, fix: poista promise.all ja oota ne yksitellen..
-        promises.push(
-            new Promise((resolve, reject) => {
+        // with promise.all the names are not always saved in the same order
+        //promises.push(
+          await new Promise((resolve, reject) => {
                 sql.query("INSERT INTO EntityName SET ?", data, (err, res) => {
                     if (err) {
                         console.log("EntityName insert error: ", err);
@@ -256,9 +256,10 @@ async function createNames(orgId, provider) {
                     }
                     resolve()
                 })
-            }).catch(err => {return err}) )
+            }).catch(err => {return err}) 
+            //)
     }
-    await Promise.all(promises).catch(err => console.log("createNames ALL", err))
+    //await Promise.all(promises).catch(err => console.log("createNames ALL", err))
 }
 
 function getNames(provider) {
