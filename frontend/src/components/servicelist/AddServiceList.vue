@@ -57,8 +57,19 @@
 
 
       <label>URI:</label>
-      <input type="text" class="form-control my-2" placeholder="URI"
-          v-model="URI"/>
+      <div class="row my-0 mx-0 px-0">
+        <div class="px-0 col-sm-10">
+          <input type="text" class="form-control my-2 mx-0" placeholder="URI"
+            v-model="URI"/>
+        </div>
+        <div class="btn-group-sm my-0 mx-0 px-0 col-sm-2">
+          <button class="btn btn-outline-primary mt-2 py-2 col-sm-12"
+            @click="testURI"
+          >
+          Test
+          </button> 
+        </div>
+      </div>
 
       <label>Organization:</label>
       <select class="form-control my-2" placeholder="Provider"
@@ -273,7 +284,9 @@ export default {
                 console.log(err);
             });
     },
-
+    testURI() {
+      window.open(this.URI, '_blank').focus()
+    },
     addNameField() {
       this.Names.push({name: "", lang: ""})
     },
