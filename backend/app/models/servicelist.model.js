@@ -22,13 +22,8 @@ ServiceList.create = (newServiceList, result) => {
     newServiceList.URI = newServiceList.URI || "Not defined"
     if(!newServiceList.Delivery || newServiceList.Delivery.length < 1) newServiceList.Delivery = ["DASHDelivery"]
 
-    //const deliveries = JSON.stringify(newServiceList.Delivery)
-    let deliveries =  ["DASHDelivery"]
-    try {
-        deliveries = JSON.stringify(List.Delivery)
-    } catch {
-        console.log("updateById: possible corrupt query", req.user)
-    }
+    const deliveries = JSON.stringify(newServiceList.Delivery)
+
 
     sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, Delivery = ?,Status = ?", [ newServiceList.Provider, newServiceList.regulatorList, deliveries, newServiceList.Status ], async (err, res) => {
         if (err) {
