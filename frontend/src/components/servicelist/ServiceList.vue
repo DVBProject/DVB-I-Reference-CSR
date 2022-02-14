@@ -88,10 +88,21 @@
 
       
       <div class="form-group">
-        <label for="URI">URI</label>
+      <label for="URI">URI</label>
+        <div class="row my-0 mx-0 px-0">
+        <div class="px-0 col-sm-10">
         <input type="text" class="form-control my-2" id="URI"
           v-model="currentList.URI"
         />
+        </div>
+        <div class="btn-group-sm my-0 mx-0 px-0 col-sm-2">
+          <button class="btn btn-outline-primary mt-2 py-2 col-sm-12"
+            @click="testURI"
+          >
+          Test
+          </button> 
+        </div>
+        </div>
       </div>
 
       <div class="form-group">
@@ -443,7 +454,11 @@ export default {
       else {
         this.currentList.regulatorList = 0
       }
-    }
+    },
+
+    testURI() {
+      window.open(this.currentList.URI, '_blank').focus()
+    },
 
 
   },
