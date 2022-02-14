@@ -76,6 +76,31 @@ User.findByName = (Name) => {
     })
 }
 
+User.getAllByProvider = async (provider, result) => {
+    
+    sql.query('SELECT User.Id, User.Name, User.Role, User.Providers, User.Email FROM User ', async (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }        
+
+        let list = []
+        for( let i = 0; i < res.length; i++) {
+            try {
+                let provs = JSON.parse(res[i].Providers)
+                if(provs.includes(provider)) {
+                    list.push(res[i])
+                }
+            } catch {
+                console.log("user data corrupt", res[i])
+            }
+        }
+        
+        result(null, list);
+    })
+}
+
 
 User.updateById = (Id, admin, newUser, result) => {
     console.log('update User', Id);

@@ -118,6 +118,15 @@ const routes =  [
     }
   },
   {
+    path: "/admin/provider/:id",
+    name: "provider-view",
+    component: () => import("./components/admin/ProviderView"),
+    meta: {
+      requiresAuth: true,
+      is_admin: true
+    }
+  },
+  {
     path: "/profile",
     name: "profile",
     component: () => import("./components/User/Profile"),

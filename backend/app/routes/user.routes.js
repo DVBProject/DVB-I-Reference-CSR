@@ -21,4 +21,7 @@ module.exports = app => {
     
     // change password
     app.post("/pwd", user.changePassword)
+
+    // Retrieve all per provider
+    app.get("/users/provider/:providerId", user.findAllByProvider);
 };

@@ -56,6 +56,10 @@
         </div>
 
         <router-link :to="'/providers/' + currentProvider.Id" class="btn btn-outline-primary mt-1">Edit</router-link>
+        <div v-if="user && user.role">
+          <router-link :to="'/admin/provider/' + currentProvider.Id" class="btn btn-outline-primary mt-1">View</router-link>
+        </div>
+        
       </div>
       <div v-else>
         <br />
@@ -81,6 +85,16 @@ export default {
     };
   },
   computed: {
+    user() {
+      let user = false
+      try {
+        user = JSON.parse(sessionStorage.getItem('user'))
+      }
+      catch {
+        user = false
+      }
+      return user
+    },
     filteredList() {
       let ll = this.providers.filter(elem => {
         switch(this.filterType) {

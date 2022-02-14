@@ -90,7 +90,6 @@ Provider.findById = (ProviderId, result) => {
                 })
             }
 
-            console.log("Provider: ", res);
             result(null, res[0]);
             return;
         }

@@ -170,6 +170,12 @@
     </div>
   </div>
 
+
+  </div>
+</template>
+
+<script>
+/*
   <div class="row">
     <div class="col-md-6">
       <h4>List event history</h4>
@@ -207,11 +213,7 @@
       </div>
     </div>
 
-  </div>
-  </div>
-</template>
-
-<script>
+  </div> */
 import ProviderDataService from "../../services/ProviderDataService"
 import ServiceListDataService from "../../services/ServiceListDataService"
 import ListProviderDataService from "../../services/ListProviderDataService"

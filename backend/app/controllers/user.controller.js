@@ -119,6 +119,41 @@ exports.findAll = (req, res) => {
     }
 };
 
+
+// Retrieve all for a provider
+exports.findAllByProvider = (req, res) => {
+
+  const providerId = +req.params.providerId  
+  const user = req.user
+  
+  let provs = []
+  try {
+    provs = JSON.parse(req.user.Providers)
+  } catch {
+    console.log("user data corrupt", req.user)
+  }
+
+  if (provs.includes(providerId) || user.Role == 'admin') {
+    let provider = providerId
+    
+    User.getAllByProvider(provider, (err, data) => {
+      if (err)
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving lists."
+        })
+      else res.send(data)
+    })
+  }
+  else {
+    console.log("findAllByProvider error, no permission", user.Role)
+    res.status(500).send({
+      message: "Unauthorised"
+    })
+  }
+
+}
+
 exports.changePassword = async (req, res) => {
 
   let validrequest = true
