@@ -299,20 +299,19 @@ async function createRelatedTables(list, id) {
     if(list.Names) {
         for(var i = 0; i < list.Names.length; i++) {
             //console.log("create name")
+            // instead of promise.all, wait one by one to preserve the name ordering
             if(list.Names[i].name) {
-                promises.push(new Promise((resolve, reject) => {
+                await new Promise((resolve, reject) => {
                     sql.query("INSERT INTO ServiceListName SET ServiceList = ?, Name = ?, lang = ?",  [id, list.Names[i].name, list.Names[i].lang], (err, res) => {
                         if (err) {
                             console.log("INSERT INTO ServiceListName error: ", err);
                             reject()
                         }
-                        //console.log("created service list NAME", res)
                         resolve()
                     })
                 }).catch(err => {
                     console.log("createRelatedTables name", err)
-                    //return err
-                }) )
+                })
             }
         }
     }
