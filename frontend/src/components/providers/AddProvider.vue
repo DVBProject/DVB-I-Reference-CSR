@@ -236,7 +236,7 @@ export default {
                 console.log(response)
                 setTimeout(() => {
                    this.$router.push({ name: "providers" });
-                }, 1000)
+                }, 2000)
             })
             .catch(err => {
               console.log(err.response.data);

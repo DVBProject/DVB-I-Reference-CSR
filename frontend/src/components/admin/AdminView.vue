@@ -89,7 +89,7 @@ export default {
 
             setTimeout(() => {
                 this.$router.push({ name: "servicelists" });
-            }, 1000)
+            }, 2000)
         });
     },
     setActiveUser(user, index) {

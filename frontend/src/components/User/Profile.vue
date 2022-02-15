@@ -167,7 +167,7 @@ export default {
             
             setTimeout(() => {
                 this.$router.push({ name: "servicelists" });
-            }, 1000)
+            }, 2000)
         })
     },
     getProviders() {
@@ -184,7 +184,7 @@ export default {
             console.log(e)
             setTimeout(() => {
                 this.$router.push({ name: "admin" });
-            }, 1000)
+            }, 2000)
         })
     },
 

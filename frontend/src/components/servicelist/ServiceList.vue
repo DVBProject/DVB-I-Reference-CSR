@@ -322,7 +322,7 @@ export default {
           //LoginService.reset()
           setTimeout(() => {
             this.$router.push({ name: "servicelists" });
-          }, 1000)
+          }, 2000)
         });
     },
     updateList() {
@@ -342,7 +342,7 @@ export default {
 
           setTimeout(() => {
             this.$router.push({ name: "servicelists" });
-          }, 1000)
+          }, 2000)
         })
         .catch(e => {
           console.log(e);
@@ -357,7 +357,7 @@ export default {
 
           setTimeout(() => {
             this.$router.push({ name: "servicelists" });
-          }, 1000)
+          }, 2000)
         })
         .catch(e => {
           console.log(e);
