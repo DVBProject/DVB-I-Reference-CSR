@@ -36,7 +36,7 @@
       <form>
         
 
-        <label>Organization Names:</label>
+        <label>Provider Names:</label>
         <button class="btn btn-outline-primary mx-2 mb-1" type="button"
               @click="addNameField"
             >

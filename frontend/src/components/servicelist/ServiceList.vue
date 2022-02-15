@@ -33,7 +33,7 @@
     <h4>Edit Service List</h4>
     <form>
       <div class="form-group">
-        <label for="Name">Name</label>
+        <label for="Name">Names</label>
 
         <button class="btn btn-outline-primary mx-2 mb-1" type="button"
             @click="addNameField"

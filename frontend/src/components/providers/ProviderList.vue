@@ -37,7 +37,7 @@
           <label><strong>Kind:</strong></label> {{ currentProvider.Kind || "Not defined" }}
         </div>
         <div>
-          <label><strong>Organization name:</strong></label> {{ currentProvider.Names[0] && currentProvider.Names[0].name != "" ? currentProvider.Names[0].name : "No name" }} {{ currentProvider.Names[0] && currentProvider.Names[0].type != "" ? "(Type:" +currentProvider.Names[0].type+")" : ""}}
+          <label><strong>Provider name:</strong></label> {{ currentProvider.Names[0] && currentProvider.Names[0].name != "" ? currentProvider.Names[0].name : "No name" }} {{ currentProvider.Names[0] && currentProvider.Names[0].type != "" ? "(Type:" +currentProvider.Names[0].type+")" : ""}}
         </div>
         <div>
           <label><strong>Contact name:</strong></label> {{ currentProvider.ContactName || "Not defined" }}
