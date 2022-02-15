@@ -456,7 +456,8 @@ export default {
       }
     },
 
-    testURI() {
+    testURI(event) {
+      event.preventDefault()
       window.open(this.currentList.URI, '_blank').focus()
     },
 

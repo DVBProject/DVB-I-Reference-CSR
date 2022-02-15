@@ -284,7 +284,8 @@ export default {
                 console.log(err);
             });
     },
-    testURI() {
+    testURI(event) {
+      event.preventDefault()
       window.open(this.URI, '_blank').focus()
     },
     addNameField() {
