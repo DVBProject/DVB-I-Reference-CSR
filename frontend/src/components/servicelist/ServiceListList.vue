@@ -50,40 +50,34 @@
             <label class="mx-1"><strong>Provider:</strong></label> {{ currentList.Provider ||"Not defined" }}
           </div>
           
-          <div class="d-flex">
-          <label class="mx-1"><strong>Languages:</strong></label>
-            <div class="d-flex justify-content-end">
-              <template class="mx-1" v-for="(lang, index) in currentList.languages"
+          <div class="mx-1">
+          <strong>Languages: </strong>
+              <template v-for="(lang, index) in currentList.languages"
               :key="index">
-              <template v-if="index > 0">,</template>
-              <span class="mx-1">{{languages_ui[lang.Language].name}}</span>
+              <template v-if="index > 0">, </template>
+              <span>{{languages_ui[lang.Language].name}}</span>
               </template>
               {{currentList.languages.length ? "" : "Not defined"}}
-            </div>
           </div>
           
-          <div class="d-flex">
-            <label class="mx-1"><strong>Countries:</strong></label>
-            <div class="d-flex justify-content-end">
-              <template class="mx-1" v-for="(tc, index) in currentList.targetCountries"
+          <div class="mx-1">
+            <strong>Countries: </strong>
+              <template v-for="(tc, index) in currentList.targetCountries"
               :key="index">
-              <template v-if="index > 0">,</template>
-              <span class="mx-1">{{countries_ui[tc.country].name}}</span>
+              <template v-if="index > 0">, </template>
+              <span>{{countries_ui[tc.country].name}}</span>
               </template>
               {{currentList.targetCountries.length ? "" : "Not defined"}}
-            </div>
           </div>
 
-          <div class="d-flex">
-            <label class="mx-1"><strong>Genre:</strong></label>
-            <div class="d-flex justify-content-end">
-              <template class="mx-1" v-for="(genre, index) in currentList.Genres"
+          <div class="mx-1">
+            <strong>Genre: </strong>
+              <template v-for="(genre, index) in currentList.Genres"
               :key="index">
-              <template v-if="index > 0">,</template>
-              <span >{{ this.genres_ui[genre] }}</span>
+              <template v-if="index > 0">, </template>
+              <span>{{ this.genres_ui[genre] }}</span>
               </template>
               {{currentList.Genres.length ? "" : "Not defined"}}
-            </div>
           </div>
 
 
