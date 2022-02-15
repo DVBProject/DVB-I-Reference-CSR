@@ -35,7 +35,7 @@
             :key="index"
             @click="setActiveList(list, index)"
           >
-            {{ list.Name }}
+            {{ list.Names[0].name }}
 
           </li>
         </ul>
@@ -43,8 +43,14 @@
       <div class="col-md-6 mt-3">
         <div v-if="currentList">
           <h4>Selected List</h4>
-          <div>
-            <label class="mx-1"><strong>Name:</strong></label> {{ currentList.Name || "Not defined" }}
+          <div class="mx-1">
+          <strong>Names: </strong>
+              <template v-for="(name, index) in currentList.Names"
+              :key="index">
+              <template v-if="index > 0">, </template>
+              <span v-if="name.name ">{{ name.name}}</span>
+              <span v-if="name.lang">({{name.lang}})</span> 
+              </template>
           </div>
           <div>
             <label class="mx-1"><strong>Provider:</strong></label> {{ currentList.Provider ||"Not defined" }}
@@ -55,9 +61,8 @@
               <template v-for="(lang, index) in currentList.languages"
               :key="index">
               <template v-if="index > 0">, </template>
-              <span>{{languages_ui[lang.Language].name}}</span>
+              <span v-if="lang && lang.Language && lang.Language in languages_ui">{{languages_ui[lang.Language].name}}</span>
               </template>
-              {{currentList.languages.length ? "" : "Not defined"}}
           </div>
           
           <div class="mx-1">
@@ -65,19 +70,17 @@
               <template v-for="(tc, index) in currentList.targetCountries"
               :key="index">
               <template v-if="index > 0">, </template>
-              <span>{{countries_ui[tc.country].name}}</span>
+              <span v-if="tc && tc.country && tc.country in countries_ui">{{countries_ui[tc.country].name}}</span>
               </template>
-              {{currentList.targetCountries.length ? "" : "Not defined"}}
           </div>
 
           <div class="mx-1">
-            <strong>Genre: </strong>
+            <strong>Genres: </strong>
               <template v-for="(genre, index) in currentList.Genres"
               :key="index">
               <template v-if="index > 0">, </template>
-              <span>{{ this.genres_ui[genre] }}</span>
+              <span v-if="genre && genre in genres_ui">{{ genres_ui[genre] }}</span>
               </template>
-              {{currentList.Genres.length ? "" : "Not defined"}}
           </div>
 
 
@@ -130,13 +133,16 @@ export default {
     filteredList() {
       let ll = this.lists.filter(elem => {
         switch(this.filterType) {
-          case 1: return elem.Name.includes(this.title)
-          case 2: {              
-              return elem.targetCountries.find(el => {
-                return el.country.includes(this.title)
+          case 1: { return elem.Names.find(el => {
+                return el.name.toLowerCase().includes(this.title.toLowerCase())
               })
             }
-          case 3: return elem.Provider.includes(this.title)
+          case 2: {              
+              return elem.targetCountries.find(el => {
+                return el.country.toLowerCase().includes(this.title.toLowerCase())
+              })
+            }
+          case 3: return elem.Provider.toLowerCase().includes(this.title.toLowerCase())
           default: return null
         }
       })
