@@ -100,7 +100,7 @@ export default {
         switch(this.filterType) {
           case 1: {
             return elem.Names.find(el => {
-                return el.name.includes(this.title)
+                return el.name.toLowerCase().includes(this.title.toLowerCase())
               })
             }
           case 2: return elem.Regulator
