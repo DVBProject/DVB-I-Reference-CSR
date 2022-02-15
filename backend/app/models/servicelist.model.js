@@ -17,9 +17,9 @@ const ServiceList = function(serviceList) {
 ServiceList.create = (newServiceList, result) => {
 
     // verify needed data is not missing
-    newServiceList.Names = newServiceList.Names || [{name:"Not defined", lang:"Not defined"}]
-    if( !newServiceList.lang || newServiceList.lang.length < 1) newServiceList.lang = [{a3: "Not defined"}]
-    newServiceList.URI = newServiceList.URI || "Not defined"
+    newServiceList.Names = newServiceList.Names || [{name:"Not defined", lang:""}]
+    if( !newServiceList.lang || newServiceList.lang.length < 1) newServiceList.lang = []
+    newServiceList.URI = newServiceList.URI || ""
     if(!newServiceList.Delivery || newServiceList.Delivery.length < 1) newServiceList.Delivery = ["DASHDelivery"]
 
     const deliveries = JSON.stringify(newServiceList.Delivery)
@@ -216,9 +216,9 @@ ServiceList.updateById = (id, List, result) => {
     console.log('update', List, id);
 
     // verify needed data is not missing
-    List.Names = List.Names || [{name:"Not defined", lang:"Not defined"}]
-    if( !List.lang || List.lang.length < 1) List.lang = [{a3: "Not defined"}]
-    List.URI = List.URI || "Not defined"
+    List.Names = List.Names || []
+    if( !List.lang || List.lang.length < 1) List.lang = []
+    List.URI = List.URI || ""
     if(!List.Delivery || List.Delivery.length < 1) List.Delivery = ["DASHDelivery"]
     List.Status = List.Status || ""
 
@@ -438,18 +438,13 @@ async function getRestOfServiceList(list) {
     }
 
     // fetch list names / langs
-    list.Names = [{name: "Not defined", lang: "Not defined"}]
-    list.Name = "Not defined"
-    list.lang = "Not defined"
+    list.Names = []
+
     const names = await getNames(list).catch(err => {
         console.log("getNames error: ", err)
     })
-    if(names) {        
-        if(names.length) {
-            list.Names = names
-            list.Name = names[0].name || "Not defined"
-            list.lang = names[0].lang || "Not defined"  
-        }        
+    if(names && names.length) {
+        list.Names = names
     }
     else {
         console.log("no names found for list", list.Id)        
