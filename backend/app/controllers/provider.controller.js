@@ -84,12 +84,14 @@ exports.findAll = async (req, res) => {
 
     let result_data = []
     let promises = []
+    let failedProviderIds = []
     for( p in provs ) {
       promises.push(new Promise(async (resolve, reject) => {
         Provider.findById(provs[p], (err, data) => {
           if (err) {
             reject(err)
             console.log("error getting provider", provs[p])
+            failedProviderIds.push(provs[p])
           }
           else {        
             result_data.push(data)  
@@ -103,6 +105,9 @@ exports.findAll = async (req, res) => {
 
     await Promise.all(promises).catch(err => console.log("ALL", err))
     res.send(result_data)
+
+    // TODO: should we remove this id from users proders-set?
+    // failedProviderIds
   }
 };
 
