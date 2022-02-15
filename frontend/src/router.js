@@ -138,7 +138,7 @@ const routes =  [
     // redirect for nonexistent routes
     path: "/:pathMatch(.*)*",
     name: "notfound",
-    component: () => import("./components/Login/Login")
+    component: () => import("./components/servicelist/ServiceListList")
   }
 ];
 
