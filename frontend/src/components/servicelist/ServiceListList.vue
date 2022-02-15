@@ -1,4 +1,5 @@
 <template>
+<div>
   <div class="list">
     <div class="row">
       <div class="col-md-8">
@@ -55,7 +56,7 @@
               <template class="mx-1" v-for="(lang, index) in currentList.languages"
               :key="index">
               <template v-if="index > 0">,</template>
-              <span class="mx-1">{{lang.Language}}</span>
+              <span class="mx-1">{{languages_ui[lang.Language].name}}</span>
               </template>
               {{currentList.languages.length ? "" : "Not defined"}}
             </div>
@@ -67,7 +68,7 @@
               <template class="mx-1" v-for="(tc, index) in currentList.targetCountries"
               :key="index">
               <template v-if="index > 0">,</template>
-              <span class="mx-1">{{tc.country}}</span>
+              <span class="mx-1">{{countries_ui[tc.country].name}}</span>
               </template>
               {{currentList.targetCountries.length ? "" : "Not defined"}}
             </div>
@@ -79,7 +80,7 @@
               <template class="mx-1" v-for="(genre, index) in currentList.Genres"
               :key="index">
               <template v-if="index > 0">,</template>
-              <span >{{ genre }}</span>
+              <span >{{ this.genres_ui[genre] }}</span>
               </template>
               {{currentList.Genres.length ? "" : "Not defined"}}
             </div>
@@ -106,11 +107,15 @@
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <script>
 import ServiceListDataService from "../../services/ServiceListDataService"
 import LoginService from "../../services/LoginService"
+import countries from "../../../../common/countries"
+import { genres } from "../../../../common/dev_constants"
+import languages from "../../../../common/languages"
 
 export default {
   name: "servicelist-list",
@@ -121,7 +126,10 @@ export default {
       currentIndex: -1,
       filterType: 1,
       title: "",
-      Delivery: ""
+      Delivery: "",
+      genres_ui: [],
+      countries_ui: [],
+      languages_ui: [],
     };
   },
   computed: {
@@ -195,6 +203,9 @@ export default {
     },
   },
   mounted() {
+    this.countries_ui = countries
+    this.languages_ui = languages
+    this.genres_ui = genres
     this.retrieveLists();
   }
 };
