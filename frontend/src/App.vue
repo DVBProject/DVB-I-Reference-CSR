@@ -4,7 +4,7 @@
       <router-link to="/" class="navbar-brand">DVB-I CSR</router-link> 
       <div class="navbar-nav mr-auto">
 
-        <li class="nav-item">
+        <li class="nav-item" >
           <router-link to="/servicelists" class="nav-link">Service Lists</router-link>
         </li>
         <li class="nav-item">
@@ -82,5 +82,14 @@ export default {
 
 .nav-icon {
   font-size: 1.1rem;
+}
+
+nav a.router-link-active,
+nav a.router-link-exact-active {
+  text-decoration: underline;
+  color: white!important;
+}
+.navbar-brand {
+  text-decoration: none!important;
 }
 </style>
