@@ -94,7 +94,7 @@
             :key="index"
             @click="setActiveList(list, index)"
           >
-            {{ list.Name }}
+            {{ list.Names[0].name }}
 
           </li>
         </ul>
