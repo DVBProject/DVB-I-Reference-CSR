@@ -17,6 +17,21 @@
             v-model="title"/>
         </div>
     </div>
+
+    <div class="col-md-4">
+        <router-link to="/add-provider" class="nav-link my-0 py-0">
+        <div class="input-group-append">
+            <button class="btn btn-outline-primary" type="button"
+            @click="submitNewList">
+            <span class="bi-plus-lg"></span>  
+            Add new Provider
+            </button>
+        </div>
+        </router-link>
+      </div>
+
+      
+
     <div class="col-md-6">
       <h4>Provider List</h4>
       <ul class="list-group mainlist">

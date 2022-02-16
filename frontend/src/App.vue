@@ -8,14 +8,7 @@
           <router-link to="/servicelists" class="nav-link">Service Lists</router-link>
         </li>
         <li class="nav-item">
-          <router-link to="/add-servicelist" class="nav-link">Add Service List</router-link>
-        </li>
-
-        <li class="nav-item">
           <router-link to="/providers" class="nav-link">Providers</router-link>
-        </li>
-        <li class="nav-item">
-          <router-link to="/add-provider" class="nav-link">Add Provider</router-link>
         </li>
         <li class="nav-item" v-if="user && user.role">
           <router-link to="/admin" class="nav-link">Admin</router-link>
@@ -33,6 +26,13 @@
             <li v-if="user"><hr class="dropdown-divider"></li>
             <li v-if="user"><a class="dropdown-item" href="/logout">Log out</a></li>
           </ul>
+        </li>
+
+        <li class="nav-item invisible">
+          <router-link to="/add-servicelist" class="nav-link">Add Service List</router-link>
+        </li>
+        <li class="nav-item invisible">
+          <router-link to="/add-provider" class="nav-link">Add Provider</router-link>
         </li>
 
       </div>

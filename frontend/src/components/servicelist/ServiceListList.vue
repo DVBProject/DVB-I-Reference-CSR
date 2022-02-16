@@ -19,11 +19,24 @@
         </div>
 
       </div>
+
+      <div class="col-md-4">
+        <router-link to="/add-servicelist" class="nav-link my-0 py-0">
+        <div class="input-group-append">
+            <button class="btn btn-outline-primary" type="button"
+            @click="submitNewList">
+            <span class="bi-plus-lg"></span>  
+            Add new Service List
+            </button>
+        </div>
+        </router-link>
+      </div>
     </div>
   </div>
 
   <div class="list">
     <div class="row">
+      
 
       <div class="col-md-6">
         <h4>Service Lists</h4>
