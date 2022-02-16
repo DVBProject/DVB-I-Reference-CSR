@@ -106,8 +106,8 @@ User.updateById = (Id, admin, newUser, result) => {
     console.log('update User', Id);
 
     // verify needed data is not missing
-    newUser.Name = newUser.Name || "Not defined"
-    newUser.Email = newUser.Email || "Not defined"
+    newUser.Name = newUser.Name || ""
+    newUser.Email = newUser.Email || ""
     newUser.Role = newUser.Role || "user"
     newUser.Providers = newUser.Providers || "[]"
 
