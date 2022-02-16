@@ -218,6 +218,9 @@ ALTER TABLE `User`
   ADD `Email` TEXT NOT NULL;
 
 ALTER TABLE `User`
+  ADD `Session` integer NOT NULL;
+
+ALTER TABLE `User`
   DROP `Organization`;
 
 INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator,Id) VALUES ('Repository provider','Contact','Jurisdiction','Address','Electronic address',1,1);
