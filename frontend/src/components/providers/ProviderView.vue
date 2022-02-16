@@ -102,7 +102,7 @@
 
     <div class="col-sm-6">
       <div v-if="currentList">
-        <h4>{{currentList.Name}} events</h4>
+        <h4>{{currentList.Names[0].name}} events</h4>
         
         <ul class="list-group mainlist">
           <li class="list-group-item"
@@ -133,7 +133,7 @@ import ServiceListDataService from "../../services/ServiceListDataService"
 import UserDataService from "../../services/UserDataService"
 
 export default {
-  name: "provider-contents",
+  name: "view-provider",
   data() {
     return {
       currentList: null,
