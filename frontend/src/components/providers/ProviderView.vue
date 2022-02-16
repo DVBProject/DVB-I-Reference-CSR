@@ -38,7 +38,7 @@
     </div>
 
     <div class="col-sm-4">
-      <div class="btn-group btn-group-sm my-2" role="group">
+      <div class="btn-group btn-group-sm my-2 invisible" role="group">
         <button class="btn btn-outline-danger"
           @click="confirmDelete = !confirmDelete"
           disabled
