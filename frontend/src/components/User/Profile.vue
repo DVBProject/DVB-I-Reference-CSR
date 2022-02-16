@@ -199,21 +199,19 @@ export default {
             //Role: this.admin ? "admin" : "user"
         }
         console.log(data)
-        return
-        /*
         UserDataService.update(this.currentUser.Id, data)
             .then(response => {
               console.log(response.data);
               this.message = 'The user was updated successfully!'
-
+              /*
               setTimeout(() => {
-                this.$router.push({ name: "admin" })
-              }, 1000)
+                this.$router.push({ name: "/" })
+              }, 1000)*/
             })
             .catch(e => {
               console.log(e);
               this.message = 'Error updating user'
-            })*/
+            })
     },
 
 
@@ -282,11 +280,7 @@ export default {
           valid = false
       } */
 
-      if(this.currentUser.Email == "") {
-          this.emailMessage = "Email cannot be empty"
-          valid = false
-      } 
-      else {      
+      if(this.currentUser.Email !== "") {
         if(!this.currentUser.Email.includes("@")) {
             this.emailMessage = "Please check that the e-mail is correct"
             valid = false
@@ -296,6 +290,7 @@ export default {
             valid = false
         }
       }
+
       if(!valid) {
         this.message = "Please check all missing fields"        
       }

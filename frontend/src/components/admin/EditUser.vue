@@ -217,11 +217,7 @@ export default {
           valid = false
       }
 
-      if(this.currentUser.Email == "") {
-          this.emailMessage = "Email cannot be empty"
-          valid = false
-      } 
-      else {      
+      if(this.currentUser.Email !== "") {    
         if(!this.currentUser.Email.includes("@")) {
             this.emailMessage = "Please check that the e-mail is correct"
             valid = false
