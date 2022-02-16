@@ -36,8 +36,8 @@
           <div>
             <label class="mx-1"><strong>e-mail:</strong></label> {{ currentUser.Email || "Not defined" }}
           </div>
-          <div>
-            <label class="mx-1"><strong># Providers:</strong></label> {{ currentUser.Providers.length ||"Not defined" }}
+          <div v-if="currentUser.Role != 'admin'">
+            <label class="mx-1"><strong># Providers:</strong></label> {{ currentUser.Providers.length }}
           </div>
 
           <router-link :to="'/admin/user/' + currentUser.Id" class="btn btn-outline-primary mt-1">Edit</router-link>
