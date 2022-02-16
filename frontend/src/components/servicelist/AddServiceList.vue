@@ -102,8 +102,8 @@
             <li v-for="(item, index) in SelectedDeliveries" 
                 v-bind:id="index"
                 v-bind:key="index"
-                v-on:click="removeDelivery"
-                class="btn btn-outline-primary mx-1 my-1">{{item}} <span v-bind:id="index" class="badge small bg-primary">x</span></li>
+                
+                class="btn btn-outline-primary mx-1 my-1">{{item}} <span v-bind:id="index" v-on:click="removeDelivery" class="badge small bg-primary">x</span></li>
           </ul>
         </div>        
       </div>
@@ -129,8 +129,8 @@
               <li v-for="(item, index) in SelectedLanguages" 
                   v-bind:id="index"
                   v-bind:key="index"
-                  v-on:click="removeLang"
-                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span v-bind:id="index" class="badge small bg-primary">x</span></li>
+                  
+                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span v-bind:id="index" v-on:click="removeLang" class="badge small bg-primary">x</span></li>
             </ul>
           </div>
       </div>
@@ -156,8 +156,8 @@
               <li v-for="(item, index) in SelectedCountries" 
                   v-bind:id="index"
                   v-bind:key="index"
-                  v-on:click="removeCountry"
-                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span v-bind:id="index" class="badge small bg-primary">x</span></li>
+                  
+                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span v-bind:id="index" v-on:click="removeCountry" class="badge small bg-primary">x</span></li>
             </ul>
           </div>
       </div>
@@ -183,8 +183,8 @@
               <li v-for="(item, index) in SelectedGenres" 
                   v-bind:id="index"
                   v-bind:key="index"
-                  v-on:click="removeGenre"
-                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span v-bind:id="index" class="badge small bg-primary">x</span></li>
+                  
+                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span v-bind:id="index" v-on:click="removeGenre" class="badge small bg-primary">x</span></li>
             </ul>
           </div>
       </div>
