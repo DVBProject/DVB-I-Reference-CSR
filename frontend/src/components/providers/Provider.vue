@@ -36,7 +36,7 @@
       <form>
         
 
-        <label>Organization Names:</label>
+        <label>Provider Names:</label>
         <button class="btn btn-outline-primary mx-2 mb-1" type="button"
               @click="addNameField"
             >
@@ -289,7 +289,7 @@ export default {
           this.message = 'The Provider was updated successfully!'
           setTimeout(() => {
             this.$router.push({ name: "providers" })
-          }, 1000)
+          }, 2000)
         })
         .catch(e => {
           console.log(e);
@@ -309,7 +309,7 @@ export default {
           this.message = 'The Provider was deleted successfully!'
           setTimeout(() => {
             this.$router.push({ name: "providers" })
-          }, 1000)
+          }, 2000)
         })
         .catch(e => {
           console.log(e);

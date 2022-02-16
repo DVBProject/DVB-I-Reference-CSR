@@ -33,7 +33,7 @@
     <h4>Edit Service List</h4>
     <form>
       <div class="form-group">
-        <label for="Name">Name</label>
+        <label for="Name">Names</label>
 
         <button class="btn btn-outline-primary mx-2 mb-1" type="button"
             @click="addNameField"
@@ -322,7 +322,7 @@ export default {
           //LoginService.reset()
           setTimeout(() => {
             this.$router.push({ name: "servicelists" });
-          }, 1000)
+          }, 2000)
         });
     },
     updateList() {
@@ -342,7 +342,7 @@ export default {
 
           setTimeout(() => {
             this.$router.push({ name: "servicelists" });
-          }, 1000)
+          }, 2000)
         })
         .catch(e => {
           console.log(e);
@@ -357,7 +357,7 @@ export default {
 
           setTimeout(() => {
             this.$router.push({ name: "servicelists" });
-          }, 1000)
+          }, 2000)
         })
         .catch(e => {
           console.log(e);
@@ -456,7 +456,8 @@ export default {
       }
     },
 
-    testURI() {
+    testURI(event) {
+      event.preventDefault()
       window.open(this.currentList.URI, '_blank').focus()
     },
 

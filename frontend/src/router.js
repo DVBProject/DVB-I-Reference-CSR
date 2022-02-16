@@ -118,12 +118,11 @@ const routes =  [
     }
   },
   {
-    path: "/admin/provider/:id",
+    path: "/view-provider/:id",
     name: "provider-view",
-    component: () => import("./components/admin/ProviderView"),
+    component: () => import("./components/providers/ProviderView"),
     meta: {
-      requiresAuth: true,
-      is_admin: true
+      requiresAuth: true
     }
   },
   {
@@ -138,7 +137,7 @@ const routes =  [
     // redirect for nonexistent routes
     path: "/:pathMatch(.*)*",
     name: "notfound",
-    component: () => import("./components/Login/Login")
+    component: () => import("./components/servicelist/ServiceListList")
   }
 ];
 

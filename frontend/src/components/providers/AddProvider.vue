@@ -5,7 +5,7 @@
     <div class="col-md-8">
       <h4>Add Provider</h4>
 
-      <label>Organization Names:</label>
+      <label>Provider Names:</label>
       <button class="btn btn-outline-primary mx-2 mb-1" type="button"
             @click="addNameField"
           >
@@ -234,13 +234,14 @@ export default {
         ProviderDataService.create(data)
             .then(response => {
                 console.log(response)
+                this.message = 'Provider created';
                 setTimeout(() => {
                    this.$router.push({ name: "providers" });
-                }, 1000)
+                }, 2000)
             })
             .catch(err => {
               console.log(err.response.data);
-                this.message = 'Error:'+err.response.data.message;
+              this.message = 'Error:'+err.response.data.message;
             });
     }
 

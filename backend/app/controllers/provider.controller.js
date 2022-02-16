@@ -32,30 +32,32 @@ exports.create = (req, res) => {
       });
     else {
       
-      // add the new provider to users' providers
-      //
-      let updateData = req.user
-      try {
-        updateData.Providers = JSON.parse(updateData.Providers)
-        updateData.Providers.push(data.id)
-        updateData.Providers = JSON.stringify(updateData.Providers)
-      } catch {
-        console.log("user data or new provider id corrupted", req.user)
-      }
-      User.updateById(
-        req.user.Id,
-        false,
-        new User(updateData),
-        (err, data) => {
-          if (err) {         
-            console.log("error adding provider to user", req.user.Id)        
-          } 
-          else {
-            console.log("added new provider to user", req.user.Id)   
-          }
+      if(req.user.Role != "admin") {
+        // add the new provider to users' providers
+        //
+        let updateData = req.user
+        try {
+          updateData.Providers = JSON.parse(updateData.Providers)
+          updateData.Providers.push(data.id)
+          updateData.Providers = JSON.stringify(updateData.Providers)
+        } catch {
+          console.log("user data or new provider id corrupted", req.user)
+        }
+        User.updateById(
+          req.user.Id,
+          false,
+          new User(updateData),
+          (err, data) => {
+            if (err) {         
+              console.log("error adding provider to user", req.user.Id)        
+            } 
+            else {
+              console.log("added new provider to user", req.user.Id)   
+            }
         })
-
-        res.send(data);
+      }
+      
+      res.send(data);
     }
   });
 };
@@ -84,12 +86,14 @@ exports.findAll = async (req, res) => {
 
     let result_data = []
     let promises = []
+    let failedProviderIds = []
     for( p in provs ) {
       promises.push(new Promise(async (resolve, reject) => {
         Provider.findById(provs[p], (err, data) => {
           if (err) {
             reject(err)
             console.log("error getting provider", provs[p])
+            failedProviderIds.push(provs[p])
           }
           else {        
             result_data.push(data)  
@@ -103,6 +107,9 @@ exports.findAll = async (req, res) => {
 
     await Promise.all(promises).catch(err => console.log("ALL", err))
     res.send(result_data)
+
+    // TODO: should we remove this id from users proders-set?
+    // failedProviderIds
   }
 };
 
@@ -156,7 +163,6 @@ exports.findOne = (req, res) => {
 
 // Update a Customer identified by the customerId in the request
 exports.update = (req, res) => {
-  // check user has rigths to this prov TODO
 
   let validrequest = true
 

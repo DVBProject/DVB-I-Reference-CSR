@@ -71,7 +71,7 @@
         </div>
       </div>
 
-      <label>Organization:</label>
+      <label>Provider:</label>
       <select class="form-control my-2" placeholder="Provider"
           v-model="Provider">
         <option
@@ -208,6 +208,7 @@
             Add List
             </button>
         </div>
+        <p>{{ message }}</p>
     </div>
 
   </div>
@@ -276,15 +277,18 @@ export default {
         ServiceListDataService.create(data)
             .then(response => {
                 console.log(response)
+                this.message = 'List created';
                 setTimeout(() => {
                   this.$router.push({ name: "servicelists" });
-                }, 1000)
+                }, 2000)
             })
             .catch(err => {
+                this.message = 'Error creating list';
                 console.log(err);
             });
     },
-    testURI() {
+    testURI(event) {
+      event.preventDefault()
       window.open(this.URI, '_blank').focus()
     },
     addNameField() {

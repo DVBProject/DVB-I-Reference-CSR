@@ -21,8 +21,8 @@ exports.create = (req, res) => {
     } catch {
       console.log("user data corrupt", req.user)
     }
-
-    if (!provs.includes(+req.body.Provider)) {
+    
+    if (!provs.includes(+req.body.Provider) && req.user.Role !== 'admin') {
       res.status(400).send({
         message: "Invalid request"
       });

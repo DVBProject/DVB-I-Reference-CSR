@@ -37,7 +37,7 @@
           <label><strong>Kind:</strong></label> {{ currentProvider.Kind || "Not defined" }}
         </div>
         <div>
-          <label><strong>Organization name:</strong></label> {{ currentProvider.Names[0] && currentProvider.Names[0].name != "" ? currentProvider.Names[0].name : "No name" }} {{ currentProvider.Names[0] && currentProvider.Names[0].type != "" ? "(Type:" +currentProvider.Names[0].type+")" : ""}}
+          <label><strong>Provider name:</strong></label> {{ currentProvider.Names[0] && currentProvider.Names[0].name != "" ? currentProvider.Names[0].name : "No name" }} {{ currentProvider.Names[0] && currentProvider.Names[0].type != "" ? "(Type:" +currentProvider.Names[0].type+")" : ""}}
         </div>
         <div>
           <label><strong>Contact name:</strong></label> {{ currentProvider.ContactName || "Not defined" }}
@@ -56,8 +56,8 @@
         </div>
 
         <router-link :to="'/providers/' + currentProvider.Id" class="btn btn-outline-primary mt-1">Edit</router-link>
-        <div v-if="user && user.role">
-          <router-link :to="'/admin/provider/' + currentProvider.Id" class="btn btn-outline-primary mt-1">View</router-link>
+        <div v-if="/*user && user.role*/ true">
+          <router-link :to="'/view-provider/' + currentProvider.Id" class="btn btn-outline-primary mt-1">View</router-link>
         </div>
         
       </div>
@@ -100,7 +100,7 @@ export default {
         switch(this.filterType) {
           case 1: {
             return elem.Names.find(el => {
-                return el.name.includes(this.title)
+                return el.name.toLowerCase().includes(this.title.toLowerCase())
               })
             }
           case 2: return elem.Regulator

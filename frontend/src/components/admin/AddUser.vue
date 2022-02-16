@@ -124,7 +124,7 @@ export default {
             console.log(e)
             setTimeout(() => {
                 this.$router.push({ name: "admin" });
-            }, 1000)
+            }, 2000)
         })
     },
 
@@ -198,7 +198,7 @@ export default {
 
             setTimeout(() => {
                 this.$router.push({ name: "admin" });
-            }, 1000)
+            }, 2000)
           })
           .catch(e => {
             console.log(e);
