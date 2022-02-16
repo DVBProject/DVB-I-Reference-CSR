@@ -77,7 +77,7 @@
 
 
       <div class="my-2">
-        <label for="genreDataList" class="form-label">Providers:</label>
+        <label for="genreDataList" class="form-label">Add Providers</label>
         <input class="form-control" list="datalistOptionsGenre"
             id="genreDataList" placeholder="Type to search..."
             v-on:change="addProvider"
@@ -97,8 +97,8 @@
               <li v-for="(item, index) in SelectedProviders" 
                   v-bind:id="index"
                   v-bind:key="index"
-                  v-on:click="removeProvider"
-                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span v-bind:id="index" class="badge small bg-primary">x</span></li>
+                  
+                  class="btn btn-outline-primary mx-1 my-1">{{item.name}} <span v-bind:id="index" v-on:click="removeProvider" class="badge small bg-primary">x</span></li>
             </ul>
           </div>
       </div>
