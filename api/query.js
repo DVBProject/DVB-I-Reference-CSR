@@ -213,11 +213,12 @@ csrquery.generateXML = async function(query) {
     try {
        
         var root = xmlbuilder.create('ServiceListEntryPoints',{version: '1.0', encoding: 'UTF-8'})
-            .att("xmlns","urn:dvb:metadata:servicelistdiscovery:2021" )
+            .att("xmlns","urn:dvb:metadata:servicelistdiscovery:2022" )
             .att('xmlns:mpeg7',"urn:tva:mpeg7:2008")
-            .att('xmlns:dvbisd',"urn:dvb:metadata:servicediscovery:2021" )
+            .att('xmlns:dvbisd',"urn:dvb:metadata:servicediscovery:2022" )
             .att('xmlns:xsi',"http://www.w3.org/2001/XMLSchema-instance")
-            .att('xsi:schemaLocation',"urn:dvb:metadata:servicelistdiscovery:2021 dvbi_service_list_discovery_v1.1.xsd");
+            .att('xsi:schemaLocation',"urn:dvb:metadata:servicelistdiscovery:2022 dvbi_service_list_discovery_v1.3.xsd")
+            .att("xml:lang","en");
 
         const registryEntity = await this.mysql.execute("SELECT Organization.* FROM ServiceListEntryPoints,Organization "
         +"WHERE ServiceListEntryPoints.Id = 1 AND ServiceListEntryPoints.ServiceListRegistryEntity = Organization.Id");
@@ -259,10 +260,12 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
             }
         }
         if(organization.Kind) {
-            entity.ele("Kind",{},organization.Kind);
+            var kind = entity.ele("Kind")
+            kind.ele("mpeg7:Name",{},organization.Kind);
         }
         if(organization.ContactName) {
-            entity.ele("ContactName",{},organization.ContactName);
+            var contact = entity.ele("ContactName");
+            contact.ele("mpeg7:GivenName",{},organization.ContactName);
         }
         if(organization.Jurisdiction) {
             try {
@@ -314,9 +317,12 @@ csrquery.generatePlaceType = function(root,data) {
         root.ele("mpeg7:Name",{},address.Name);
     }
     if(address.AddressLine) {
-        var postalAddress = root.ele("mpeg7:PostalAddress");
+        var postalAddress = null;
         for (var Line of address.AddressLine) {
             if(Line.length > 0) {
+                if(postalAddress == null) {
+                    postalAddress = root.ele("mpeg7:PostalAddress");
+                }
                 postalAddress.ele("mpeg7:AddressLine",{},Line);
             }
         }
@@ -343,18 +349,6 @@ csrquery.generateServiceListOfferingXML = async function(list,root) {
     if(listOffering[0][0].regulatorList == 1) {
         serviceListOffering.att("regulatorListFlag","true");
     }
-    if(listOffering[0][0].Delivery) {
-        var deliveries = JSON.parse(listOffering[0][0].Delivery);
-        var deliveryElement = serviceListOffering.ele("Delivery");
-        for(var delivery of deliveries) {
-            deliveryElement.ele(delivery);
-        }
-    }
-    const uris =  await this.mysql.execute("SELECT URI FROM ServiceListURI WHERE ServiceList = "+list);
-    for(var uri of uris[0]) {
-        var uriElement = serviceListOffering.ele("ServiceListURI",{"contentType":"application/xml"});
-        uriElement.ele("dvbisd:URI",{},uri.URI);
-    }
     const names =  await this.mysql.execute("SELECT Name,Lang FROM ServiceListName WHERE ServiceList = "+list);
     for(var name of names[0]) {
         var nameElement = serviceListOffering.ele("ServiceListName",{},name.Name);
@@ -362,19 +356,30 @@ csrquery.generateServiceListOfferingXML = async function(list,root) {
             nameElement.att("xml:lang",name.Lang);
         }
     }
+    const uris =  await this.mysql.execute("SELECT URI FROM ServiceListURI WHERE ServiceList = "+list);
+    for(var uri of uris[0]) {
+        var uriElement = serviceListOffering.ele("ServiceListURI",{"contentType":"application/xml"});
+        uriElement.ele("dvbisd:URI",{},uri.URI);
+    }
+    if(listOffering[0][0].Delivery) {
+        var deliveries = JSON.parse(listOffering[0][0].Delivery);
+        var deliveryElement = serviceListOffering.ele("Delivery");
+        for(var delivery of deliveries) {
+            deliveryElement.ele(delivery);
+        }
+    }
     const languages =  await this.mysql.execute("SELECT Language FROM Language WHERE ServiceList = "+list);
     for(var language of languages[0]) {
         serviceListOffering.ele("Language",{},language.Language);
-    }
-    const targetcountries =  await this.mysql.execute("SELECT Country FROM TargetCountry WHERE ServiceList = "+list);
-    for(var country of targetcountries[0]) {
-        serviceListOffering.ele("TargetCountry",{},country.Country);
     }
     const genres =  await this.mysql.execute("SELECT Genre FROM Genre WHERE ServiceList = "+list);
     for(var genre of genres[0]) {
         serviceListOffering.ele("Genre",{href: genre.Genre});
     }
-
+    const targetcountries =  await this.mysql.execute("SELECT Country FROM TargetCountry WHERE ServiceList = "+list);
+    for(var country of targetcountries[0]) {
+        serviceListOffering.ele("TargetCountry",{},country.Country);
+    }
 }
 
 
