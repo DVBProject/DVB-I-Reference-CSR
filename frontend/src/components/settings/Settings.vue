@@ -145,32 +145,6 @@
       </form>
 
     </div>
-  <div class="row">
-    <div class="col-md-6">
-      <h4>Generate content</h4>
-      <div class="col-md-5">
-        <div class="form-group">
-          <label for="providers">Number of providers to generate</label>
-          <input id="providers" type="number" size="3" class="form-control" placeholder="Providers"
-            v-model="providers"/>
-        </div>
-        <div class="form-group">
-          <label for="lists">Number of servicelists per provider</label>
-          <input id="lists" type="number" size="3" class="form-control" placeholder="Servicelists per providers"
-            v-model="servicelists"/>
-        </div>
-          <div class="input-group mb-3">
-            <button class="btn btn-outline-secondary" type="button"
-              @click="generateData"
-            >
-              Generate test data
-            </button>
-          </div>
-      </div>
-    </div>
-  </div>
-
-
   </div>
 </template>
 
