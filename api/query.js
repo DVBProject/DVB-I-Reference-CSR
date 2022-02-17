@@ -295,10 +295,10 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
                 if(electronicAddress.Fax) {
                     electronicAddressElement.ele("mpeg7:Fax",{},electronicAddress.Fax)
                 }
-                if(electronicAddress.Telephone) {
+                if(electronicAddress.Email) {
                     electronicAddressElement.ele("mpeg7:Email",{},electronicAddress.Email)
                 }
-                if(electronicAddress.Telephone) {
+                if(electronicAddress.Url) {
                     electronicAddressElement.ele("mpeg7:Url",{},electronicAddress.Url)
                 }
             }
