@@ -2,7 +2,7 @@
   <div id="app">
     <nav class="navbar navbar-expand navbar-dark bg-dark px-2">
       <router-link to="/" class="navbar-brand">DVB-I CSR</router-link> 
-      <div class="navbar-nav mr-auto container justify-content-end">
+      <div class="navbar-nav mr-auto">
 
         <li class="nav-item" >
           <router-link to="/servicelists" class="nav-link">Service Lists</router-link>
@@ -27,14 +27,14 @@
             <li v-if="user"><a class="dropdown-item" href="/logout">Log out</a></li>
           </ul>
         </li>
-
+        <!--
         <li class="nav-item invisible">
           <router-link to="/add-servicelist" class="nav-link">Add Service List</router-link>
         </li>
         <li class="nav-item invisible">
           <router-link to="/add-provider" class="nav-link">Add Provider</router-link>
         </li>
-
+        -->
       </div>
     </nav>
 
