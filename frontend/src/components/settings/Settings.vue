@@ -1,7 +1,31 @@
 <template>
-  <div>
-    <div class="col-sm-8" v-if="this.provider">
-      <h4>CSR Provider Information</h4>
+  <div class="list row">
+    <div class="col-md-8" v-if="this.provider">
+    <h4>CSR Provider Information</h4>
+    <h5>CSR Document language</h5>
+      <div class="my-2">
+        <label for="languagesDataList" class="form-label">Language:</label>
+        <div class="btn-group">
+          <span v-if="provider.Language && provider.Language in languages" class="btn btn-outline-primary mx-1 my-1">{{languages[provider.Language].name}}</span>
+          <span v-else class="btn btn-outline-primary mx-1 my-1">{{ provider.Language }}</span>
+        </div>
+        <div class="btn-group">
+        <input class="form-control" list="datalistOptionsLanguages" size="20"
+            id="languagesDataList" placeholder="Type to search..."
+            v-on:change="addLang"
+            v-on:click="addLang">
+            <datalist id="datalistOptionsLanguages">
+              <option
+                  v-for="(item, index) in languages"
+                  v-bind:key="index"
+                  v-bind:value="index"
+                  >
+                  {{item.name}}
+              </option>
+            </datalist>
+        </div>   
+      </div>
+      <h5>CSR Provider Organization</h5>
       <form>
         <label>Organization Names:</label>
         <button class="btn btn-outline-primary mx-2 mb-1" type="button"
@@ -134,18 +158,17 @@
             <label class="btn btn-outline-primary" for="btnradioNo">No</label>
           </div>
         </div>
-        <div class="input-group mb-3">
-          <button class="btn btn-outline-secondary" type="button"
-            @click="updateProvider"
-          >Save
-          </button>
-        </div>
-
-
       </form>
-
+  </div>
+  <div class="col-md-4">
+    <div class="btn-group btn-group-sm my-2" role="group">
+      <button class="btn btn-outline-primary" type="button"
+        @click="updateProvider"
+        >Save</button>
     </div>
   </div>
+</div>
+   
 </template>
 
 <script>
@@ -208,6 +231,7 @@ export default {
           listHistory: [],
           providerList: [],
           provider: null,
+          languages:null,
       };
   } ,
   methods: {
@@ -417,11 +441,30 @@ export default {
           this.message = "Could not update Provider."
         });
     },
+    addLang(item) {
+      //console.log(item.target.value)
+      const value = item.target ? item.target.value : item
+      if(value.length === 2) {
+        const valid = languages[value] !== undefined
+
+        if(valid) {
+          this.provider.Language = value;
+        }
+        else {
+          console.log("not valid", value)
+        }
+      }
+      if(item.target) item.target.value = null
+    },
+    removeLang(item) {
+      this.SelectedLanguages.splice(item.target.id, 1)
+    },
   },
   mounted() {
     this.fetchLists()
     this.fetchByProvider()
     this.fetchListprovider();
+    this.languages = languages;
   }
 }
 </script>

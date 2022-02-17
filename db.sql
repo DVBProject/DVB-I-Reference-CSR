@@ -30,6 +30,7 @@ CREATE TABLE `ServiceListEntryPoints`
 (
  `Id`                        integer NOT NULL AUTO_INCREMENT,
  `ServiceListRegistryEntity` integer NOT NULL ,
+ 'Language'                  text NOT NULL,
 
 PRIMARY KEY (`Id`),
 KEY `fkIdx_46` (`ServiceListRegistryEntity`),
@@ -223,8 +224,11 @@ ALTER TABLE `User`
 ALTER TABLE `User`
   DROP `Organization`;
 
+ALTER TABLE `ServiceListEntryPoints`
+  ADD `Language` TEXT NOT NULL;
+
 INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator,Id) VALUES ('Repository provider','Contact','Jurisdiction','Address','Electronic address',1,1);
-INSERT INTO EntityName(Name,Type,Organization,Id) VALUES("Repository provider","",1,1);
+INSERT INTO EntityName(Name,Type,Organization,Id,Language) VALUES("Repository provider","",1,1,"en");
 INSERT INTO ServiceListEntryPoints(ServiceListRegistryEntity,Id) VALUES (1,1);
 
 INSERT INTO User(Name,Hash,Role,Id,Providers,Email,Session) VALUES ('admin','$2a$08$B5kXMji7bHC8yOO1xIqeO.Vy3oPc.rkQUTG4bNG1hZWNBmcz9eaZe','admin',1,"[]","",1);

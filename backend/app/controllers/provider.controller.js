@@ -18,7 +18,8 @@ exports.create = (req, res) => {
     Jurisdiction: req.body.Jurisdiction,
     Address: req.body.Address,
     ElectronicAddress: req.body.ElectronicAddress,
-    Regulator: req.body.Regulator    
+    Regulator: req.body.Regulator,
+    Language: req.body.Language 
   });
 
   const Names = req.body.Names

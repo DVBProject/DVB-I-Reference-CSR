@@ -9,11 +9,12 @@ const Listprovider = function(Provider) {
     this.ElectronicAddress = Provider.ElectronicAddress;
     this.Regulator = Provider.Regulator ? 1 : 0;
     this.Names = Provider.Names || []
+    this.Language = Provider.Language;
 };
 
 
 Listprovider.getProvider = result => {
-    sql.query(`SELECT Organization.Id,Organization.Kind,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ServiceListEntryPoints,Organization,EntityName WHERE ServiceListEntryPoints.Id = 1 AND ServiceListEntryPoints.ServiceListRegistryEntity = Organization.Id `, async (err, res) => {
+    sql.query(`SELECT Organization.Id,Organization.Kind,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator, ServiceListEntryPoints.Language FROM ServiceListEntryPoints,Organization,EntityName WHERE ServiceListEntryPoints.Id = 1 AND ServiceListEntryPoints.ServiceListRegistryEntity = Organization.Id `, async (err, res) => {
         if (err) {
             console.log("findById error: ", err);
             result(err, null);
@@ -36,7 +37,6 @@ Listprovider.getProvider = result => {
                 })
             }
 
-            console.log("Provider: ", res);
             result(null, res[0]);
             return;
         }
@@ -50,21 +50,22 @@ Listprovider.getProvider = result => {
 Listprovider.update = (Provider, result) => {
     console.log('update Provider')//,Provider,id);
 
-    if(!Provider.Names || Provider.Names.length == 0) {
+    if(!Provider.Names || Provider.Names.length == 0 || Provider.Names[0].name == '') {
         result({message: "Provider name required!"}, null);
         return;
     }
-    if(Provider.Names[0].name == '') {
-        result({message: "Provider name required!"}, null);
-        return;
-    }
-    sql.query("SELECT ServiceListRegistryEntity FROM ServiceListEntryPoints WHERE Id = 1", (err, res) => {
+    sql.query("SELECT ServiceListRegistryEntity,Language FROM ServiceListEntryPoints WHERE Id = 1", (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
             return;
         }
         console.log(res[0].ServiceListRegistryEntity);
+        if(res[0].Language != Provider.Language) {
+            sql.query(
+                "UPDATE ServiceListEntryPoints SET Language = ? WHERE Id = 1",Provider.Language,
+            );
+        }
         const orgId = res[0].ServiceListRegistryEntity
         sql.query(
             "UPDATE Organization SET Kind = ?, ContactName = ?, Jurisdiction = ?,Address = ?,ElectronicAddress = ?,Regulator = ? WHERE Id = ?",

@@ -211,14 +211,14 @@ csrquery.validateProviderName = function(names) {
 
 csrquery.generateXML = async function(query) {
     try {
-       
+        const lang = await this.mysql.execute("SELECT Language FROM ServiceListEntryPoints WHERE ServiceListEntryPoints.Id = 1");
         var root = xmlbuilder.create('ServiceListEntryPoints',{version: '1.0', encoding: 'UTF-8'})
             .att("xmlns","urn:dvb:metadata:servicelistdiscovery:2022" )
             .att('xmlns:mpeg7',"urn:tva:mpeg7:2008")
             .att('xmlns:dvbisd',"urn:dvb:metadata:servicediscovery:2022" )
             .att('xmlns:xsi',"http://www.w3.org/2001/XMLSchema-instance")
             .att('xsi:schemaLocation',"urn:dvb:metadata:servicelistdiscovery:2022 dvbi_service_list_discovery_v1.3.xsd")
-            .att("xml:lang","en");
+            .att("xml:lang",lang[0][0].Language);
 
         const registryEntity = await this.mysql.execute("SELECT Organization.* FROM ServiceListEntryPoints,Organization "
         +"WHERE ServiceListEntryPoints.Id = 1 AND ServiceListEntryPoints.ServiceListRegistryEntity = Organization.Id");
