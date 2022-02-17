@@ -25,10 +25,13 @@
                   v-model="name.name"/>
               <label for="floatingInput">Name</label>
             </div>
-
-            <div class="form-floating px-0 col-sm-5">
-              <input type="text" id="floatingInput2" class="form-control mx-2 mb-1" placeholder="Type"
-                  v-model="name.type"/>
+            <div class="form-floating px-0 col-sm-5" >
+              <select id="floatingInput2" v-model="name.type" class="form-control mx-2 mb-1"> 
+                <option value="">None</option>
+                <option value="main">Main</option>
+                <option value="variant">Variant</option>
+                <option value="former">Former</option>
+              </select>
               <label for="floatingInput2">Type</label>
             </div>
 
