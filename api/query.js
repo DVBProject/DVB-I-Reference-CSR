@@ -364,8 +364,13 @@ csrquery.generateServiceListOfferingXML = async function(list,root) {
     if(listOffering[0][0].Delivery) {
         var deliveries = JSON.parse(listOffering[0][0].Delivery);
         var deliveryElement = serviceListOffering.ele("Delivery");
-        for(var delivery of deliveries) {
-            deliveryElement.ele(delivery);
+        var keys = Object.keys(deliveries);
+        for(var key of keys) {
+            var delivery = deliveryElement.ele(key);
+            var attributes = Object.keys(deliveries[key]);
+            for(var attribute of attributes) {
+                delivery.att(attribute,deliveries[key][attribute]);
+            }
         }
     }
     const languages =  await this.mysql.execute("SELECT Language FROM Language WHERE ServiceList = "+list);

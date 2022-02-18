@@ -130,14 +130,23 @@
         
         <div class="btn-group">
           <ul class="px-0 btn-group-sm">
-            <li v-for="(item, index) in SelectedDeliveries" 
+            <li v-for="(value,key,index) in SelectedDeliveries" 
                 v-bind:id="index"
-                v-bind:key="index"
+                v-bind:key="key"
                 
-                class="btn btn-outline-primary mx-1 my-1">{{item}} <span v-bind:id="index" v-on:click="removeDelivery" class="badge small bg-primary">x</span></li>
+                class="btn btn-outline-primary mx-1 my-1">{{key}} <span v-bind:id="key" v-on:click="removeDelivery" class="badge small bg-primary">x</span></li>
           </ul>
-        </div>        
+        </div>
+        <div v-if="'DVBCDelivery' in SelectedDeliveries" >
+          <label for="network_id">DVB-C Delivery: Network ID</label>
+          <input type="text" class="form-control my-2" id="network_id" v-model="DVBCDelivery.networkID"/>
+        </div>
+        <div v-if="'ApplicationDelivery' in SelectedDeliveries" >
+          <label for="content_type">Appliction Delivery: Content type</label>
+          <input type="text" class="form-control my-2" id="content_type" v-model="ApplicationDelivery.contentType"/>
+        </div>
       </div>
+
 
 
       <div class="my-2">
@@ -278,7 +287,7 @@ export default {
       message: '',
 
       deliveries_ui: [],
-      SelectedDeliveries: [],
+      SelectedDeliveries: {},
       genres_ui: [],
       SelectedGenres: [],
       countries_ui: [],
@@ -286,6 +295,8 @@ export default {
       languages_ui: [],
       SelectedLanguages: [],
       Names: [],
+      DVBCDelivery: { networkID: ""},
+      ApplicationDelivery: { contentType: ""},
     };
   },
   methods: {
@@ -293,16 +304,16 @@ export default {
       ServiceListDataService.get(id)
         .then(response => {
           this.currentList = response.data;
-
-          let deliv = [] 
           try {
-            deliv = JSON.parse(this.currentList.Delivery)
+            this.SelectedDeliveries = JSON.parse(this.currentList.Delivery)
+            if(this.SelectedDeliveries.DVBCDelivery) {
+              this.DVBCDelivery = this.SelectedDeliveries.DVBCDelivery;
+            }
+            if(this.SelectedDeliveries.ApplicationDelivery) {
+              this.ApplicationDelivery = this.SelectedDeliveries.ApplicationDelivery;
+            }
           } catch {
-            deliv.push(this.currentList.Delivery)
-          }
-          
-          for(var de in deliv) {
-            this.SelectedDeliveries.push(deliv[de])
+            this.SelectedDeliveries[this.currentList.Delivery] = {};
           }
           for(var genre in this.currentList.Genres) {
             this.addGenre(this.currentList.Genres[genre])
@@ -333,6 +344,12 @@ export default {
         Countries: this.SelectedCountries,
         Genres: this.SelectedGenres,
         Names: this.Names
+      }
+      if(data.Delivery.DVBCDelivery) {
+        data.Delivery.DVBCDelivery = this.DVBCDelivery;
+      }
+      if(data.Delivery.ApplicationDelivery ) {
+        data.Delivery.ApplicationDelivery = this.ApplicationDelivery;
       }
       //console.log("POST",this.currentList.Id, /*this.currentList*/ data);
       ServiceListDataService.update(this.currentList.Id, data)
@@ -374,29 +391,21 @@ export default {
         this.Names.splice(item.target.id, 1)
       }
     },
-
     addDelivery(item) {
       const valid = this.deliveries_ui.findIndex( elem => {
         return elem === item.target.value
       })
 
       if(valid !== -1) {
-        const index = this.SelectedDeliveries.findIndex( elem => {
-          return elem === item.target.value
-        })
         
-        if(index === -1) {
-          this.SelectedDeliveries.push(item.target.value)
+        if(!(item.target.value in this.SelectedDeliveries)) {
+          this.SelectedDeliveries[item.target.value] = {};
         }
       }
-
       item.target.value = null
     },
     removeDelivery(item) {
-      console.log(item.target.id)
-      if(this.SelectedDeliveries.length > 1) {
-        this.SelectedDeliveries.splice(item.target.id, 1)
-      }
+      delete this.SelectedDeliveries[item.target.id];
     },
     addGenre(item) {
       const value = item.target ? item.target.value : item
