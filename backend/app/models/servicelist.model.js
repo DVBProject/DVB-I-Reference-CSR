@@ -17,13 +17,25 @@ const ServiceList = function(serviceList) {
 ServiceList.create = (newServiceList, result) => {
 
     // verify needed data is not missing
-    newServiceList.Names = newServiceList.Names || [{name:"Not defined", lang:""}]
+    if(!newServiceList.Names || newServiceList.Names.length == 0) {
+        result({msg:"Name required!"}, null);
+        return;
+    }
+    for(var Name in newServiceList.Names) {
+        if(Name == "") {
+            result({msg:"Name required!"}, null);
+            return;
+        }
+    }
+    if(!newServiceList.URI) {
+        result({msg:"URI required!"}, null);
+        return;
+    }
     if( !newServiceList.lang || newServiceList.lang.length < 1) newServiceList.lang = []
     newServiceList.URI = newServiceList.URI || ""
     if(!newServiceList.Delivery || newServiceList.Delivery.length < 1) newServiceList.Delivery = ["DASHDelivery"]
 
     const deliveries = JSON.stringify(newServiceList.Delivery)
-
 
     sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, Delivery = ?,Status = ?", [ newServiceList.Provider, newServiceList.regulatorList, deliveries, newServiceList.Status ], async (err, res) => {
         if (err) {
@@ -214,11 +226,23 @@ ServiceList.getAllProviderServiceListOfferings = async (providerId, result) => {
 ServiceList.updateById = (id, List, result) => {
 
     console.log('update', List, id);
-
     // verify needed data is not missing
-    List.Names = List.Names || []
+    if(!List.Names || List.Names.length == 0) {
+        result({msg: "Name required!"}, null);
+        return;
+    }
+    for(var Name in List.Names) {
+        if(Name == "") {
+            result({msg: "Name required!"}, null);
+            return;
+        }
+    }
+    if(!List.URI) {
+        result({msg: "Name required!"}, null);
+        return;
+    }
+    // verify needed data is not missing
     if( !List.lang || List.lang.length < 1) List.lang = []
-    List.URI = List.URI || ""
     if(!List.Delivery || List.Delivery.length < 1) List.Delivery = ["DASHDelivery"]
     List.Status = List.Status || ""
 

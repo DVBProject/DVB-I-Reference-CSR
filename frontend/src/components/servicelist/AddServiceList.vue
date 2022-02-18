@@ -310,9 +310,14 @@ export default {
                   this.$router.push({ name: "servicelists" });
                 }, 2000)
             })
-            .catch(err => {
-                this.message = 'Error creating list';
-                console.log(err);
+            .catch(error => {
+               if( error.response.data.message ){
+                this.message =  error.response.data.message; // => the response payload 
+                }
+                else {
+                  this.message = error.message;
+                }
+                console.log(error);
             });
     },
     testURI(event) {

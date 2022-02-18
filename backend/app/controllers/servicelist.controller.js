@@ -47,8 +47,7 @@ exports.create = (req, res) => {
     ServiceList.create(serviceList, (err, data) => {
       if (err)
         res.status(500).send({
-          message:
-            err.message || "Some error occurred while creating the List."
+          message: "Error creating List"+ (err.msg ? ": "+err.msg : "")
         });
       else {
         res.send(data);
@@ -296,9 +295,9 @@ exports.update = async (req, res) => {
     listId,
     new ServiceList(req.body),
     (err, data) => {
-      if (err) {         
+      if (err) {
         res.status(500).send({
-          message: "Error updating List with id " + req.params.listId
+          message: "Error updating List"+ (err.msg ? ": "+err.msg : "")
         })        
       } 
       else {

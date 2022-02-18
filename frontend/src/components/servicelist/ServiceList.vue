@@ -361,9 +361,13 @@ export default {
             this.$router.push({ name: "servicelists" });
           }, 2000)
         })
-        .catch(e => {
-          console.log(e);
-          this.message = 'Error updating list';
+        .catch(error => {
+          if( error.response.data.message ){
+           this.message =  error.response.data.message; // => the response payload 
+          }
+          else {
+            this.message = error.message;
+          }
         });
     },
     deleteList() {
