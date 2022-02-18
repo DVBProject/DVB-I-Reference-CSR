@@ -99,13 +99,21 @@
         
         <div class="btn-group">
           <ul class="px-0 btn-group-sm">
-            <li v-for="(item, index) in SelectedDeliveries" 
+            <li v-for="(value,key,index) in SelectedDeliveries" 
                 v-bind:id="index"
-                v-bind:key="index"
+                v-bind:key="key"
                 
-                class="btn btn-outline-primary mx-1 my-1">{{item}} <span v-bind:id="index" v-on:click="removeDelivery" class="badge small bg-primary">x</span></li>
+                class="btn btn-outline-primary mx-1 my-1">{{key}} <span v-bind:id="key" v-on:click="removeDelivery" class="badge small bg-primary">x</span></li>
           </ul>
-        </div>        
+        </div>
+        <div v-if="'DVBCDelivery' in SelectedDeliveries" >
+          <label for="network_id">DVB-C Delivery: Network ID</label>
+          <input type="text" class="form-control my-2" id="network_id" v-model="DVBCDelivery.networkID"/>
+        </div>
+        <div v-if="'ApplicationDelivery' in SelectedDeliveries" >
+          <label for="content_type">Appliction Delivery: Content type</label>
+          <input type="text" class="form-control my-2" id="content_type" v-model="ApplicationDelivery.contentType"/>
+        </div>       
       </div>
 
       <div class="my-2">
@@ -227,21 +235,21 @@ export default {
     return {
       providers: [],
       deliveries: [],
-      SelectedDeliveries: [],
+      SelectedDeliveries: {},
       genres_ui: [],
       SelectedGenres: [],
       countries_ui: [],
       SelectedCountries: [],
       languages_ui: [],
       SelectedLanguages: [],
-      Name: "",
       Names: [{name:"", lang:""}],
       URI: "",
       lang: "",
       Provider: 0,
       regulatorList: 0,
-      Delivery: "",
-      
+      DVBCDelivery: { networkID: ""},
+      ApplicationDelivery: { contentType: ""},
+      message: "",
     };
   },
   methods: {
@@ -262,6 +270,20 @@ export default {
     },
     
     submitNewList() {
+        var nameFound = false;
+        for( var listname of this.Names) {
+          console.log(listname);
+          if(listname.name !== "") {
+            nameFound = true;
+            break;
+          }
+        }
+        if(!nameFound) {
+          console.log("derp");
+          this.message = "List name required!";
+          return;
+        }
+
         const data = {
             Name: this.Name,
             Names: this.Names,
@@ -273,6 +295,12 @@ export default {
             Countries: this.SelectedCountries,
             Genres: this.SelectedGenres
         } 
+        if(data.Delivery.DVBCDelivery) {
+          data.Delivery.DVBCDelivery = this.DVBCDelivery;
+        }
+        if(data.Delivery.ApplicationDelivery ) {
+          data.Delivery.ApplicationDelivery = this.ApplicationDelivery;
+        }
 
         ServiceListDataService.create(data)
             .then(response => {
@@ -307,21 +335,15 @@ export default {
       })
 
       if(valid !== -1) {
-        const index = this.SelectedDeliveries.findIndex( elem => {
-          return elem === item.target.value
-        })
         
-        if(index === -1) {
-          this.SelectedDeliveries.push(item.target.value)
+        if(!(item.target.value in this.SelectedDeliveries)) {
+          this.SelectedDeliveries[item.target.value] = {};
         }
       }
-
       item.target.value = null
     },
     removeDelivery(item) {
-      if(this.SelectedDeliveries.length > 1) {
-        this.SelectedDeliveries.splice(item.target.id, 1)
-      }
+      delete this.SelectedDeliveries[item.target.id];
     },
 
     addLang(item) {
@@ -384,7 +406,7 @@ export default {
   mounted() {
     // phase1 insert values from fixed lists (dev_constants.js)
     this.deliveries = deliveries
-    this.SelectedDeliveries.push(deliveries[0])
+    this.SelectedDeliveries[deliveries[0]] = {}
     this.countries_ui = countries
     this.languages_ui = languages
     this.genres_ui = genres
