@@ -48,7 +48,7 @@
             :key="index"
             @click="setActiveList(list, index)"
           >
-            {{ list.Names[0].name }}
+            {{ list.Names.length > 0 ? list.Names[0].name : "No name" }}
 
           </li>
         </ul>
@@ -146,9 +146,15 @@ export default {
     filteredList() {
       let ll = this.lists.filter(elem => {
         switch(this.filterType) {
-          case 1: { return elem.Names.find(el => {
-                return el.name.toLowerCase().includes(this.title.toLowerCase())
-              })
+          case 1: { 
+              if(!this.title || this.title == "") {
+                return true;
+              }
+              else {
+                return elem.Names.find(el => {
+                  return el.name.toLowerCase().includes(this.title.toLowerCase())
+                })
+              }
             }
           case 2: {              
               return elem.targetCountries.find(el => {
