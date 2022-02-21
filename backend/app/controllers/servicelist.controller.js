@@ -323,7 +323,37 @@ exports.update = async (req, res) => {
 };
 
 // delete
-exports.delete = (req, res) => {
+exports.delete = async (req, res) => {
+
+  const listId = req.params.listId
+
+  // check users ownership of list's provider
+  const listCheck = await ServiceList.listHeaderById(listId)
+  //const provs = JSON.parse(req.user.Providers)
+  let provs = []
+  try {
+    provs = JSON.parse(req.user.Providers)
+  } catch {
+    console.log("user data corrupt", req.user)
+  }
+  
+  let valid = true
+  
+  if(listCheck) {
+    console.log("test")
+    if (!provs.includes(+listCheck.Provider) && req.user.Role != 'admin') {
+      valid = false
+    }
+  } 
+  else valid = false
+
+  if(!valid) {
+    res.status(400).send({
+      message: "Invalid request!"
+    });
+    return
+  }
+
   ServiceList.remove(req.params.listId, (err, data) => {
     if (err) {
       if (err.list === "not_found") {
