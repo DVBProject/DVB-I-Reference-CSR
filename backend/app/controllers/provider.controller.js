@@ -219,6 +219,26 @@ exports.update = (req, res) => {
 // Delete a Provider with the specified customerId in the request
 exports.delete = async (req, res) => {
   // check user has rigths to this prov
+  if(req.user.Role != "admin") {
+    let providers = []
+    try {
+      providers = JSON.parse(req.user.Providers)
+    } catch {
+      console.log("user data corrupt", req.user)
+      res.status(400).send({
+        message: "Invalid request!"
+      })
+      return
+    }
+    
+    if (!providers.includes(+req.params.customerId)) {
+      res.status(400).send({
+        message: "Invalid request!"
+      })
+      return
+    }
+  }
+
   //console.log(req.params, req.body)
   await ServiceList.deleteProviderLists(req, req.params.customerId)
 
