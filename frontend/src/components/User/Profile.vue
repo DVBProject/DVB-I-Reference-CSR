@@ -94,6 +94,7 @@
     <div class="btn-group btn-group-sm my-2" role="group">
       <button type="submit" class="btn btn-outline-primary"
         @click="updateUser"
+        :disabled="sending"
       >
         Update
       </button>
@@ -201,8 +202,10 @@ export default {
             //Role: this.admin ? "admin" : "user"
         }
         console.log(data)
+        this.sending = true
         UserDataService.update(this.currentUser.Id, data)
             .then(response => {
+              this.sending = false
               console.log(response.data);
               this.message = 'The user was updated successfully!'
               /*
@@ -211,6 +214,7 @@ export default {
               }, 1000)*/
             })
             .catch(e => {
+              this.sending = false
               console.log(e);
               this.message = 'Error updating user'
             })
