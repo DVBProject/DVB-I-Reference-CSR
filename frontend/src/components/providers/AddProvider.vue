@@ -145,7 +145,8 @@
       <div>
         <div class="input-group-append">
             <button class="btn btn-outline-primary" type="button"
-            @click="submitProvider">
+            @click="submitProvider"
+            :disabled="sending">
             Add Provider
             </button>
         </div>
@@ -184,6 +185,8 @@ export default {
       ElectronicAddress: {Telephone: "",Fax: "",Email:"",Url: ""},
       Regulator: 0,
       message: "",
+
+      sending: false,
     };
   },
   methods: {
@@ -234,6 +237,7 @@ export default {
         } 
         console.log("add provider:", data)
         
+        this.sending = true
         ProviderDataService.create(data)
             .then(response => {
                 console.log(response)
@@ -243,6 +247,7 @@ export default {
                 }, 2000)
             })
             .catch(err => {
+              this.sending = false
               console.log(err.response.data);
               this.message = 'Error:'+err.response.data.message;
             });

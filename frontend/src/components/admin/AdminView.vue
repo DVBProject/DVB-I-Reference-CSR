@@ -4,9 +4,8 @@
     <div class="row">
 
       <div class="col-md-8">
-        <div class="btn-group btn-group-sm mb-2 " role="group" aria-label="Basic radio toggle button group">            
-          
-          <router-link :to="'/admin/add-user/'" class="btn btn-outline-primary mt-1">Create new</router-link>
+        <div class="btn-group btn-group-sm mb-2 " role="group" aria-label="Basic radio toggle button group">
+          <router-link :to="'/admin/add-user/'" class="btn btn-outline-primary mt-1"><span class="bi-plus-lg mx-1"></span>Create new</router-link>
         </div>
       </div>
       

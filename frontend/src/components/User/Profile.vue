@@ -37,7 +37,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-outline-primary" data-dismiss="modal" @click="confirmPassword = !confirmPassword">Cancel</button>
-                <button type="button" class="btn btn-danger" @click="changePassword">Change</button>          
+                <button type="button" class="btn btn-danger" @click="changePassword" :disabled="sending">Change</button>          
               </div>
             </div>
           </div>
@@ -143,6 +143,8 @@ export default {
 
       
       Names: [],
+
+      sending: false,
     };
   },
   methods: {
@@ -222,6 +224,7 @@ export default {
         Password: this.Password,
         NewPassword: this.NewPassword,
       }
+      this.sending = true
       UserDataService.changePwd(data)
             .then(response => {
               console.log(response.data);
@@ -233,6 +236,7 @@ export default {
               this.PasswordCheck = ""
             })
             .catch(e => {
+              this.sending = false
               // close modal dalog
               this.confirmPassword = false
               console.log(e);

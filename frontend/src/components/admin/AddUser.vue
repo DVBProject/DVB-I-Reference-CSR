@@ -79,6 +79,7 @@
 
         <button type="submit" class="btn btn-outline-primary"
           @click="createUser"
+          :disabled="sending"
         >
           Create
         </button>
@@ -112,6 +113,7 @@ export default {
       PasswordCheck: "",
 
       admin: false,
+      sending: false,
     };
   },
   methods: {
@@ -190,7 +192,7 @@ export default {
           Role: this.admin ? "admin" : "user"
       }
       //console.log("POST", data);
-      
+      this.sending = true
       UserDataService.create(data)
           .then(response => {
             console.log(response.data);
@@ -201,6 +203,7 @@ export default {
             }, 2000)
           })
           .catch(e => {
+            this.sending = false
             console.log(e);
             this.message = 'Error creating user';
           });

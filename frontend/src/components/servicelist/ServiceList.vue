@@ -17,7 +17,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-outline-primary" data-dismiss="modal" @click="confirmDelete = !confirmDelete">Cancel</button>
-                <button type="button" class="btn btn-danger" @click="deleteList">Delete</button>          
+                <button type="button" class="btn btn-danger" @click="deleteList" :disabled="sending">Delete</button>          
               </div>
             </div>
           </div>
@@ -257,6 +257,7 @@
 
       <button type="submit" class="btn btn-outline-primary"
         @click="updateList"
+        :disabled="sending"
       >
         Update
       </button>
@@ -297,6 +298,7 @@ export default {
       Names: [],
       DVBCDelivery: { networkID: ""},
       ApplicationDelivery: { contentType: ""},
+      sending: false,
     };
   },
   methods: {
@@ -351,6 +353,8 @@ export default {
       if(data.Delivery.ApplicationDelivery ) {
         data.Delivery.ApplicationDelivery = this.ApplicationDelivery;
       }
+
+      this.sending = true
       //console.log("POST",this.currentList.Id, /*this.currentList*/ data);
       ServiceListDataService.update(this.currentList.Id, data)
         .then(response => {
@@ -362,6 +366,7 @@ export default {
           }, 2000)
         })
         .catch(error => {
+          this.sending = false
           if( error.response.data.message ){
            this.message =  error.response.data.message; // => the response payload 
           }
@@ -371,6 +376,7 @@ export default {
         });
     },
     deleteList() {
+      this.sending = true
       ServiceListDataService.delete(this.currentList.Id)
         .then(response => {
           console.log(response.data);
@@ -381,6 +387,7 @@ export default {
           }, 2000)
         })
         .catch(e => {
+          this.sending = false
           console.log(e);
           this.message = 'Error deleting list';
         });

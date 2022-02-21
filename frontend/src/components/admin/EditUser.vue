@@ -17,7 +17,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-outline-primary" data-dismiss="modal" @click="confirmDelete = !confirmDelete">Cancel</button>
-                <button type="button" class="btn btn-danger" @click="deleteUser">Delete</button>          
+                <button type="button" class="btn btn-danger" @click="deleteUser" :disabled="sending">Delete</button>          
               </div>
             </div>
           </div>
@@ -43,7 +43,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-outline-primary" data-dismiss="modal" @click="confirmPassword = !confirmPassword">Cancel</button>
-                <button type="button" class="btn btn-danger" @click="changePassword">Change</button>          
+                <button type="button" class="btn btn-danger" @click="changePassword" :disabled="sending">Change</button>          
               </div>
             </div>
           </div>
@@ -127,6 +127,7 @@
 
       <button type="submit" class="btn btn-outline-primary"
         @click="updateUser"
+        :disabled="sending"
       >
         Update
       </button>
@@ -161,6 +162,8 @@ export default {
 
       admin: false,
       Names: [],
+
+      sending: false,
     };
   },
   methods: {
@@ -247,6 +250,7 @@ export default {
             Role: this.admin ? "admin" : "user"
         }
         
+        this.sending = true
         UserDataService.update(this.currentUser.Id, data)
             .then(response => {
               console.log(response.data);
@@ -257,12 +261,14 @@ export default {
               }, 2000)
             })
             .catch(e => {
+              this.sending = false
               console.log(e);
               this.message = 'Error updating user'
             })
     },
 
     deleteUser() {
+      this.sending = true
       UserDataService.delete(this.currentUser.Id)
         .then(response => {
           console.log(response.data);
@@ -273,6 +279,7 @@ export default {
           }, 2000)
         })
         .catch(e => {
+          this.sending = false
           console.log(e);
           this.message = 'Error deleting user';
         });

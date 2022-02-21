@@ -18,7 +18,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-outline-primary" data-dismiss="modal" @click="confirmDelete = !confirmDelete">Cancel</button>
-                <button type="button" class="btn btn-danger" @click="deleteProvider">Delete</button>          
+                <button type="button" class="btn btn-danger" @click="deleteProvider" :disabled="sending">Delete</button>          
               </div>
             </div>
           </div>
@@ -194,6 +194,7 @@
 
         <button type="submit" class="btn btn-outline-primary"
           @click="updateProvider"
+          :disabled="sending"
         >
           Update
         </button>        
@@ -221,7 +222,8 @@ export default {
     return {
       currentProvider: null,
       message: '',
-      confirmDelete: false
+      confirmDelete: false,
+      sending: false,
     };
   },
   methods: {
@@ -288,6 +290,7 @@ export default {
         }
 
       //console.log("POST",this.currentProvider.Id, data)
+      this.sending = true
       ProviderDataService.update(this.currentProvider.Id, data) 
         .then(response => {
           console.log(response.data);
@@ -297,6 +300,7 @@ export default {
           }, 2000)
         })
         .catch(e => {
+          this.sending = false
           console.log(e);
           this.message = "Could not update Provider."
         });
@@ -307,6 +311,7 @@ export default {
     },
 
     deleteProvider() {
+      this.sending = true
       this.confirmDelete = false
       ProviderDataService.delete(this.currentProvider.Id)
         .then(response => {
@@ -317,6 +322,7 @@ export default {
           }, 2000)
         })
         .catch(e => {
+          this.sending = false
           console.log(e);
           this.message = "Could not delete Provider."
         });

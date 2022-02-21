@@ -212,7 +212,8 @@
 
         <div class="input-group-append">
             <button class="btn btn-outline-primary" type="button"
-            @click="submitNewList">
+            @click="submitNewList"
+            :disabled="sending">
             Add List
             </button>
         </div>
@@ -250,6 +251,7 @@ export default {
       DVBCDelivery: { networkID: ""},
       ApplicationDelivery: { contentType: ""},
       message: "",
+      sending: false,
     };
   },
   methods: {
@@ -270,6 +272,7 @@ export default {
     },
     
     submitNewList() {
+        
         var nameFound = false;
         for( var listname of this.Names) {
           console.log(listname);
@@ -283,6 +286,8 @@ export default {
           this.message = "List name required!";
           return;
         }
+
+        this.sending = true
 
         const data = {
             Name: this.Name,
@@ -311,6 +316,7 @@ export default {
                 }, 2000)
             })
             .catch(error => {
+                this.sending = false
                if( error.response.data.message ){
                 this.message =  error.response.data.message; // => the response payload 
                 }
