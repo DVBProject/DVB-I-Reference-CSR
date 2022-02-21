@@ -18,7 +18,7 @@ app.use(cors())
 
 app.disable('x-powered-by')
 
-app.set("jwtstring", "secretstring") // move to env
+app.set("jwtstring", process.env.JWT_SECRET) //"secretstring") // move to env
 
 
 // parse requests of content-type: application/json
