@@ -94,7 +94,7 @@
             :key="index"
             @click="setActiveList(list, index)"
           >
-            {{ list.Names[0].name }}
+            {{ list.Names.length ? list.Names[0].name : "Invalid list" }}
 
           </li>
         </ul>
@@ -102,7 +102,7 @@
 
     <div class="col-sm-6">
       <div v-if="currentList">
-        <h4>{{currentList.Names[0].name}} events</h4>
+        <h4>{{currentList.Names.length ? currentList.Names[0].name : "Invalid list"}} events</h4>
         
         <ul class="list-group mainlist">
           <li class="list-group-item"
@@ -184,7 +184,7 @@ export default {
       ServiceListDataService.getByProvider(id)
       .then(response => {
           this.serviceLists = response.data
-          //console.log("lists", response.data)
+          console.log("lists", response.data)
         })
         .catch(e => {
           console.log(e)
@@ -194,7 +194,7 @@ export default {
       UserDataService.getByProvider(id)
       .then(response => {
           this.users = response.data
-          //console.log("users", response.data)          
+          console.log("users", response.data)          
         })
         .catch(e => {
           console.log(e)
