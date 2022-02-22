@@ -362,15 +362,21 @@ csrquery.generateServiceListOfferingXML = async function(list,root) {
         uriElement.ele("dvbisd:URI",{},uri.URI);
     }
     if(listOffering[0][0].Delivery) {
-        var deliveries = JSON.parse(listOffering[0][0].Delivery);
-        var deliveryElement = serviceListOffering.ele("Delivery");
-        var keys = Object.keys(deliveries);
-        for(var key of keys) {
-            var delivery = deliveryElement.ele(key);
-            var attributes = Object.keys(deliveries[key]);
-            for(var attribute of attributes) {
-                delivery.att(attribute,deliveries[key][attribute]);
+        try {
+            var deliveries = JSON.parse(listOffering[0][0].Delivery);
+            if(typeof deliveries === 'object' && !Array.isArray(deliveries)) {
+                var deliveryElement = serviceListOffering.ele("Delivery");
+                var keys = Object.keys(deliveries);
+                for(var key of keys) {
+                    var delivery = deliveryElement.ele(key);
+                    var attributes = Object.keys(deliveries[key]);
+                    for(var attribute of attributes) {
+                        delivery.att(attribute,deliveries[key][attribute]);
+                    }
+                }
             }
+        } catch(e) {
+            console.log(e);
         }
     }
     const languages =  await this.mysql.execute("SELECT Language FROM Language WHERE ServiceList = "+list);

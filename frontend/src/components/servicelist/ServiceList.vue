@@ -308,6 +308,9 @@ export default {
           this.currentList = response.data;
           try {
             this.SelectedDeliveries = JSON.parse(this.currentList.Delivery)
+            if(Array.isArray(this.SelectedDeliveries) || typeof this.SelectedDeliveries !== 'object') {
+              this.SelectedDeliveries = {};
+            }
             if(this.SelectedDeliveries.DVBCDelivery) {
               this.DVBCDelivery = this.SelectedDeliveries.DVBCDelivery;
             }
@@ -315,7 +318,7 @@ export default {
               this.ApplicationDelivery = this.SelectedDeliveries.ApplicationDelivery;
             }
           } catch {
-            this.SelectedDeliveries[this.currentList.Delivery] = {};
+            this.SelectedDeliveries = {};
           }
           for(var genre in this.currentList.Genres) {
             this.addGenre(this.currentList.Genres[genre])
