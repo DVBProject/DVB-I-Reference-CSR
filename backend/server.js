@@ -17,8 +17,10 @@ const PORT = process.env.PORT || 3000;
 app.use(cors())
 
 app.disable('x-powered-by')
-
-app.set("jwtstring", process.env.JWT_SECRET)
+if(!process.env.JWT_SECRET) {
+  console.log("WARNING! JWT_SECRET NOT DEFINED! PLEASE DEFINE YOUR JWT SECRET IN THE ENV-FILE!")
+}
+app.set("jwtstring", process.env.JWT_SECRET || "7öldÖJISjfs903jF(NljewOIWJRÖOA30SF") 
 
 
 // parse requests of content-type: application/json

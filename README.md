@@ -56,6 +56,11 @@ PORT=3333
 ```
 Create the .env files to "api" and "backend" directory, respectively.
 
+Backend module requires a random string for json web token secret in the .env-file, minimum length should be 32 bytes:
+```
+JWT_SECRET=<my random string>
+```
+
 ## API Module usage
 
 After cloning the repository, install the required node modules with the command `yarn install` in the api-directory.
