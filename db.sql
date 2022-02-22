@@ -30,7 +30,7 @@ CREATE TABLE `ServiceListEntryPoints`
 (
  `Id`                        integer NOT NULL AUTO_INCREMENT,
  `ServiceListRegistryEntity` integer NOT NULL ,
- 'Language'                  text NOT NULL,
+ `Language`                  text NOT NULL,
 
 PRIMARY KEY (`Id`),
 KEY `fkIdx_46` (`ServiceListRegistryEntity`),
