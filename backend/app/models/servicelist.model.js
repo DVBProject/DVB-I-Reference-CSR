@@ -33,8 +33,47 @@ ServiceList.create = (newServiceList, result) => {
     }
     if( !newServiceList.lang || newServiceList.lang.length < 1) newServiceList.lang = []
     newServiceList.URI = newServiceList.URI || ""
-    if(!newServiceList.Delivery || newServiceList.Delivery.length < 1) newServiceList.Delivery = ["DASHDelivery"]
+    if(!newServiceList.Delivery || newServiceList.Delivery.length < 1) newServiceList.Delivery = {"DASHDelivery": {}}
 
+    const test = new RegExp('^[0-9]+$');
+    if(newServiceList.Delivery.DVBCDelivery && !test.test(newServiceList.Delivery.DVBCDelivery.networkID) ) {
+        result({msg: "Invalid DVB-C Delivery network id!"}, null);
+        return;
+    }
+    if(newServiceList.Delivery.DVBCDelivery && parseInt(newServiceList.Delivery.DVBCDelivery.networkID) > 65535) {
+        result({msg: "Invalid DVB-C Delivery network id, maximum value 65535"}, null);
+        return;
+    }
+    if(newServiceList.Delivery.DVBSDelivery && newServiceList.Delivery.DVBSDelivery.OrbitalPosition ) {
+        if(Array.isArray(newServiceList.Delivery.DVBSDelivery.OrbitalPosition) ){
+            var pattern = new RegExp('^-?[0-9]+(.[0-9]+)?$'); //
+            for(const position of newServiceList.Delivery.DVBSDelivery.OrbitalPosition) {
+                if(!pattern.test(position)) {
+                    result({msg: "Invalid DVB-S orbital position!"}, null);
+                    return;
+                }
+                const value = parseFloat(position);
+                if(value < -180 || value > 180) {
+                    result({msg: "Invalid DVB-S orbital position, values between -180 and 180 are allowed"}, null);
+                }
+            }
+        }
+    }
+    if(newServiceList.Delivery.DVBCDelivery && parseInt(newServiceList.Delivery.DVBCDelivery.networkID) > 65535) {
+        result({msg: "Invalid DVB-C Delivery network id, maximum value 65535"}, null);
+        return;
+    }
+    const deliverylist = Object.keys(newServiceList.Delivery)
+    for(delivery of deliverylist) {
+        if(newServiceList.Delivery[delivery].minimumBitRate && !test.test(newServiceList.Delivery[delivery].minimumBitRate)) {
+            result({msg: "Invalid "+delivery +" mimium bit rate!"}, null);
+            return;
+        }
+        if(newServiceList.Delivery[delivery].minimumBitRate && parseInt(List.Delivery[delivery].minimumBitRate) > 4294967295) {
+            result({msg: "Invalid "+delivery +" mimium bit rate, maximum value 4294967295"}, null);
+            return;
+        }
+    }
     const deliveries = JSON.stringify(newServiceList.Delivery)
 
     sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, Delivery = ?,Status = ?", [ newServiceList.Provider, newServiceList.regulatorList, deliveries, newServiceList.Status ], async (err, res) => {
@@ -243,10 +282,49 @@ ServiceList.updateById = (id, List, result) => {
     }
     // verify needed data is not missing
     if( !List.lang || List.lang.length < 1) List.lang = []
-    if(!List.Delivery || List.Delivery.length < 1) List.Delivery = ["DASHDelivery"]
+    if(!List.Delivery || List.Delivery.length < 1) List.Delivery = {"DASHDelivery": {}}
     List.Status = List.Status || ""
+    const test = new RegExp('^[0-9]+$');
+    if(List.Delivery.DVBCDelivery && !test.test(List.Delivery.DVBCDelivery.networkID) ) {
+        result({msg: "Invalid DVB-C Delivery network id!"}, null);
+        return;
+    }
+    if(List.Delivery.DVBCDelivery && parseInt(List.Delivery.DVBCDelivery.networkID) > 65535) {
+        result({msg: "Invalid DVB-C Delivery network id, maximum value 65535"}, null);
+        return;
+    }
+    if(List.Delivery.DVBSDelivery && List.Delivery.DVBSDelivery.OrbitalPosition ) {
+        if(Array.isArray(List.Delivery.DVBSDelivery.OrbitalPosition) ){
+            var pattern = new RegExp('^-?[0-9]+(.[0-9]+)?$'); //
+            for(const position of List.Delivery.DVBSDelivery.OrbitalPosition) {
+                if(!pattern.test(position)) {
+                    result({msg: "Invalid DVB-S orbital position!"}, null);
+                    return;
+                }
+                const value = parseFloat(position);
+                if(value < -180 || value > 180) {
+                    result({msg: "Invalid DVB-S orbital position, values between -180 and 180 are allowed"}, null);
+                }
+            }
+        }
+    }
+    if(List.Delivery.DVBCDelivery && parseInt(List.Delivery.DVBCDelivery.networkID) > 65535) {
+        result({msg: "Invalid DVB-C Delivery network id, maximum value 65535"}, null);
+        return;
+    }
+    const deliverylist = Object.keys(List.Delivery)
+    for(delivery of deliverylist) {
+        if(List.Delivery[delivery].minimumBitRate && !test.test(List.Delivery[delivery].minimumBitRate)) {
+            result({msg: "Invalid "+delivery +" mimium bit rate!"}, null);
+            return;
+        }
+        if(List.Delivery[delivery].minimumBitRate && parseInt(List.Delivery[delivery].minimumBitRate) > 4294967295) {
+            result({msg: "Invalid "+delivery +" mimium bit rate, maximum value 4294967295"}, null);
+            return;
+        }
+    }
+    let deliveries =  {"DASHDelivery": {}}
 
-    let deliveries =  ["DASHDelivery"]
     try {
         deliveries = JSON.stringify(List.Delivery)
     } catch {

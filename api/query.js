@@ -367,11 +367,45 @@ csrquery.generateServiceListOfferingXML = async function(list,root) {
             if(typeof deliveries === 'object' && !Array.isArray(deliveries)) {
                 var deliveryElement = serviceListOffering.ele("Delivery");
                 var keys = Object.keys(deliveries);
-                for(var key of keys) {
-                    var delivery = deliveryElement.ele(key);
-                    var attributes = Object.keys(deliveries[key]);
-                    for(var attribute of attributes) {
-                        delivery.att(attribute,deliveries[key][attribute]);
+                for(var key of constants.deliveries) {
+                    if(deliveries[key]) {
+                        var delivery = deliveryElement.ele(key);
+                        if(key === "DVBSDelivery") {
+                            if(deliveries[key]["required"] === true) {
+                                delivery.att("required",true);
+                            }
+                            console.log(deliveries[key]);
+                            if(deliveries[key]["OrbitalPosition"] && Array.isArray(deliveries[key]["OrbitalPosition"])) {
+                                for(var position of deliveries[key]["OrbitalPosition"]) {
+                                    console.log(position);
+                                    delivery.ele("OrbitalPosition",{},position)
+                                }
+                            }
+                        }
+                        else if(key === "ApplicationDelivery") {
+                            if(deliveries[key]["required"] === true) {
+                                delivery.att("required",true);
+                            }
+                            if(deliveries[key]["ApplicationTypes"] && Array.isArray(deliveries[key]["ApplicationTypes"])) {
+                                for(var apptype of deliveries[key]["ApplicationTypes"]) {
+                                    console.log(apptype);
+                                    var typeElement = delivery.ele("ApplicationType");
+                                    typeElement.att("contentType",apptype["contentType"])
+                                    if(apptype["xmlAitApplicationType"]) {
+                                        typeElement.att("xmlAitApplicationType",apptype["xmlAitApplicationType"])
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            var attributes = Object.keys(deliveries[key]);
+                            for(var attribute of attributes) {
+                                const value = deliveries[key][attribute];
+                                if(value) {
+                                    delivery.att(attribute,value);
+                                }
+                            }
+                        }
                     }
                 }
             }

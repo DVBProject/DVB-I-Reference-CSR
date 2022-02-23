@@ -137,17 +137,82 @@
                 class="btn btn-outline-primary mx-1 my-1">{{key}} <span v-bind:id="key" v-on:click="removeDelivery" class="badge small bg-primary">x</span></li>
           </ul>
         </div>
+        <div v-if="'DVBTDelivery' in SelectedDeliveries" >
+          <input type="checkbox" class="form-check-input" id="dvbt_required" v-model="DVBTDelivery.required"/>
+          <label class="form-check-label" for="dvbt_required">DVB-T Delivery: required</label>
+        </div>
         <div v-if="'DVBCDelivery' in SelectedDeliveries" >
           <label for="network_id">DVB-C Delivery: Network ID</label>
           <input type="text" class="form-control my-2" id="network_id" v-model="DVBCDelivery.networkID"/>
+          <input type="checkbox" class="form-check-input" id="dvbc_required" v-model="DVBCDelivery.required"/>
+          <label class="form-check-label" for="dvbc_required">DVB-C Delivery: required</label>
+        </div>
+        <div v-if="'DVBSDelivery' in SelectedDeliveries" >
+          <div class="form-group">
+          <input type="checkbox" class="form-check-input" id="dvbs_required" v-model="DVBCDelivery.required"/>
+          <label class="form-check-label" for="dvbs_required">DVB-S Delivery: required</label>
+          </div>
+          <label for="Name">Orbital Position</label>
+          <button class="btn btn-outline-primary mx-2 mb-1" type="button" @click="addOrbitalPositionField">+</button>
+          <div class="col-sm-12 px-0" v-for="(position,index) in OrbitalPosition" :key="index">
+            <div class="row my-0 mx-0">
+              <div class="form-floating px-0 col-sm-5">
+                <input type="text" id="floatingInput" class="form-control mb-1" placeholder="Orbital position"
+                    v-model="OrbitalPosition[index]"/>
+                <label for="floatingInput">Orbital position</label>
+              </div>
+              <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
+                :id="index"
+                @click="delOrbitalPositionField"
+                :disabled="Names.length <= 0">-</button>
+            </div>
+          </div>
         </div>
         <div v-if="'ApplicationDelivery' in SelectedDeliveries" >
-          <label for="content_type">Appliction Delivery: Content type</label>
-          <input type="text" class="form-control my-2" id="content_type" v-model="ApplicationDelivery.contentType"/>
+          <div class="form-group">
+          <input type="checkbox" class="form-check-input" id="application_required" v-model="ApplicationDelivery.required"/>
+          <label class="form-check-label" for="application_required">Application Delivery: required</label>
+          </div>
+          <label for="Name">Application Types</label>
+          <button class="btn btn-outline-primary mx-2 mb-1" type="button" @click="addApplicationTypeField">+</button>
+          <div class="col-sm-12 px-0" v-for="(type, index) in ApplicationTypes" :key="index">
+            <div class="row my-0 mx-0">
+              <div class="form-floating px-0 col-sm-5">
+                <input type="text" id="floatingInput" class="form-control mb-1" placeholder="Content type"
+                    v-model="type.contentType"/>
+                <label for="floatingInput">Content type</label>
+              </div>
+              <div class="form-floating px-0 col-sm-5">
+                <input type="text" id="floatingInput" class="form-control mb-1" placeholder="XML AIT Application type"
+                    v-model="type.xmlAitApplicationType"/>
+                <label for="floatingInput">XML AIT type</label>
+              </div>
+              <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
+                :id="index"
+                @click="delApplicationTypeField"
+                :disabled="Names.length <= 0">-</button>
+            </div>
+          </div>
+        </div>
+        <div v-if="'DASHDelivery' in SelectedDeliveries" >
+          <label for="dash_minimumbitrate">DASH Delivery: Minimum Bitrate</label>
+          <input type="text" class="form-control my-2" id="dash_minimumbitrate" v-model="DASHDelivery.minimumBitRate"/>
+          <input type="checkbox" class="form-check-input" id="dash_required" v-model="DASHDelivery.required"/>
+          <label class="form-check-label" for="dash_required">DASH Delivery: required</label>
+        </div>
+        <div v-if="'RTSPDelivery' in SelectedDeliveries" >
+          <label for="rtsp_minimumbitrate">RTSP Delivery: Minimum Bitrate</label>
+          <input type="text" class="form-control my-2" id="rtsp_minimumbitrate" v-model="RTSPDelivery.minimumBitRate"/>
+          <input type="checkbox" class="form-check-input" id="rtsp_required" v-model="RTSPDelivery.required"/>
+          <label class="form-check-label" for="rtsp_required">RTSP Delivery: required</label>
+        </div>
+        <div v-if="'MulticastTSDelivery' in SelectedDeliveries" >
+          <label for="multicast_minimumbitrate">Multicast TS Delivery: Minimum Bitrate</label>
+          <input type="text" class="form-control my-2" id="multicast_minimumbitrate" v-model="MulticastTSDelivery.minimumBitRate"/>
+          <input type="checkbox" class="form-check-input" id="multicast_required" v-model="MulticastTSDelivery.required"/>
+          <label class="form-check-label" for="multicast_required">Multicast TS Delivery: required</label>
         </div>
       </div>
-
-
 
       <div class="my-2">
       <label for="languagesDataList" class="form-label">Languages:</label>
@@ -296,8 +361,15 @@ export default {
       languages_ui: [],
       SelectedLanguages: [],
       Names: [],
-      DVBCDelivery: { networkID: ""},
-      ApplicationDelivery: { contentType: ""},
+      DVBCDelivery: { networkID: "", required: false},
+      DVBSDelivery: {required: false},
+      OrbitalPosition: [],
+      DVBTDelivery: { required: false},
+      ApplicationDelivery: {contentType: "", required: false},
+      ApplicationTypes: [],
+      RTSPDelivery: {required: false},
+      MulticastTSDelivery: { required: false},
+      DASHDelivery: {required: false},
       sending: false,
     };
   },
@@ -311,13 +383,19 @@ export default {
             if(Array.isArray(this.SelectedDeliveries) || typeof this.SelectedDeliveries !== 'object') {
               this.SelectedDeliveries = {};
             }
-            if(this.SelectedDeliveries.DVBCDelivery) {
-              this.DVBCDelivery = this.SelectedDeliveries.DVBCDelivery;
+            for(const delivery of this.deliveries_ui) {
+              if(this.SelectedDeliveries[delivery]) {
+                this[delivery] = this.SelectedDeliveries[delivery];
+              }
             }
-            if(this.SelectedDeliveries.ApplicationDelivery) {
-              this.ApplicationDelivery = this.SelectedDeliveries.ApplicationDelivery;
+            if(this.ApplicationDelivery && this.ApplicationDelivery.ApplicationTypes) {
+              this.ApplicationTypes = this.ApplicationDelivery.ApplicationTypes;
             }
-          } catch {
+            if(this.DVBSDelivery && this.DVBSDelivery.OrbitalPosition) {
+              this.OrbitalPosition = this.DVBSDelivery.OrbitalPosition;
+            }
+          } catch (e) {
+            console.log(e);
             this.SelectedDeliveries = {};
           }
           for(var genre in this.currentList.Genres) {
@@ -350,11 +428,16 @@ export default {
         Genres: this.SelectedGenres,
         Names: this.Names
       }
-      if(data.Delivery.DVBCDelivery) {
-        data.Delivery.DVBCDelivery = this.DVBCDelivery;
+      if(this.ApplicationTypes && this.ApplicationDelivery) {
+        this.ApplicationDelivery.ApplicationTypes = this.ApplicationTypes;
       }
-      if(data.Delivery.ApplicationDelivery ) {
-        data.Delivery.ApplicationDelivery = this.ApplicationDelivery;
+      if(this.OrbitalPosition && this.DVBSDelivery) {
+        this.DVBSDelivery.OrbitalPosition = this.OrbitalPosition;
+      }
+      for(const delivery of this.deliveries_ui) {
+        if(data.Delivery[delivery]) {
+          data.Delivery[delivery] = this[delivery];
+        }
       }
 
       this.sending = true
@@ -394,6 +477,24 @@ export default {
           console.log(e);
           this.message = 'Error deleting list';
         });
+    },
+    addApplicationTypeField() {
+      this.ApplicationTypes.push({contentType: "", xmlAitApplicationType: ""})
+    },
+    delApplicationTypeField(item) {
+      console.log(item.target.id)
+      if(this.ApplicationTypes.length > 0) {
+        this.ApplicationTypes.splice(item.target.id, 1)
+      }
+    },
+    addOrbitalPositionField() {
+      this.OrbitalPosition.push("");
+    },
+    delOrbitalPositionField(item) {
+      console.log(item.target.id)
+      if(this.OrbitalPosition.length > 0) {
+        this.OrbitalPosition.splice(item.target.id, 1)
+      }
     },
 
     addNameField() {
