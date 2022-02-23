@@ -6,7 +6,6 @@ const User = function(newuser) {
     this.Email = newuser.Email
     this.Hash = newuser.passwordhash
     this.Role = newuser.Role
-    this.Organization = newuser.Organization
     this.Providers = newuser.Providers
     this.Session = newuser.Session
 }
