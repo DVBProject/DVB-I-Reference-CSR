@@ -238,7 +238,7 @@ ServiceList.updateById = (id, List, result) => {
         }
     }
     if(!List.URI) {
-        result({msg: "Name required!"}, null);
+        result({msg: "Service list URI required!"}, null);
         return;
     }
     // verify needed data is not missing
