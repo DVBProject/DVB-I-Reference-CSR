@@ -56,18 +56,40 @@
       </div>
 
 
-      <label>URI:</label>
-      <div class="row my-0 mx-0 px-0">
-        <div class="px-0 col-sm-10">
-          <input type="text" class="form-control my-2 mx-0" placeholder="URI"
-            v-model="URI"/>
-        </div>
-        <div class="btn-group-sm my-0 mx-0 px-0 col-sm-2">
-          <button class="btn btn-outline-primary mt-2 py-2 col-sm-12"
-            @click="testURI"
+        <div class="form-group">
+        <label for="Name">URI</label>
+
+        <button class="btn btn-outline-primary mx-2 mb-1" type="button"
+            @click="addURIField"
+          >
+        +
+        </button>
+        <div class="input-group mb-3">          
+          <div class="col-sm-12 px-0"
+              v-for="(name, index) in URI"
+              :key="index">      
+
+            <div class="row my-0 mx-0">
+
+              <div class="form-floating px-0 col-sm-5">          
+                <input type="text" id="floatingInput" class="form-control mb-1" placeholder="URI"
+                    v-model="URI[index]"/>
+                <label for="floatingInput">URI</label>
+              </div>
+
+            <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
+              :id="index"
+              @click="delURIField"
+              :disabled="Names.length <= 1"
+            >-</button>
+            <button class="btn btn-outline-primary mx-3 mb-1 col-sm-2"
+            @click="testURI($event,index)"
           >
           Test
           </button> 
+            </div>
+
+          </div>        
         </div>
       </div>
 
@@ -311,7 +333,7 @@ export default {
       languages_ui: [],
       SelectedLanguages: [],
       Names: [{name:"", lang:""}],
-      URI: "",
+      URI: [""],
       lang: "",
       Provider: 0,
       regulatorList: 0,
@@ -405,12 +427,22 @@ export default {
                 console.log(error);
             });
     },
-    testURI(event) {
-      event.preventDefault()
-      window.open(this.URI, '_blank').focus()
+    testURI($event,item) {
+      console.log(item,$event);
+      $event.preventDefault()
+      window.open(this.currentList.URI[item], '_blank').focus()
     },
     addNameField() {
       this.Names.push({name: "", lang: ""})
+    },
+    addURIField() {
+      this.currentList.URI.push("");
+    },
+    delURIField(item) {
+      console.log(item.target.id)
+      if(this.currentList.URI.length > 1) {
+        this.currentList.URI.splice(item.target.id, 1)
+      }
     },
     addApplicationTypeField() {
       this.ApplicationTypes.push({contentType: "", xmlAitApplicationType: ""})

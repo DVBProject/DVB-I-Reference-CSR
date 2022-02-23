@@ -96,9 +96,13 @@
               </template>
           </div>
 
-
-          <div>
-            <label class="mx-1"><strong>URI:</strong></label> {{ currentList.URI || "Not defined" }}
+          <div class="mx-1">
+          <strong>URI: </strong>
+              <template v-for="(uri, index) in currentList.URI"
+              :key="index">
+              <template v-if="index > 0">, </template>
+              <span>{{uri}}</span>
+              </template>
           </div>
           <div>
             <label class="mx-1"><strong>Delivery:</strong></label> {{ Delivery }}

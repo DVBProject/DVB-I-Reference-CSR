@@ -27,12 +27,19 @@ ServiceList.create = (newServiceList, result) => {
             return;
         }
     }
-    if(!newServiceList.URI) {
+    if(!newServiceList.URI || !Array.isArray(newServiceList.URI )) {
         result({msg:"URI required!"}, null);
         return;
     }
+    for(var URI in newServiceList.URI) {
+        if(Name == "") {
+            result({msg:"URI required!"}, null);
+            return;
+        }
+    }
+
     if( !newServiceList.lang || newServiceList.lang.length < 1) newServiceList.lang = []
-    newServiceList.URI = newServiceList.URI || ""
+    newServiceList.URI = newServiceList.URI || [""]
     if(!newServiceList.Delivery || newServiceList.Delivery.length < 1) newServiceList.Delivery = {"DASHDelivery": {}}
 
     const test = new RegExp('^[0-9]+$');
@@ -93,7 +100,7 @@ ServiceList.create = (newServiceList, result) => {
 
 
 ServiceList.findById = (ListId, result) => {
-    sql.query(`SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Id = ? AND ServiceListURI.ServiceList = ServiceListOffering.Id`, 
+    sql.query(`SELECT ServiceListOffering.Id,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListOffering WHERE ServiceListOffering.Id = ?`, 
        [ListId], async (err, res) => {
         if (err) {
             console.log("error: ", err);
@@ -144,8 +151,8 @@ ServiceList.listHeaderById = (ListId) => {
 ServiceList.getAllByStatus = async (result, liststatus = 'active', provider = null) => {
     let query = ''
     // using query params
-    if (provider) query = `SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Status = ? AND ServiceListOffering.Provider = ? AND ServiceListURI.ServiceList = ServiceListOffering.Id`
-    else query = `SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering WHERE ServiceListOffering.Status = ? AND ServiceListURI.ServiceList = ServiceListOffering.Id`
+    if (provider) query = `SELECT ServiceListOffering.Id,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListOffering WHERE ServiceListOffering.Status = ? AND ServiceListOffering.Provider = ?`
+    else query = `SELECT ServiceListOffering.Id,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListOffering WHERE ServiceListOffering.Status = ?`
     sql.query(query, [liststatus, provider], async (err, res) => {
         if (err) {
             console.log("error: ", err);
@@ -180,7 +187,7 @@ ServiceList.getAllByStatus = async (result, liststatus = 'active', provider = nu
 
 ServiceList.getAllByProvider = async (provider, result) => {
     
-    sql.query(`SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering where ServiceListOffering.Provider = ? AND ServiceListURI.ServiceList = ServiceListOffering.Id`, [provider], async (err, res) => {
+    sql.query(`SELECT ServiceListOffering.Id,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListOffering where ServiceListOffering.Provider = ?`, [provider], async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -212,8 +219,7 @@ ServiceList.getAllByProvider = async (provider, result) => {
 
 
 ServiceList.getAll = async result => {
-    //sql.query("SELECT ServiceListOffering.Id,ServiceListName.Name,ServiceListName.lang,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.regulatorList FROM ServiceListName,ServiceListURI,ServiceListOffering where ServiceListName.ServiceList = ServiceListOffering.Id AND ServiceListURI.ServiceList = ServiceListOffering.Id", async (err, res) => {
-    sql.query("SELECT ServiceListOffering.Id,ServiceListURI.URI,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListURI,ServiceListOffering where ServiceListURI.ServiceList = ServiceListOffering.Id ORDER BY ServiceListOffering.Id", 
+    sql.query("SELECT ServiceListOffering.Id,ServiceListOffering.Provider,ServiceListOffering.Delivery, ServiceListOffering.Status, ServiceListOffering.regulatorList FROM ServiceListOffering ORDER BY ServiceListOffering.Id", 
       async (err, res) => {
         if (err) {
             console.log("error: ", err);
@@ -421,21 +427,22 @@ async function createRelatedTables(list, id) {
     // Create new URI, 
     // TODO: support for several per list ? 
     if(list.URI !== undefined) {
-        //console.log("create uri")
-        promises.push(new Promise((resolve, reject) => {
-            sql.query("INSERT INTO ServiceListURI SET URI = ?, ServiceList = ?",  [list.URI, id], (err, res) => {
-                if (err) {
-                    console.log("INSERT INTO ServiceListURI error: ", err)
-                    reject()
-                }
-                //console.log("created service list URI", res)
-                resolve()
-            })
-        }).catch(err => {
-            console.log("createRelatedTables URI", err)
-            //return err
-            }) 
-        )
+        for(var i = 0; i < list.URI.length; i++) {
+            promises.push(new Promise((resolve, reject) => {
+                sql.query("INSERT INTO ServiceListURI SET URI = ?, ServiceList = ?",  [list.URI[i], id], (err, res) => {
+                    if (err) {
+                        console.log("INSERT INTO ServiceListURI error: ", err)
+                        reject()
+                    }
+                    //console.log("created service list URI", res)
+                    resolve()
+                })
+            }).catch(err => {
+                console.log("createRelatedTables URI", err)
+                //return err
+                }) 
+            )
+        }
             
     }
 
@@ -551,6 +558,18 @@ async function getRestOfServiceList(list) {
         console.log("no names found for list", list.Id)        
     }
 
+    list.URI = []
+
+    const uris = await getURI(list).catch(err => {
+        console.log("getURI error: ", err)
+    })
+    if(uris && uris.length) {
+        list.URI = uris
+    }
+    else {
+        console.log("no names found for list", list.Id)        
+    }
+
     // fetch TargetCountries
     const countries = await getTargetCountries(list).catch(err => {
         console.log("getTargetCountries error: ", err)
@@ -661,6 +680,24 @@ function getLanguages(list) {
                  let response = []
                  res.forEach(item => {
                      response.push({name: item.Name, lang: item.Lang})
+                 })        
+                 resolve(response)
+             }
+         })
+    })
+ }
+
+ function getURI(list) {
+    return new Promise((resolve, reject) => {
+         sql.query(`SELECT * FROM ServiceListURI where ServiceListURI.ServiceList = ?`, [list.Id], (err, res) => {
+             if (err) {
+                 console.log("error: ", err);
+                 reject(err)
+             }
+             else {
+                 let response = []
+                 res.forEach(item => {
+                    response.push(item.URI)
                  })        
                  resolve(response)
              }
