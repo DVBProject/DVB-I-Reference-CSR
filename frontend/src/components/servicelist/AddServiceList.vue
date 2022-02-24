@@ -355,7 +355,12 @@ export default {
       ProviderDataService.getAll()
         .then(response => {
           this.providers = response.data;
-          this.Provider = response.data[0].Id;
+          if(response.data.length == 0) {
+            this.message = "No providers available, create a provider first!"
+          }
+          else {
+            this.Provider = response.data[0].Id;
+          }
           //console.log("provirders:", response.data);
         })
         .catch(e => {
@@ -378,8 +383,16 @@ export default {
           }
         }
         if(!nameFound) {
-          console.log("derp");
           this.message = "List name required!";
+          return;
+        }
+        if(!this.Provider) {
+          if(this.providers.length == 0) {
+            this.message = "No providers available, create a provider first!"
+          }
+          else {
+            this.message = "Provider required!"
+          }
           return;
         }
 
