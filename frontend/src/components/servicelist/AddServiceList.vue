@@ -430,18 +430,18 @@ export default {
     testURI($event,item) {
       console.log(item,$event);
       $event.preventDefault()
-      window.open(this.currentList.URI[item], '_blank').focus()
+      window.open(this.URI[item], '_blank').focus()
     },
     addNameField() {
       this.Names.push({name: "", lang: ""})
     },
     addURIField() {
-      this.currentList.URI.push("");
+      this.URI.push("");
     },
     delURIField(item) {
       console.log(item.target.id)
-      if(this.currentList.URI.length > 1) {
-        this.currentList.URI.splice(item.target.id, 1)
+      if(this.URI.length > 1) {
+        this.URI.splice(item.target.id, 1)
       }
     },
     addApplicationTypeField() {
