@@ -4,11 +4,13 @@ const Listprovider = require("../models/listprovider.model.js");
 // Retrieve all Providers from the database.
 exports.getProvider = (req, res) => {
   Listprovider.getProvider((err, data) => {
-    if (err)
+    if (err) {
+      console.log(err);
       res.status(500).send({
         message:
           err.message || "Some error occurred while getting listprovider."
       });
+    }
     else res.send(data);
   });
 };
@@ -34,9 +36,16 @@ exports.update = (req, res) => {
           });
         } else {
           console.log(err);
-          res.status(500).send({
-            message: "Error updating listprovider"
-          });
+          if(err.message) {
+            res.status(500).send({
+              message: "Error: "+err.message
+            });
+          }
+          else {
+            res.status(500).send({
+              message: "Error updating listprovider"
+            });
+          }
         }
       } else res.send(data);
     }

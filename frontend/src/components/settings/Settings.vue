@@ -61,6 +61,7 @@
 
               <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
                 :id="index"
+                :disabled="provider.Names.length <= 1"
                 @click="delNameField"
               >
                 -
@@ -171,6 +172,7 @@
         @click="updateProvider"
         >Save</button>
     </div>
+    <p>{{ message }}</p>
   </div>
 </div>
    
@@ -237,6 +239,7 @@ export default {
           providerList: [],
           provider: null,
           languages:null,
+          message: "",
       };
   } ,
   methods: {
@@ -378,7 +381,9 @@ export default {
       this.provider.Names.push({name: "", type: ""})
     },
     delNameField(item) {
-      this.provider.Names.splice(item.target.id, 1)
+      if(this.provider.Names.length > 1) {
+        this.provider.Names.splice(item.target.id, 1)
+      }
     },
     fetchListprovider() {
       ListProviderDataService.get()
@@ -441,9 +446,14 @@ export default {
           console.log(response.data);
           this.message = 'The Provider was updated successfully!'
         })
-        .catch(e => {
-          console.log(e);
-          this.message = "Could not update Provider."
+        .catch(error => {
+          console.log(error);
+          if( error.response.data.message ){
+           this.message =  error.response.data.message; // => the response payload
+          }
+          else {
+            this.message = "Could not update Provider."
+          }
         });
     },
     addLang(item) {
