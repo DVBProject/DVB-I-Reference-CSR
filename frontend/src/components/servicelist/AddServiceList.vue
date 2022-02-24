@@ -80,7 +80,7 @@
             <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
               :id="index"
               @click="delURIField"
-              :disabled="Names.length <= 1"
+              :disabled="URI.length <= 1"
             >-</button>
             <button class="btn btn-outline-primary mx-3 mb-1 col-sm-2"
             @click="testURI($event,index)"
