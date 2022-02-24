@@ -27,12 +27,12 @@ ServiceList.create = (newServiceList, result) => {
             return;
         }
     }
-    if(!newServiceList.URI || !Array.isArray(newServiceList.URI )) {
+    if(!newServiceList.URI || !Array.isArray(newServiceList.URI ) || newServiceList.URI.length == 0) {
         result({msg:"URI required!"}, null);
         return;
     }
-    for(var URI in newServiceList.URI) {
-        if(Name == "") {
+    for(var URI of newServiceList.URI) {
+        if(URI == "") {
             result({msg:"URI required!"}, null);
             return;
         }
@@ -282,9 +282,16 @@ ServiceList.updateById = (id, List, result) => {
             return;
         }
     }
-    if(!List.URI) {
-        result({msg: "Service list URI required!"}, null);
+    if(!List.URI || !Array.isArray(List.URI ) || List.URI.length == 0) {
+        result({msg:"URI required!"}, null);
         return;
+    }
+    for(var URI of List.URI) {
+        console.log(URI);
+        if(URI == "") {
+            result({msg:"URI required!"}, null);
+            return;
+        }
     }
     // verify needed data is not missing
     if( !List.lang || List.lang.length < 1) List.lang = []
