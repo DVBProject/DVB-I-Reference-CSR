@@ -45,6 +45,49 @@
 
         </div>        
       </div>
+        <div class="form-group">
+        <label>Provider Icons:</label>
+        <button class="btn btn-outline-primary mx-2 mb-1" type="button"
+              @click="addIconField"
+            >+</button>
+        <div class="input-group mb-3">
+          <div class="col-sm-12 px-0"
+              v-for="(icon, index) in Icons"
+              :key="index">      
+
+            <div class="row my-0 mx-0">
+
+              <div class="form-floating px-0 col-sm-5">          
+                <input type="text" id="floatingInput" class="form-control mb-1" placeholder="Name"
+                    v-model="icon.content"/>
+                <label for="floatingInput">Content</label>
+              </div>
+
+              <div class="form-floating px-0 col-sm-2" >
+                <select id="floatingInput5" v-model="icon.type" class="form-control mx-2 mb-1"> 
+                  <option value="MediaUri">MediaURI</option>
+                  <option value="MediaData16">hexBinary</option>
+                  <option value="MediaData64">base64Binary</option>
+                </select>
+                <label for="floatingInpu5">Type</label>
+              </div>
+
+              <div class="form-floating px-0 col-sm-2 mx-3 mb-1" v-if="icon.type !== 'MediaUri'">          
+                <input type="text" id="floatingInput" class="form-control mb-1" placeholder="mimeType"
+                    v-model="icon.mimeType"/>
+                <label for="floatingInput">mimeType</label>
+              </div>
+
+              <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
+                :id="index"
+                @click="delIconField"
+              >
+                -
+              </button>
+            </div>
+          </div>        
+        </div>
+       </div>
 
         
       
@@ -203,12 +246,12 @@ export default {
       providers: [],
 
       Kind: "",
-
+      Icons: [],
       Name: "",
       Type: "",
       Names: [{name: "", type: ""}],
 
-      ContactName: [{name: "", type: "GivenName"}],
+      ContactName: [],
       Jurisdiction: {
         Name: "",
         AddressLine: ["","",""]
@@ -252,9 +295,15 @@ export default {
       this.ContactName.push({name: "", type: "GivenName"})
     },
     delContactField(item) {
-      if(this.ContactName.length > 1 && item.target.id != 0) {
+      if(this.ContactName.length == 1 || item.target.id != 0) {
         this.ContactName.splice(item.target.id, 1)
       }
+    },
+    addIconField() {
+      this.Icons.push({content: "", type: "MediaUri",  mimeType: ""})
+    },
+    delIconField(item) {
+        this.Icons.splice(item.target.id, 1)
     },
 
     regulatorRadio(item) {
@@ -270,15 +319,18 @@ export default {
         const addrstring = JSON.stringify(this.Address)
         const jurisdictionstring = JSON.stringify(this.Jurisdiction)
         const electronicaddr = JSON.stringify(this.ElectronicAddress);
+        const contactname = JSON.stringify(this.ContactName);
+        const icons = JSON.stringify(this.Icons);
         const data = {
             Kind: this.Kind,
             Names: this.Names, //JSON.stringify(this.Names),
             type: this.Type,
-            ContactName: this.ContactName,
+            ContactName: contactname,
             Jurisdiction: jurisdictionstring,
             Address: addrstring,
             ElectronicAddress: electronicaddr,
             Regulator: this.Regulator,
+            Icons: icons
         } 
         console.log("add provider:", data)
         

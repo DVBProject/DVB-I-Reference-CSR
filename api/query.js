@@ -261,6 +261,34 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
         else {
             entity = root.ele("Provider",{'regulatorFlag': (organization["Regulator"] == 1 ? "true" : "false")});
         }
+        if(organization.Icons){
+            try {
+                const icons = JSON.parse(organization.Icons);
+                if(Array.isArray(icons)) {
+                    for(const icon of icons) {
+                        if(icon.content && icon.type) {
+                            if(icon.type == "MediaUri") {
+                                let iconElement = entity.ele("mpeg7:Icon");
+                                iconElement.ele("mpeg7:MediaUri",{},icon.content);
+                            }
+                            else if(icon.type == "MediaData16" && icon.mimeType) {
+                                let iconElement = entity.ele("mpeg7:Icon");
+                                let inline = iconElement.ele("mpeg7:InlineMedia",{type: icon.mimeType});
+                                inline.ele("mpeg7:MediaData16",{},icon.content);
+                            }
+                            else if(icon.type == "MediaData64" && icon.mimeType) {
+                                let iconElement = entity.ele("mpeg7:Icon");
+                                let inline = iconElement.ele("mpeg7:InlineMedia",{type: icon.mimeType});
+                                inline.ele("mpeg7:MediaData16",{},icon.content);
+                            }
+                        }
+                    }
+                }
+            }
+            catch(e) {
+                console.log("Invalid Icon JSON:"+organization.Icons);
+            }
+        }
         for(var name of names[0]) {
             var nameElement = entity.ele("Name",{},name.Name);
             name
@@ -268,22 +296,23 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
                 nameElement.att("type",name.Type);                
             }
         }
-        if(organization.Kind) {
+        if(organization.Kind && organization.Kind.length > 0) {
             var kind = entity.ele("Kind")
             kind.ele("mpeg7:Name",{},organization.Kind);
         }
         if(organization.ContactName) {
-
-            var contact = entity.ele("ContactName");
             try {
                 const names = JSON.parse(organization.ContactName);
-                if(Array.isArray(names)) {
-                    for( var name of names) {
-                        if(this.validContacNameElements.includes(name.type)) {
-                            contact.ele("mpeg7:"+name.type,{},name.name);
-                        }
-                        else {
-                            console.log("Invalid ContactName element type:"+name.type);
+                if(Array.isArray(names) ) {
+                    if( names.length > 0 ) {
+                        var contact = entity.ele("ContactName");
+                        for( var name of names) {
+                            if(this.validContacNameElements.includes(name.type)) {
+                                contact.ele("mpeg7:"+name.type,{},name.name);
+                            }
+                            else {
+                                console.log("Invalid ContactName element type:"+name.type);
+                            }
                         }
                     }
                 }
@@ -293,13 +322,11 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
             }
             catch(e) {
                 console.log("Invalid ContactName JSON:"+organization.ContactName);
-                contact.ele("mpeg7:GivenName",{},organization.ContactName);
             }
         }
         if(organization.Jurisdiction) {
-            try {
-                var addressElement = entity.ele("Jurisdiction");
-                this.generatePlaceType(addressElement,organization.Jurisdiction);
+            try { 
+                this.generatePlaceType(entity,organization.Jurisdiction,"Jurisdiction");
             }
             catch(e) {
                 console.log("Invalid Jurisdiction JSON:"+organization.Address);
@@ -307,27 +334,38 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
         }
         if(organization.Address) {
             try {
-                var addressElement = entity.ele("Address");
-                this.generatePlaceType(addressElement,organization.Address);
+                this.generatePlaceType(entity,organization.Address,"Address");
             }
             catch(e) {
-                console.log("Invalid Address JSON:"+organization.Address);
+                console.log(e, "Invalid Address JSON:"+organization.Address);
             }
         }
         if(organization.ElectronicAddress) {
             try {
                 const electronicAddress = JSON.parse(organization.ElectronicAddress);
-                let electronicAddressElement = entity.ele("ElectronicAddress");
+                let electronicAddressElement = null;
                 if(electronicAddress.Telephone) {
+                    if(electronicAddress == null) {
+                        electronicAddressElement = entity.ele("ElectronicAddress");
+                    }
                     electronicAddressElement.ele("mpeg7:Telephone",{},electronicAddress.Telephone)
                 }
                 if(electronicAddress.Fax) {
+                    if(electronicAddress == null) {
+                        electronicAddressElement = entity.ele("ElectronicAddress");
+                    }
                     electronicAddressElement.ele("mpeg7:Fax",{},electronicAddress.Fax)
                 }
                 if(electronicAddress.Email) {
+                    if(electronicAddress == null) {
+                        electronicAddressElement = entity.ele("ElectronicAddress");
+                    }
                     electronicAddressElement.ele("mpeg7:Email",{},electronicAddress.Email)
                 }
                 if(electronicAddress.Url) {
+                    if(electronicAddress == null) {
+                        electronicAddressElement = entity.ele("ElectronicAddress");
+                    }
                     electronicAddressElement.ele("mpeg7:Url",{},electronicAddress.Url)
                 }
             }
@@ -340,15 +378,20 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
     }
 }
 
-csrquery.generatePlaceType = function(root,data) {
+csrquery.generatePlaceType = function(parent,data,elementName) {
+    var root = null;
     const address = JSON.parse(data);
     if(address.Name) {
+        root = parent.ele(elementName);
         root.ele("mpeg7:Name",{},address.Name);
     }
     if(address.AddressLine) {
         var postalAddress = null;
         for (var Line of address.AddressLine) {
             if(Line.length > 0) {
+                if( root == null) {
+                    root = parent.ele(elementName);
+                }
                 if(postalAddress == null) {
                     postalAddress = root.ele("mpeg7:PostalAddress");
                 }

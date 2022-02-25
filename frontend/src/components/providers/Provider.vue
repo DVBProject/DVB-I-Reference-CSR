@@ -31,7 +31,7 @@
 
   <div v-if="currentProvider" class="edit-form row">
 
-    <div class="col-sm-8">
+    <div class="col-sm-10">
       <h4>Edit Provider</h4>
       <form>
         
@@ -78,6 +78,51 @@
 
           </div>        
         </div>
+               <div class="form-group">
+        <label>Provider Icons:</label>
+        <button class="btn btn-outline-primary mx-2 mb-1" type="button"
+              @click="addIconField"
+            >+</button>
+        <div class="input-group mb-3">
+          <div class="col-sm-12 px-0"
+              v-for="(icon, index) in currentProvider.Icons"
+              :key="index">      
+
+            <div class="row my-0 mx-0">
+
+              <div class="form-floating px-0 col-sm-5">          
+                <input type="text" id="floatingInput" class="form-control mb-1" placeholder="Name"
+                    v-model="icon.content"/>
+                <label for="floatingInput">Content</label>
+              </div>
+
+              <div class="form-floating px-0 col-sm-2" >
+                <select id="floatingInput5" v-model="icon.type" class="form-control mx-2 mb-1"> 
+                  <option value="MediaUri">MediaURI</option>
+                  <option value="MediaData16">hexBinary</option>
+                  <option value="MediaData64">base64Binary</option>
+                </select>
+                <label for="floatingInpu5">Type</label>
+              </div>
+
+              <div class="form-floating px-0 col-sm-2 mx-3 mb-1" v-if="icon.type !== 'MediaUri'">          
+                <input type="text" id="floatingInput" class="form-control mb-1" placeholder="mimeType"
+                    v-model="icon.mimeType"/>
+                <label for="floatingInput">mimeType</label>
+              </div>
+
+              <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
+                :id="index"
+                @click="delIconField"
+              >
+                -
+              </button>
+            </div>
+          </div>        
+        </div>
+       </div>
+
+        
         <div class="form-group">
           <label>Organization Kind:</label>
           <input type="text" class="form-control my-2" placeholder="Kind"
@@ -113,7 +158,7 @@
 
                 <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
                   :id="index"
-                  :disabled="currentProvider.ContactName.length <= 1 && index == 0"
+                  :disabled="currentProvider.ContactName.length > 1 && index == 0"
                   @click="delContactField"
                 >
                   -
@@ -210,7 +255,7 @@
 
     </div>
 
-    <div class="col-sm-4">
+    <div class="col-sm-2">
       <div class="btn-group btn-group-sm my-2" role="group">
         <button class="btn btn-outline-danger"
           @click="confirmDelete = !confirmDelete"
@@ -299,7 +344,16 @@ export default {
             }
           } catch(e) {
             console.log(e);
-            this.currentProvider.ContactName = [{name:"",type: "GivenName"}];
+            this.currentProvider.ContactName = [];
+          }
+          try {
+            this.currentProvider.Icons = JSON.parse(response.data.Icons);
+            if(!Array.isArray(this.currentProvider.Icons)) {
+              throw "Invalid icons";
+            }
+          } catch(e) {
+            console.log(e);
+            this.currentProvider.Icons = [];
           }
           if(!this.currentProvider.Names) this.currentProvider.Names = []
           console.log(response.data);
@@ -317,13 +371,16 @@ export default {
       const jurisdictionstring = JSON.stringify(this.currentProvider.Jurisdiction)
       const electronicaddrstring = JSON.stringify(this.currentProvider.ElectronicAddress)
       const contactname = JSON.stringify(this.currentProvider.ContactName);
+      const icons = JSON.stringify(this.currentProvider.Icons);
+
 
       const data = {
             ...this.currentProvider,
             Address: addrstring,
             ElectronicAddress: electronicaddrstring,
             Jurisdiction: jurisdictionstring,
-            ContactName: contactname
+            ContactName: contactname,
+            Icons: icons
         }
 
       //console.log("POST",this.currentProvider.Id, data)
@@ -368,7 +425,7 @@ export default {
       this.currentProvider.ContactName.push({name: "", type: "GivenName"})
     },
     delContactField(item) {
-      if(this.currentProvider.ContactName.length > 1 && item.target.id != 0) {
+      if(this.currentProvider.ContactName.length == 1 || item.target.id != 0) {
         this.currentProvider.ContactName.splice(item.target.id, 1)
       }
     },
@@ -378,6 +435,12 @@ export default {
     delNameField(item) {
       console.log(item.target.id)
       this.currentProvider.Names.splice(item.target.id, 1)
+    },
+    addIconField() {
+      this.currentProvider.Icons.push({content: "", type: "MediaUri",  mimeType: ""})
+    },
+    delIconField(item) {
+        this.currentProvider.Icons.splice(item.target.id, 1)
     },
 
     regulatorRadio(item) {

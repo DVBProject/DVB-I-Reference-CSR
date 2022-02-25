@@ -9,6 +9,7 @@ const Provider = function(Provider) {
     this.ElectronicAddress = Provider.ElectronicAddress;
     this.Regulator = Provider.Regulator ? 1 : 0;
     this.Names = Provider.Names || []
+    this.Icons = Provider.Icons || [];
 };
 
 Provider.create = (newProvider, Names, result) => {
@@ -20,8 +21,8 @@ Provider.create = (newProvider, Names, result) => {
         result({message: "Provider name required!"}, null);
         return;
     }
-    sql.query("INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator) VALUES (?,?,?,?,?,?)",
-     [newProvider.Kind,newProvider.ContactName,newProvider.Jurisdiction,newProvider.Address,newProvider.ElectronicAddress,newProvider.Regulator], (err, res) => {
+    sql.query("INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator,Icons) VALUES (?,?,?,?,?,?,?)",
+     [newProvider.Kind,newProvider.ContactName,newProvider.Jurisdiction,newProvider.Address,newProvider.ElectronicAddress,newProvider.Regulator,newProvider.Icons], (err, res) => {
         if (err) {
             console.log("provider create error: ", err);
             result(err, null);
@@ -66,7 +67,7 @@ Provider.create = (newProvider, Names, result) => {
 };
 
 Provider.findById = (ProviderId, result) => {
-    sql.query(`SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization,EntityName WHERE ProviderOffering.Id = ? AND ProviderOffering.Organization = Organization.Id `,
+    sql.query(`SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator,Organization.Icons FROM ProviderOffering,Organization,EntityName WHERE ProviderOffering.Id = ? AND ProviderOffering.Organization = Organization.Id `,
        [ProviderId], async (err, res) => {
         if (err) {
             console.log("findById error: ", err);
@@ -100,7 +101,7 @@ Provider.findById = (ProviderId, result) => {
 };
 
 Provider.getAll = result => {
-    sql.query("SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind, Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator FROM ProviderOffering,Organization where ProviderOffering.Organization = Organization.Id", async (err, res) => {
+    sql.query("SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind, Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator,Organization.Icons  FROM ProviderOffering,Organization where ProviderOffering.Organization = Organization.Id", async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -156,8 +157,8 @@ Provider.updateById = (id, Provider, result) => {
         //console.log(res[0].Organization,id);
         const orgId = res[0].Organization
         sql.query(
-            "UPDATE Organization SET Kind = ?, ContactName = ?, Jurisdiction = ?,Address = ?,ElectronicAddress = ?,Regulator = ? WHERE Id = ?",
-            [Provider.Kind, Provider.ContactName, Provider.Jurisdiction,Provider.Address,Provider.ElectronicAddress,Provider.Regulator ? 1 : 0, res[0].Organization],
+            "UPDATE Organization SET Kind = ?, ContactName = ?, Jurisdiction = ?,Address = ?,ElectronicAddress = ?,Regulator = ?, Icons = ? WHERE Id = ?",
+            [Provider.Kind, Provider.ContactName, Provider.Jurisdiction,Provider.Address,Provider.ElectronicAddress,Provider.Regulator ? 1 : 0,Provider.Icons, res[0].Organization],
             async (err, res) => {
             if (err) {
                 console.log("Organization update error: ", err);

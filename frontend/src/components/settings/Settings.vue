@@ -28,6 +28,7 @@
       </div>
       <h5>CSR Provider Organization</h5>
       <form>
+       <div class="form-group">
         <label>Organization Names:</label>
         <button class="btn btn-outline-primary mx-2 mb-1" type="button"
               @click="addNameField"
@@ -67,9 +68,52 @@
                 -
               </button>
             </div>
-
           </div>        
         </div>
+       </div>
+       <div class="form-group">
+        <label>Organization Icons:</label>
+        <button class="btn btn-outline-primary mx-2 mb-1" type="button"
+              @click="addIconField"
+            >+</button>
+        <div class="input-group mb-3">
+          <div class="col-sm-12 px-0"
+              v-for="(icon, index) in provider.Icons"
+              :key="index">      
+
+            <div class="row my-0 mx-0">
+
+              <div class="form-floating px-0 col-sm-5">          
+                <input type="text" id="floatingInput" class="form-control mb-1" placeholder="Name"
+                    v-model="icon.content"/>
+                <label for="floatingInput">Content</label>
+              </div>
+
+              <div class="form-floating px-0 col-sm-2" >
+                <select id="floatingInput5" v-model="icon.type" class="form-control mx-2 mb-1"> 
+                  <option value="MediaUri">MediaURI</option>
+                  <option value="MediaData16">hexBinary</option>
+                  <option value="MediaData64">base64Binary</option>
+                </select>
+                <label for="floatingInpu5">Type</label>
+              </div>
+
+              <div class="form-floating px-0 col-sm-2 mx-3 mb-1" v-if="icon.type !== 'MediaUri'">          
+                <input type="text" id="floatingInput" class="form-control mb-1" placeholder="mimeType"
+                    v-model="icon.mimeType"/>
+                <label for="floatingInput">mimeType</label>
+              </div>
+
+              <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
+                :id="index"
+                @click="delIconField"
+              >
+                -
+              </button>
+            </div>
+          </div>        
+        </div>
+       </div>
 
         <div class="form-group">
           <label>Organization Kind:</label>
@@ -79,9 +123,44 @@
         
         <div class="form-group">
           <label for="description">Contact name:</label>
-          <input type="text" class="form-control my-2" id="contactname"
-            v-model="provider.ContactName"
-          />
+          <button class="btn btn-outline-primary mx-2 mb-1" type="button"
+              @click="addContactField"
+            >+</button>
+          <div class="input-group mb-3">
+            <div class="col-sm-12 px-0"
+                v-for="(name, index) in provider.ContactName"
+                :key="index">      
+
+              <div class="row my-0 mx-0">
+
+                <div class="form-floating px-0 col-sm-5">          
+                  <input type="text" id="floatingInput" class="form-control mb-1" placeholder="Name"
+                      v-model="name.name"/>
+                  <label for="floatingInput">Name</label>
+                </div>
+
+                <div class="form-floating px-0 col-sm-5" >
+                  <select :disabled="index== 0" if="floatingInput3" v-model="name.type" class="form-control mx-2 mb-1"> 
+                    <option value="GivenName">Given Name</option>
+                    <option value="LinkingName">Linking Name</option>
+                    <option value="FamilyName">Family Name</option>
+                    <option value="Title">Title</option>
+                    <option value="Salutation">Salutation</option>
+                    <option value="Numeration">Numeration</option>
+                  </select>
+                  <label for="floatingInput3">Type</label>
+                </div>
+
+                <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
+                  :id="index"
+                  :disabled="provider.ContactName.length < 1 && index == 0"
+                  @click="delContactField"
+                >
+                  -
+                </button>
+              </div>
+            </div>        
+          </div>
         </div>
         <div class="form-group">
           <label for="description">Jurisdiction:</label>
@@ -385,6 +464,20 @@ export default {
         this.provider.Names.splice(item.target.id, 1)
       }
     },
+    addContactField() {
+      this.provider.ContactName.push({name: "", type: "GivenName"})
+    },
+    delContactField(item) {
+      if(this.provider.ContactName.length == 1 || item.target.id != 0) {
+        this.provider.ContactName.splice(item.target.id, 1)
+      }
+    },
+    addIconField() {
+      this.provider.Icons.push({content: "", type: "MediaUri",  mimeType: ""})
+    },
+    delIconField(item) {
+        this.provider.Icons.splice(item.target.id, 1)
+    },
     fetchListprovider() {
       ListProviderDataService.get()
         .then(response => {
@@ -418,6 +511,24 @@ export default {
               console.log(e);
               this.provider.ElectronicAddress = {Telephone: "",Fax: "",Email:"",Url: ""};
             }
+            try {
+              this.provider.ContactName = JSON.parse(response.data.ContactName);
+              if(!Array.isArray(this.provider.ContactName)) {
+                throw "Invalid contact name";
+              }
+            } catch(e) {
+              console.log(e);
+              this.provider.ContactName = [];
+            }
+            try {
+              this.provider.Icons = JSON.parse(response.data.Icons);
+              if(!Array.isArray(this.provider.Icons)) {
+                throw "Invalid icons";
+              }
+            } catch(e) {
+              console.log(e);
+              this.provider.Icons = [];
+            }
             console.log(this.provider);
           }
         })
@@ -432,12 +543,16 @@ export default {
       const addrstring = JSON.stringify(this.provider.Address)
       const jurisdictionstring = JSON.stringify(this.provider.Jurisdiction)
       const electronicaddrstring = JSON.stringify(this.provider.ElectronicAddress)
+      const contactname = JSON.stringify(this.provider.ContactName);
+      const icons = JSON.stringify(this.provider.Icons);
 
       const data = {
             ...this.provider,
             Address: addrstring,
             Jurisdiction: jurisdictionstring,
-            ElectronicAddress: electronicaddrstring
+            ElectronicAddress: electronicaddrstring,
+            ContactName: contactname,
+            Icons: icons
         }
 
       //console.log("POST",this.currentProvider.Id, data)

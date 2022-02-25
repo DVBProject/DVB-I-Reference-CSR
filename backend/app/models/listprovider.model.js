@@ -10,11 +10,12 @@ const Listprovider = function(Provider) {
     this.Regulator = Provider.Regulator ? 1 : 0;
     this.Names = Provider.Names || []
     this.Language = Provider.Language;
+    this.Icons = Provider.Icons || []
 };
 
 
 Listprovider.getProvider = result => {
-    sql.query(`SELECT Organization.Id,Organization.Kind,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator, ServiceListEntryPoints.Language FROM ServiceListEntryPoints,Organization,EntityName WHERE ServiceListEntryPoints.Id = 1 AND ServiceListEntryPoints.ServiceListRegistryEntity = Organization.Id `, async (err, res) => {
+    sql.query(`SELECT Organization.Id,Organization.Kind,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator,Organization.Icons,ServiceListEntryPoints.Language FROM ServiceListEntryPoints,Organization,EntityName WHERE ServiceListEntryPoints.Id = 1 AND ServiceListEntryPoints.ServiceListRegistryEntity = Organization.Id `, async (err, res) => {
         if (err) {
             console.log("findById error: ", err);
             result(err, null);
@@ -68,8 +69,8 @@ Listprovider.update = (Provider, result) => {
         }
         const orgId = res[0].ServiceListRegistryEntity
         sql.query(
-            "UPDATE Organization SET Kind = ?, ContactName = ?, Jurisdiction = ?,Address = ?,ElectronicAddress = ?,Regulator = ? WHERE Id = ?",
-            [Provider.Kind, Provider.ContactName, Provider.Jurisdiction,Provider.Address,Provider.ElectronicAddress,Provider.Regulator ? 1 : 0, orgId],
+            "UPDATE Organization SET Kind = ?, ContactName = ?, Jurisdiction = ?,Address = ?,ElectronicAddress = ?,Regulator = ?,Icons = ? WHERE Id = ?",
+            [Provider.Kind, Provider.ContactName, Provider.Jurisdiction,Provider.Address,Provider.ElectronicAddress,Provider.Regulator ? 1 : 0,Provider.Icons, orgId],
             async (err, res) => {
             if (err) {
                 console.log("Organization update error: ", err);

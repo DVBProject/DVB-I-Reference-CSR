@@ -10,6 +10,7 @@ CREATE TABLE `Organization`
  `ElectronicAddress` text NULL ,
  `Regulator`         tinyint NOT NULL ,
  `Id`                integer NOT NULL AUTO_INCREMENT,
+ `Icons`              text NULL ,
 
 PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB;
@@ -227,7 +228,10 @@ ALTER TABLE `User`
 ALTER TABLE `ServiceListEntryPoints`
   ADD `Language` TEXT NOT NULL;
 
-INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator,Id) VALUES ('Repository provider','Contact','Jurisdiction','Address','Electronic address',1,1);
+ALTER TABLE `Organization`
+  ADD `Icons` TEXT NOT NULL;
+
+INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator,Id,Icons) VALUES ('','[]','','','',1,1,'[]');
 INSERT INTO EntityName(Name,Type,Organization,Id) VALUES("Repository provider","",1,1);
 INSERT INTO ServiceListEntryPoints(ServiceListRegistryEntity,Id,Language) VALUES (1,1,"en");
 
