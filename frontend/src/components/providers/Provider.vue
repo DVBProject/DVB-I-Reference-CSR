@@ -78,23 +78,49 @@
 
           </div>        
         </div>
-
-
-
-        
-
         <div class="form-group">
           <label>Organization Kind:</label>
           <input type="text" class="form-control my-2" placeholder="Kind"
               v-model="currentProvider.Kind"/>
         </div>
-
-        
         <div class="form-group">
           <label for="description">Contact name:</label>
-          <input type="text" class="form-control my-2" id="contactname"
-            v-model="currentProvider.ContactName"
-          />
+          <button class="btn btn-outline-primary mx-2 mb-1" type="button"
+              @click="addContactField"
+            >+</button>
+          <div class="input-group mb-3">
+            <div class="col-sm-12 px-0"
+                v-for="(name, index) in currentProvider.ContactName"
+                :key="index">
+              <div class="row my-0 mx-0">
+                <div class="form-floating px-0 col-sm-5">
+                  <input type="text" id="floatingInput" class="form-control mb-1" placeholder="Name"
+                      v-model="name.name"/>
+                  <label for="floatingInput">Name</label>
+                </div>
+
+                <div class="form-floating px-0 col-sm-5" >
+                  <select :disabled="index== 0" if="floatingInput3" v-model="name.type" class="form-control mx-2 mb-1">
+                    <option value="GivenName">Given Name</option>
+                    <option value="LinkingName">Linking Name</option>
+                    <option value="FamilyName">Family Name</option>
+                    <option value="Title">Title</option>
+                    <option value="Salutation">Salutation</option>
+                    <option value="Numeration">Numeration</option>
+                  </select>
+                  <label for="floatingInput3">Type</label>
+                </div>
+
+                <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
+                  :id="index"
+                  :disabled="currentProvider.ContactName.length <= 1 && index == 0"
+                  @click="delContactField"
+                >
+                  -
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="form-group">
           <label for="description">Jurisdiction:</label>
@@ -266,6 +292,15 @@ export default {
             console.log(e);
             this.currentProvider.ElectronicAddress = {Telephone: "",Fax: "",Email:this.currentProvider.ElectronicAddress,Url: ""};
           }
+          try {
+            this.currentProvider.ContactName = JSON.parse(response.data.ContactName);
+            if(!Array.isArray(this.currentProvider.ContactName)) {
+              throw "Invalid contact name";
+            }
+          } catch(e) {
+            console.log(e);
+            this.currentProvider.ContactName = [{name:"",type: "GivenName"}];
+          }
           if(!this.currentProvider.Names) this.currentProvider.Names = []
           console.log(response.data);
         })
@@ -281,12 +316,14 @@ export default {
       const addrstring = JSON.stringify(this.currentProvider.Address)
       const jurisdictionstring = JSON.stringify(this.currentProvider.Jurisdiction)
       const electronicaddrstring = JSON.stringify(this.currentProvider.ElectronicAddress)
+      const contactname = JSON.stringify(this.currentProvider.ContactName);
 
       const data = {
             ...this.currentProvider,
             Address: addrstring,
             ElectronicAddress: electronicaddrstring,
-            Jurisdiction: jurisdictionstring
+            Jurisdiction: jurisdictionstring,
+            ContactName: contactname
         }
 
       //console.log("POST",this.currentProvider.Id, data)
@@ -327,7 +364,14 @@ export default {
           this.message = "Could not delete Provider."
         });
     },
-
+    addContactField() {
+      this.currentProvider.ContactName.push({name: "", type: "GivenName"})
+    },
+    delContactField(item) {
+      if(this.currentProvider.ContactName.length > 1 && item.target.id != 0) {
+        this.currentProvider.ContactName.splice(item.target.id, 1)
+      }
+    },
     addNameField() {
       this.currentProvider.Names.push({name: "", type: ""})
     },

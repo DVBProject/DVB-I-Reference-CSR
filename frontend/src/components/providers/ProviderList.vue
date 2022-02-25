@@ -153,6 +153,16 @@ export default {
             } catch (err) {
               pr.ElectronicAddress = "";
             }
+            try {
+              let contactname = JSON.parse(pr.ContactName);
+              var names = []
+              for(const name of contactname) {
+                names.push(name.name);
+              }
+              pr.ContactName = names.join(" ");
+            } catch (err) {
+              pr.ContactName = "";
+            }
 
           })
           //console.log(response.data);

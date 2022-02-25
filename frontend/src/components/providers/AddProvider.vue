@@ -53,10 +53,47 @@
       <input type="text" class="form-control my-2" placeholder="Kind"
           v-model="Kind"/>
 
-      <label>Contact Name:</label>
-      <input type="text" class="form-control my-2" placeholder="Contact Name"
-          v-model="ContactName"/>
+      <div class="form-group">
+        <label for="description">Contact name:</label>
+        <button class="btn btn-outline-primary mx-2 mb-1" type="button"
+            @click="addContactField"
+          >+</button>
+        <div class="input-group mb-3">
+          <div class="col-sm-12 px-0"
+              v-for="(name, index) in ContactName"
+              :key="index">
 
+            <div class="row my-0 mx-0">
+
+              <div class="form-floating px-0 col-sm-5">
+                <input type="text" id="floatingInput" class="form-control mb-1" placeholder="Name"
+                    v-model="name.name"/>
+                <label for="floatingInput">Name</label>
+              </div>
+
+              <div class="form-floating px-0 col-sm-5" >
+                <select :disabled="index== 0" if="floatingInput3" v-model="name.type" class="form-control mx-2 mb-1">
+                  <option value="GivenName">Given Name</option>
+                  <option value="LinkingName">Linking Name</option>
+                  <option value="FamilyName">Family Name</option>
+                  <option value="Title">Title</option>
+                  <option value="Salutation">Salutation</option>
+                  <option value="Numeration">Numeration</option>
+                </select>
+                <label for="floatingInput3">Type</label>
+              </div>
+
+              <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
+                :id="index"
+                :disabled="ContactName.length <= 1 && index == 0"
+                @click="delContactField"
+              >
+                -
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="form-group">
         <label for="description">Jurisdiction:</label>
         <div class="form-floating mb-1">
@@ -171,7 +208,7 @@ export default {
       Type: "",
       Names: [{name: "", type: ""}],
 
-      ContactName: "",
+      ContactName: [{name: "", type: "GivenName"}],
       Jurisdiction: {
         Name: "",
         AddressLine: ["","",""]
@@ -210,6 +247,14 @@ export default {
     delNameField(item) {
       console.log(item.target.id)
       this.Names.splice(item.target.id, 1)
+    },
+    addContactField() {
+      this.ContactName.push({name: "", type: "GivenName"})
+    },
+    delContactField(item) {
+      if(this.ContactName.length > 1 && item.target.id != 0) {
+        this.ContactName.splice(item.target.id, 1)
+      }
     },
 
     regulatorRadio(item) {

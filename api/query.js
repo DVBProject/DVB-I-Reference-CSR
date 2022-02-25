@@ -18,6 +18,15 @@ csrquery.validParameters = [
     "ProviderName"
 ];
 
+csrquery.validContacNameElements = [
+    "GivenName",
+    "LinkingName",
+    "FamilyName",
+    "Title",
+    "Salutation",
+    "Numeration"
+];
+
 csrquery.redis = null;
 csrquery.mysql = null;
 csrquery.init = function() {
@@ -264,8 +273,28 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
             kind.ele("mpeg7:Name",{},organization.Kind);
         }
         if(organization.ContactName) {
+
             var contact = entity.ele("ContactName");
-            contact.ele("mpeg7:GivenName",{},organization.ContactName);
+            try {
+                const names = JSON.parse(organization.ContactName);
+                if(Array.isArray(names)) {
+                    for( var name of names) {
+                        if(this.validContacNameElements.includes(name.type)) {
+                            contact.ele("mpeg7:"+name.type,{},name.name);
+                        }
+                        else {
+                            console.log("Invalid ContactName element type:"+name.type);
+                        }
+                    }
+                }
+                else {
+                    throw new Error("ContactName not an array");
+                }
+            }
+            catch(e) {
+                console.log("Invalid ContactName JSON:"+organization.ContactName);
+                contact.ele("mpeg7:GivenName",{},organization.ContactName);
+            }
         }
         if(organization.Jurisdiction) {
             try {
