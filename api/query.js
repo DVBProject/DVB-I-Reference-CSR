@@ -297,8 +297,24 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
             }
         }
         if(organization.Kind && organization.Kind.length > 0) {
-            var kind = entity.ele("Kind")
-            kind.ele("mpeg7:Name",{},organization.Kind);
+            const kinds = JSON.parse(organization.Kind);
+            if(Array.isArray(kinds) && kinds.length > 0) {
+                var kindElement = entity.ele("Kind")
+                for(const kind of kinds) {
+                    if(kind.name) {
+                        var element =kindElement.ele("mpeg7:Name",{},kind.name);
+                        if(kind.lang) {
+                            element.att("xml:lang",kind.lang);
+                        }
+                    }
+                    if(kind.definition) {
+                        var element = kindElement.ele("mpeg7:Definition",{},kind.definition);
+                        if(kind.lang) {
+                            element.att("xml:lang",kind.lang);
+                        }
+                    }
+                }
+            }
         }
         if(organization.ContactName) {
             try {

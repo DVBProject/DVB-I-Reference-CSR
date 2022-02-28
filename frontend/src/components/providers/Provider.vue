@@ -78,7 +78,7 @@
 
           </div>        
         </div>
-               <div class="form-group">
+        <div class="form-group">
         <label>Provider Icons:</label>
         <button class="btn btn-outline-primary mx-2 mb-1" type="button"
               @click="addIconField"
@@ -121,13 +121,64 @@
           </div>        
         </div>
        </div>
+       <div class="form-group">
+        <label>Organization Kind:</label>
+        <button class="btn btn-outline-primary mx-2 mb-1" type="button"
+              @click="addKindNameField"
+            >
+          Add Name
+        </button>
+        <button class="btn btn-outline-primary mx-2 mb-1" type="button"
+              @click="addKindDefinitionField"
+            >
+          Add Definition
+        </button>
+        <div class="input-group mb-3">
 
-        
-        <div class="form-group">
-          <label>Organization Kind:</label>
-          <input type="text" class="form-control my-2" placeholder="Kind"
-              v-model="currentProvider.Kind"/>
+          
+          <div class="col-sm-12 px-0"
+              v-for="(kind, index) in currentProvider.Kind"
+              :key="index">      
+
+            <div class="row my-0 mx-0">
+
+              <div v-if="kind.name != undefined" class="form-floating px-0 col-sm-5">          
+                <input type="text" id="floatingInput" class="form-control mb-1" placeholder="Name"
+                    v-model="kind.name"/>
+                <label for="floatingInput">Name</label>
+              </div>
+              <div v-if="kind.definition != undefined" class="form-floating px-0 col-sm-5">          
+                <input type="text" id="floatingInput" class="form-control mb-1" placeholder="Definition"
+                    v-model="kind.definition"/>
+                <label for="floatingInput">Definition</label>
+              </div>
+
+              <div class="form-floating px-0 col-sm-5">
+              <input class="form-control" list="datalistOptionsLanguages" size="5"
+                  id="languagesDataList" placeholder="Type to search..."
+                  v-model="kind.lang">
+                  <label for="floatingInput2">Language</label>
+                  <datalist id="datalistOptionsLanguages">
+                    <option
+                        v-for="(item, index) in languages"
+                        v-bind:key="index"
+                        v-bind:value="index"
+                        >
+                        {{item.name}}
+                    </option>
+                  </datalist>
+              </div>   
+
+              <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
+                :id="index"
+                @click="delKindField"
+              >
+                -
+              </button>
+            </div>
+          </div>        
         </div>
+       </div>
         <div class="form-group">
           <label for="description">Contact name:</label>
           <button class="btn btn-outline-primary mx-2 mb-1" type="button"
@@ -287,14 +338,16 @@
 <script>
 import ProviderDataService from "../../services/ProviderDataService";
 import LoginService from "../../services/LoginService"
+import languages from "../../../../common/languages"
 export default {
-  name: "tutorial",
+  name: "provider",
   data() {
     return {
       currentProvider: null,
       message: '',
       confirmDelete: false,
       sending: false,
+      languages: languages,
     };
   },
   methods: {
@@ -355,6 +408,15 @@ export default {
             console.log(e);
             this.currentProvider.Icons = [];
           }
+          try {
+              this.currentProvider.Kind = JSON.parse(response.data.Kind);
+              if(!Array.isArray(this.currentProvider.Kind)) {
+                throw "Invalid kind";
+              }
+            } catch(e) {
+              console.log(e);
+              this.currentProvider.Kind = [];
+            }
           if(!this.currentProvider.Names) this.currentProvider.Names = []
           console.log(response.data);
         })
@@ -372,7 +434,7 @@ export default {
       const electronicaddrstring = JSON.stringify(this.currentProvider.ElectronicAddress)
       const contactname = JSON.stringify(this.currentProvider.ContactName);
       const icons = JSON.stringify(this.currentProvider.Icons);
-
+      const kind = JSON.stringify(this.currentProvider.Kind);
 
       const data = {
             ...this.currentProvider,
@@ -380,7 +442,8 @@ export default {
             ElectronicAddress: electronicaddrstring,
             Jurisdiction: jurisdictionstring,
             ContactName: contactname,
-            Icons: icons
+            Icons: icons,
+            Kind: kind
         }
 
       //console.log("POST",this.currentProvider.Id, data)
@@ -442,7 +505,15 @@ export default {
     delIconField(item) {
         this.currentProvider.Icons.splice(item.target.id, 1)
     },
-
+    addKindNameField() {
+      this.currentProvider.Kind.push({name: "", lang: ""})
+    },
+    addKindDefinitionField() {
+      this.currentProvider.Kind.push({definition: "", lang:""})
+    },
+    delKindField(item) {
+        this.currentProvider.Kind.splice(item.target.id, 1)
+    },
     regulatorRadio(item) {
       if(item.target.id === "btnradioYes") {
         this.currentProvider.Regulator = 1
