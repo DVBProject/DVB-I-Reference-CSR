@@ -163,6 +163,18 @@ export default {
             } catch (err) {
               pr.ContactName = "";
             }
+            try {
+              let kindArray = JSON.parse(pr.Kind);
+              var kinds = []
+              for(const kind of kindArray) {
+                if(kind.name) {
+                 kinds.push(kind.name);
+                }
+              }
+              pr.Kind = kinds.join(" ");
+            } catch (err) {
+              pr.Kind = "";
+            }
 
           })
           //console.log(response.data);
