@@ -164,7 +164,8 @@ ServiceList.getAllByStatus = async (result, liststatus = 'active', provider = nu
         //console.time("getStatus")
         try {
             for(i = 0; i < res.length; i++) {
-                let list = res[i]                
+                let list = res[i]
+                res[i].Delivery = JSON.parse(res[i].Delivery);
                 // fetch all the rest of relevant DB tables
                 //list = await getRestOfServiceList(list)
                 promises.push(new Promise(async (resolve, reject) => {
@@ -195,11 +196,10 @@ ServiceList.getAllByProvider = async (provider, result) => {
         }
 
         let promises = []
-        
         try {
             for(i = 0; i < res.length; i++) {
                 let list = res[i]                
-                
+                res[i].Delivery = JSON.parse(res[i].Delivery);
                 promises.push(new Promise(async (resolve, reject) => {
                     list = await getRestOfServiceList(list)
                     resolve()
@@ -230,7 +230,8 @@ ServiceList.getAll = async result => {
         //console.time("getAll")
         try {
             for(i = 0; i < res.length; i++) {
-                let list = res[i]                
+                let list = res[i]
+                res[i].Delivery = JSON.parse(res[i].Delivery);
                 // fetch all the rest of relevant DB tables
                 //list = await getRestOfServiceList(list)
                 promises.push(new Promise(async (resolve, reject) => {

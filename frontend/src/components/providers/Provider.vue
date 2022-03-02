@@ -32,7 +32,7 @@
   <div v-if="currentProvider" class="edit-form row">
 
     <div class="col-sm-10">
-      <h4>Edit Provider</h4>
+      <h4>{{ newProvider ? "Add Provider" : "Edit Provider" }}</h4>
       <form>
         
 
@@ -308,7 +308,7 @@
 
     <div class="col-sm-2">
       <div class="btn-group btn-group-sm my-2" role="group">
-        <button class="btn btn-outline-danger"
+        <button v-if="!newProvider" class="btn btn-outline-danger"
           @click="confirmDelete = !confirmDelete"
         >
           Delete
@@ -318,7 +318,7 @@
           @click="updateProvider"
           :disabled="sending"
         >
-          Update
+          {{ newProvider ? "Add Provider" : "Update" }}
         </button>        
       </div>
       <p>{{ message }}</p>
@@ -348,6 +348,7 @@ export default {
       confirmDelete: false,
       sending: false,
       languages: languages,
+      newProvider: false,
     };
   },
   methods: {
@@ -355,68 +356,6 @@ export default {
       ProviderDataService.get(id)
         .then(response => {
           this.currentProvider = response.data;
-          try {
-            this.currentProvider.Address = JSON.parse(response.data.Address)
-            if(!Object.prototype.hasOwnProperty.call(this.currentProvider.Address,"AddressLine")) {
-              throw "Invalid address";
-            }
-          } catch {
-            const oldData = this.currentProvider.Address;
-            this.currentProvider.Address = {Name: "",AddressLine: ["","",""]};
-            if(oldData.street) {
-              this.currentProvider.Address.AddressLine[0] = oldData.street;
-            }
-            if(oldData.city && oldData.postcode) {
-              this.currentProvider.Address.AddressLine[1] = oldData.city+ " "+ oldData.postcode;
-            }
-            if(oldData.country) {
-              this.currentProvider.Address.AddressLine[2] = oldData.country;
-            }
-          }
-          try {
-            this.currentProvider.Jurisdiction = JSON.parse(response.data.Jurisdiction)
-            if(!Object.prototype.hasOwnProperty.call(this.currentProvider.Jurisdiction,"AddressLine")) {
-              throw "Invalid address";
-            }
-          } catch {
-           this.currentProvider.Jurisdiction = {Name: "",AddressLine: [this.currentProvider.Jurisdiction,"",""]};
-          }
-          try {
-            this.currentProvider.ElectronicAddress = JSON.parse(response.data.ElectronicAddress);
-            if(!Object.prototype.hasOwnProperty.call(this.currentProvider.ElectronicAddress,"Email")) {
-              throw "Invalid electronic address";
-            }
-          } catch(e) {
-            console.log(e);
-            this.currentProvider.ElectronicAddress = {Telephone: "",Fax: "",Email:this.currentProvider.ElectronicAddress,Url: ""};
-          }
-          try {
-            this.currentProvider.ContactName = JSON.parse(response.data.ContactName);
-            if(!Array.isArray(this.currentProvider.ContactName)) {
-              throw "Invalid contact name";
-            }
-          } catch(e) {
-            console.log(e);
-            this.currentProvider.ContactName = [];
-          }
-          try {
-            this.currentProvider.Icons = JSON.parse(response.data.Icons);
-            if(!Array.isArray(this.currentProvider.Icons)) {
-              throw "Invalid icons";
-            }
-          } catch(e) {
-            console.log(e);
-            this.currentProvider.Icons = [];
-          }
-          try {
-              this.currentProvider.Kind = JSON.parse(response.data.Kind);
-              if(!Array.isArray(this.currentProvider.Kind)) {
-                throw "Invalid kind";
-              }
-            } catch(e) {
-              console.log(e);
-              this.currentProvider.Kind = [];
-            }
           if(!this.currentProvider.Names) this.currentProvider.Names = []
           console.log(response.data);
         })
@@ -448,19 +387,36 @@ export default {
 
       //console.log("POST",this.currentProvider.Id, data)
       this.sending = true
-      ProviderDataService.update(this.currentProvider.Id, data) 
-        .then(response => {
-          console.log(response.data);
-          this.message = 'The Provider was updated successfully!'
-          setTimeout(() => {
-            this.$router.push({ name: "providers" })
-          }, 2000)
-        })
-        .catch(e => {
-          this.sending = false
-          console.log(e);
-          this.message = "Could not update Provider."
-        });
+      if(this.newProvider) {
+         ProviderDataService.create(data)
+          .then(response => {
+                console.log(response)
+                this.message = 'Provider created';
+                setTimeout(() => {
+                   this.$router.push({ name: "providers" });
+                }, 2000)
+            })
+            .catch(err => {
+              this.sending = false
+              console.log(err.response.data);
+              this.message = 'Error:'+err.response.data.message;
+            });
+      }
+      else {
+        ProviderDataService.update(this.currentProvider.Id, data)
+          .then(response => {
+            console.log(response.data);
+            this.message = 'The Provider was updated successfully!'
+            setTimeout(() => {
+              this.$router.push({ name: "providers" })
+            }, 2000)
+          })
+          .catch(e => {
+            this.sending = false
+            console.log(e);
+            this.message = "Could not update Provider."
+          });
+        }
     },
 
     confirmDeleteProvider() {
@@ -528,7 +484,30 @@ export default {
 
   mounted() {
     this.message = '';
-    this.getProvider(this.$route.params.id);
+    if(this.$route.params.id) {
+      this.getProvider(this.$route.params.id);
+    }
+    else {
+      this.newProvider = true;
+      this.currentProvider = {
+        Kind: [],
+        Icons: [],
+        Name: "",
+        Type: "",
+        Names: [{name: "", type: ""}],
+        ContactName: [],
+        Jurisdiction: {
+          Name: "",
+          AddressLine: ["","",""]
+        },
+        Address: {
+          Name: "",
+          AddressLine: ["","",""]
+        },
+        ElectronicAddress: {Telephone: "",Fax: "",Email:"",Url: ""},
+        Regulator: 0,
+      }
+    }
   }
 };
 </script>

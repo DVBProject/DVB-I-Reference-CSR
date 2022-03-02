@@ -28,6 +28,15 @@ Listprovider.getProvider = result => {
 
             // fetch names
             let provider = res[0]
+            const jsonfields = ["Address","ContactName","ElectronicAddress","Jurisdiction","Kind","Icons"]
+            for(let field of jsonfields) {
+                try {
+                    provider[field] = JSON.parse(provider[field]);
+                }
+                catch(e) {
+                    console.log("parse error in field",field, err);
+                }
+            }
             const names = await getNames(provider).catch(err => {
                 console.log("findById, getNames error: ", err)
             })

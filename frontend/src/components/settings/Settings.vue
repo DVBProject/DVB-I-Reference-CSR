@@ -544,61 +544,6 @@ export default {
         .then(response => {
           if(response.data) {
             this.provider = response.data;
-            try {
-              this.provider.Address = JSON.parse(response.data.Address);
-              if(!Object.prototype.hasOwnProperty.call(this.provider.Address,"AddressLine")) {
-                throw "Invalid address";
-              }
-            } catch(e) {
-              console.log(e);
-              this.provider.Address = {Name: "",AddressLine: ["","",""]};
-            }
-
-            try {
-              this.provider.Jurisdiction = JSON.parse(response.data.Jurisdiction);
-              if(!Object.prototype.hasOwnProperty.call(this.provider.Jurisdiction,"AddressLine")) {
-                throw "Invalid address";
-              }
-            } catch(e) {
-              console.log(e);
-              this.provider.Jurisdiction = {Name: "",AddressLine: ["","",""]};
-            }
-            try {
-              this.provider.ElectronicAddress = JSON.parse(response.data.ElectronicAddress);
-              if(!Object.prototype.hasOwnProperty.call(this.provider.ElectronicAddress,"Email")) {
-                throw "Invalid electronic address";
-              }
-            } catch(e) {
-              console.log(e);
-              this.provider.ElectronicAddress = {Telephone: "",Fax: "",Email:"",Url: ""};
-            }
-            try {
-              this.provider.ContactName = JSON.parse(response.data.ContactName);
-              if(!Array.isArray(this.provider.ContactName)) {
-                throw "Invalid contact name";
-              }
-            } catch(e) {
-              console.log(e);
-              this.provider.ContactName = [];
-            }
-            try {
-              this.provider.Icons = JSON.parse(response.data.Icons);
-              if(!Array.isArray(this.provider.Icons)) {
-                throw "Invalid icons";
-              }
-            } catch(e) {
-              console.log(e);
-              this.provider.Icons = [];
-            }
-            try {
-              this.provider.Kind = JSON.parse(response.data.Kind);
-              if(!Array.isArray(this.provider.Kind)) {
-                throw "Invalid kind";
-              }
-            } catch(e) {
-              console.log(e);
-              this.provider.Kind = [];
-            }
             console.log(this.provider);
           }
         })

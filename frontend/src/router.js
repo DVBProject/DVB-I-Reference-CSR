@@ -26,7 +26,7 @@ const routes =  [
   {
     path: "/add-provider",
     name: "add-provider",
-    component: () => import("./components/providers/AddProvider"),
+    component: () => import("./components/providers/Provider"),
     meta: {
       requiresAuth: true
     }
@@ -53,7 +53,7 @@ const routes =  [
   {
     path: "/add-servicelist",
     name: "add-servicelist",
-    component: () => import("./components/servicelist/AddServiceList"),
+    component: () => import("./components/servicelist/ServiceList"),
     meta: {
       requiresAuth: true,
       //is_admin: true

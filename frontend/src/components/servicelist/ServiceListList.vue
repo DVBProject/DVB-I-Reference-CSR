@@ -197,7 +197,7 @@ export default {
       this.currentList = list;
       this.currentIndex = list ? index : -1;
       try {
-        this.Delivery = Object.keys(JSON.parse(list.Delivery)).join(", ")
+        this.Delivery = Object.keys(list.Delivery).join(", ")
       } catch {
         this.Delivery = list.Delivery
       }

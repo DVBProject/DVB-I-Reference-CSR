@@ -133,30 +133,26 @@ export default {
           this.providers = response.data;
           this.providers.forEach(pr => {
             
-             try {
-              let jurisdiction = JSON.parse(pr.Jurisdiction)
-              pr.Jurisdiction = jurisdiction.Name + " " + jurisdiction.AddressLine[0] + " " + jurisdiction.AddressLine[1] + " " + jurisdiction.AddressLine[2]
+            try {
+              pr.Jurisdiction = pr.Jurisdiction.Name + " " + pr.Jurisdiction.AddressLine[0] + " " + pr.Jurisdiction.AddressLine[1] + " " + pr.Jurisdiction.AddressLine[2]
             } catch (err) {
               pr.Jurisdiction = "";
             }
             // parse address objects
             try {
-              let addr = JSON.parse(pr.Address)
-              pr.Address = addr.Name + " " + addr.AddressLine[0] + " " + addr.AddressLine[1] + " " + addr.AddressLine[2]
+              pr.Address = pr.Address.Name + " " + pr.Address.AddressLine[0] + " " + pr.Address.AddressLine[1] + " " + pr.Address.AddressLine[2]
             } catch (err) {
               pr.Address = "";
             }
 
             try {
-              let electronicaddr = JSON.parse(pr.ElectronicAddress)
-              pr.ElectronicAddress = "Tel:"+electronicaddr.Telephone + " Fax:" + electronicaddr.Fax + " Email:" + electronicaddr.Email + " Url:" + electronicaddr.Url
+              pr.ElectronicAddress = "Tel:"+pr.ElectronicAddress.Telephone + " Fax:" + pr.ElectronicAddress.Fax + " Email:" + pr.ElectronicAddress.Email + " Url:" + pr.ElectronicAddress.Url
             } catch (err) {
               pr.ElectronicAddress = "";
             }
             try {
-              let contactname = JSON.parse(pr.ContactName);
               var names = []
-              for(const name of contactname) {
+              for(const name of pr.ContactName) {
                 names.push(name.name);
               }
               pr.ContactName = names.join(" ");
@@ -164,9 +160,8 @@ export default {
               pr.ContactName = "";
             }
             try {
-              let kindArray = JSON.parse(pr.Kind);
               var kinds = []
-              for(const kind of kindArray) {
+              for(const kind of pr.Kind) {
                 if(kind.name) {
                  kinds.push(kind.name);
                 }

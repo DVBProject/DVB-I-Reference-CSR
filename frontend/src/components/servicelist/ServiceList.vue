@@ -30,7 +30,7 @@
   <div v-if="currentList"  class="list row">
     
   <div class="col-md-8">
-    <h4>Edit Service List</h4>
+    <h4>{{ newList ? "Add Service List" : "Edit Service List" }}</h4>
     <form>
       <div class="form-group">
         <label for="Name">Names</label>
@@ -125,7 +125,15 @@
 
       <div class="form-group">
         <label for="Provider">Provider</label>
-        <input type="text" class="form-control my-2" id="Provider" disabled
+        <select v-if="newList" class="form-control my-2" placeholder="Provider"
+          v-model="currentList.Provider">
+        <option
+            v-for="item in providers"
+            v-bind:key="item.Id"
+            v-bind:value="item.Id"
+         >{{item.Names[0].name}}</option>
+      </select>
+      <input v-else type="text" class="form-control my-2" id="Provider"
           v-model="currentList.Provider"
         />
       </div>
@@ -332,7 +340,7 @@
   </div>
   <div class="col-md-4">
     <div class="btn-group btn-group-sm my-2" role="group">
-      <button class="btn btn-outline-danger mr-2"
+      <button v-if="!newList" class="btn btn-outline-danger mr-2"
         @click="confirmDelete = !confirmDelete"
       >
         Delete
@@ -342,7 +350,7 @@
         @click="updateList"
         :disabled="sending"
       >
-        Update
+        {{ newList ? "Add List" :"Update"  }}
       </button>
     </div>
     <p>{{ message }}</p>
@@ -357,7 +365,7 @@
 
 <script>
 import ServiceListDataService from "../../services/ServiceListDataService"
-//import LoginService from "../../services/LoginService"
+import ProviderDataService from "../../services/ProviderDataService"
 import countries from "../../../../common/countries"
 import { deliveries, genres } from "../../../../common/dev_constants"
 import languages from "../../../../common/languages"
@@ -389,6 +397,8 @@ export default {
       MulticastTSDelivery: { required: false},
       DASHDelivery: {required: false},
       sending: false,
+      newList: false,
+      providers: [],
     };
   },
   methods: {
@@ -397,7 +407,7 @@ export default {
         .then(response => {
           this.currentList = response.data;
           try {
-            this.SelectedDeliveries = JSON.parse(this.currentList.Delivery)
+            this.SelectedDeliveries = this.currentList.Delivery;
             if(Array.isArray(this.SelectedDeliveries) || typeof this.SelectedDeliveries !== 'object') {
               this.SelectedDeliveries = {};
             }
@@ -460,6 +470,27 @@ export default {
 
       this.sending = true
       //console.log("POST",this.currentList.Id, /*this.currentList*/ data);
+      if(this.newList) {
+        ServiceListDataService.create(data)
+            .then(response => {
+                console.log(response)
+                this.message = 'List created';
+                setTimeout(() => {
+                  this.$router.push({ name: "servicelists" });
+                }, 2000)
+            })
+            .catch(error => {
+                this.sending = false
+               if( error.response.data.message ){
+                this.message =  error.response.data.message; // => the response payload 
+                }
+                else {
+                  this.message = error.message;
+                }
+                console.log(error);
+            });
+      }
+      else {
       ServiceListDataService.update(this.currentList.Id, data)
         .then(response => {
           console.log(response.data);
@@ -478,6 +509,7 @@ export default {
             this.message = error.message;
           }
         });
+      }
     },
     deleteList() {
       this.sending = true
@@ -612,6 +644,25 @@ export default {
       $event.preventDefault()
       window.open(this.currentList.URI[item], '_blank').focus()
     },
+    retrieveProviders() {
+      ProviderDataService.getAll()
+        .then(response => {
+          this.providers = response.data;
+          if(response.data.length == 0) {
+            this.message = "No providers available, create a provider first!"
+          }
+          else {
+            this.currentList.Provider = response.data[0].Id;
+          }
+          //console.log("provirders:", response.data);
+        })
+        .catch(e => {
+          console.log(e);
+          // TODO: move this handler the service module
+          // error with fetch (unauthorized)
+          // clear session data & re-login
+        });
+    },
 
 
   },
@@ -622,7 +673,20 @@ export default {
     this.countries_ui = countries
     this.languages_ui = languages
     this.genres_ui = genres
-    this.getList(this.$route.params.id);
+    if(this.$route.params.id) {
+      this.getList(this.$route.params.id);
+    }
+    else {
+      this.newList = true;
+      this.Names =  [{name:"", lang:""}],
+      this.SelectedDeliveries[deliveries[0]] = {}
+      this.currentList = {
+      URI: [""],
+      Provider: 0,
+      regulatorList: 0,
+      }
+      this.retrieveProviders();
+    }
   }
 };
 </script>

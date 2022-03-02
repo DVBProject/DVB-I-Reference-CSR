@@ -12,6 +12,7 @@ const Provider = function(Provider) {
     this.Icons = Provider.Icons || [];
 };
 
+const jsonfields = ["Address","ContactName","ElectronicAddress","Jurisdiction","Kind","Icons"];
 Provider.create = (newProvider, Names, result) => {
     if(!Names || Names.length == 0) {
         result({message: "Provider name required!"}, null);
@@ -81,6 +82,14 @@ Provider.findById = (ProviderId, result) => {
 
             // fetch names
             let provider = res[0]
+            for(let field of jsonfields) {
+                try {
+                    provider[field] = JSON.parse(provider[field]);
+                }
+                catch(e) {
+                    console.log("parse error in field",field, err);
+                }
+            }
             const names = await getNames(provider).catch(err => {
                 console.log("findById, getNames error: ", err)
             })
@@ -111,7 +120,14 @@ Provider.getAll = result => {
         try {
             for(i = 0; i < res.length; i++) {
                 let provider = res[i]
-
+                for(let field of jsonfields) {
+                    try {
+                        provider[field] = JSON.parse(provider[field]);
+                    }
+                    catch(e) {
+                        console.log("parse error in field",field, err);
+                    }
+                }
                 // Fetch Names
                 const names = await getNames(provider).catch(err => {
                     console.log("error: ", err)
