@@ -18,9 +18,11 @@ Provider.create = (newProvider, Names, result) => {
         result({message: "Provider name required!"}, null);
         return;
     }
-    if(Names[0].name == '') {
-        result({message: "Provider name required!"}, null);
-        return;
+    for(var Name of Names) {
+        if(Name.name == '') {
+            result({message: "Provider cannot be empty!"}, null);
+            return;
+        }
     }
     sql.query("INSERT INTO Organization(Kind,ContactName,Jurisdiction,Address,ElectronicAddress,Regulator,Icons) VALUES (?,?,?,?,?,?,?)",
      [newProvider.Kind,newProvider.ContactName,newProvider.Jurisdiction,newProvider.Address,newProvider.ElectronicAddress,newProvider.Regulator,newProvider.Icons], (err, res) => {
@@ -159,9 +161,11 @@ Provider.updateById = (id, Provider, result) => {
         result({message: "Provider name required!"}, null);
         return;
     }
-    if(Provider.Names[0].name == '') {
-        result({message: "Provider name required!"}, null);
-        return;
+    for(var Name of Provider.Names) {
+        if(Name.name == '') {
+            result({message: "Provider name cannot be empty!"}, null);
+            return;
+        }
     }
 
     sql.query("SELECT Organization FROM ProviderOffering WHERE Id = ?", id, (err, res) => {

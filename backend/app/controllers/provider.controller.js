@@ -209,7 +209,8 @@ exports.update = (req, res) => {
           });
         } else {
           res.status(500).send({
-            message: "Error updating Provider with id " + req.params.customerId
+            message:
+            err.message || "Some error occurred while updating the Provider."
           });
         }
       } else res.send(data);

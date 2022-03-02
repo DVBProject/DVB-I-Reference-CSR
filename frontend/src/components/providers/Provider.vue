@@ -412,10 +412,10 @@ export default {
               this.$router.push({ name: "providers" })
             }, 2000)
           })
-          .catch(e => {
+          .catch(err => {
             this.sending = false
-            console.log(e);
-            this.message = "Could not update Provider."
+            console.log(err);
+            this.message = 'Error:'+err.response.data.message;
           });
         }
     },
