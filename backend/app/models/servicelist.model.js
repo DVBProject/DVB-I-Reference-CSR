@@ -17,13 +17,13 @@ const ServiceList = function(serviceList) {
 ServiceList.create = (newServiceList, result) => {
 
     // verify needed data is not missing
-    if(!newServiceList.Names || newServiceList.Names.length == 0) {
+    if(!newServiceList.Names || !Array.isArray(newServiceList.Names) || newServiceList.Names.length == 0) {
         result({msg:"Name required!"}, null);
         return;
     }
-    for(var Name in newServiceList.Names) {
-        if(Name == "") {
-            result({msg:"Name required!"}, null);
+    for(var Name of newServiceList.Names) {
+        if(Name.name == "") {
+            result({msg:"Name canntot be empty!"}, null);
             return;
         }
     }
@@ -273,13 +273,13 @@ ServiceList.updateById = (id, List, result) => {
 
     console.log('update', List, id);
     // verify needed data is not missing
-    if(!List.Names || List.Names.length == 0) {
+    if(!List.Names ||!Array.isArray(List.Names) ||  List.Names.length == 0) {
         result({msg: "Name required!"}, null);
         return;
     }
-    for(var Name in List.Names) {
-        if(Name == "") {
-            result({msg: "Name required!"}, null);
+    for(var listName of List.Names) {
+        if(listName.name == "") {
+            result({msg: "Name cannot be empty!"}, null);
             return;
         }
     }
