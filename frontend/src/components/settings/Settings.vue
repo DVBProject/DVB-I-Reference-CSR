@@ -355,7 +355,6 @@ import ListProviderDataService from "../../services/ListProviderDataService"
 import countries from "../../../../common/countries"
 import { deliveries, genres } from "../../../../common/dev_constants"
 import languages from "../../../../common/languages"
-import LoginService from "../../services/LoginService"
 
 export default {
   name: "settings-view",
@@ -386,7 +385,6 @@ export default {
           console.log("lists", e);
 
           // TODO: move this handler the service module
-          LoginService.reset()
         });
     },
     fetchHistory() {
@@ -544,15 +542,44 @@ export default {
         .then(response => {
           if(response.data) {
             this.provider = response.data;
+            if(!Array.isArray(this.provider.Kind)) {
+              this.provider.Kind = [];
+            }
+            if(!Array.isArray(this.provider.Icons)) {
+              this.provider.Icons = [];
+            }
+            if(!Array.isArray(this.provider.ContactName)) {
+              this.provider.ContactName = [];
+            }
+            if(!Array.isArray(this.provider.Names)) {
+              this.provider.Names = [];
+            }
+            if(!this.validateAddress(this.provider.Address)) {
+              this.provider.Address = {Name: "",AddressLine: ["","",""]}
+            }
+            if(!this.validateAddress(this.provider.Jurisdiction)) {
+              this.provider.Jurisdiction = {Name: "",AddressLine: ["","",""]}
+            }
             console.log(this.provider);
+
           }
         })
         .catch(e => {
           console.log("lists", e);
-
-          // TODO: move this handler the service module
-          LoginService.reset()
         });
+    },
+    validateAddress(address) {
+      console.log("validateAddress",address);
+     if(!address) {
+        return false; 
+     }
+     if(address.Name == null) {
+       return false;
+     }
+     if(address.AddressLine == null || !Array.isArray(address.AddressLine) || address.AddressLine.length < 3) {
+       return false;
+     }
+     return true;
     },
     updateProvider() {
       const addrstring = JSON.stringify(this.provider.Address)
