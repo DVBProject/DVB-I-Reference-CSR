@@ -569,7 +569,6 @@ export default {
         });
     },
     validateAddress(address) {
-      console.log("validateAddress",address);
      if(!address) {
         return false; 
      }
