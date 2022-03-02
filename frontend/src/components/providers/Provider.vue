@@ -70,6 +70,7 @@
 
               <button class="btn btn-outline-danger mx-3 mb-1 col-sm-1" type="button"
                 :id="index"
+                :disabled="currentProvider.Names.length <= 1"
                 @click="delNameField"
               >
                 -
@@ -452,8 +453,9 @@ export default {
       this.currentProvider.Names.push({name: "", type: ""})
     },
     delNameField(item) {
-      console.log(item.target.id)
-      this.currentProvider.Names.splice(item.target.id, 1)
+      if(this.currentProvider.Names.length > 1) {
+        this.currentProvider.Names.splice(item.target.id, 1)
+      }
     },
     addIconField() {
       this.currentProvider.Icons.push({content: "", type: "MediaUri",  mimeType: ""})
