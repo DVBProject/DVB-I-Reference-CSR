@@ -569,7 +569,6 @@ export default {
       const valid = this.deliveries_ui.findIndex( elem => {
         return elem === item.target.value
       })
-
       if(valid !== -1) {
         
         if(!(item.target.value in this.SelectedDeliveries)) {
@@ -584,8 +583,10 @@ export default {
     addGenre(item) {
       const value = item.target ? item.target.value : item
       const valid = genres[value] !== undefined
-
-      if(valid) {
+      const contains = this.SelectedGenres.findIndex( elem => {
+        return elem.value === value
+      }) != -1;
+      if(valid && !contains) {
           this.SelectedGenres.push({ name: genres[value], value: value});
       }
 
@@ -601,12 +602,14 @@ export default {
       const value = item.target ? item.target.value : item
       if(value.length === 2) {
         const valid = languages[value] !== undefined
-
-        if(valid) {
+        const contains = this.SelectedLanguages.findIndex( elem => {
+          return elem.a3 === value
+        }) != -1;
+        if(valid && !contains) {
           this.SelectedLanguages.push({name: languages[value].name, a3: value})
         }
         else {
-          console.log("not valid", value)
+          console.log("not valid", value, valid,contains)
         }
       }
       if(item.target) item.target.value = null
@@ -619,7 +622,11 @@ export default {
       //console.log(item.target.value)
       const value = item.target ? item.target.value : item
       const valid = this.countries_ui[value];
-      if(valid) {
+      const contains = this.SelectedCountries.findIndex( elem => {
+          console.log(elem.code,value);
+          return elem.code === value
+      }) != -1;
+      if(valid && !contains) {
         this.SelectedCountries.push({name: valid.name, code: value})
       }
 
