@@ -112,10 +112,15 @@ in the frontend/dist-directory.
 ## Test server and Query API
 
 A test server Frontend is running at https://csr.dtv.fi/
-The Query API can be accessed from https://csr.dtv.fi/api/query
+Please apply for an account from [juha.joki@sofiadigital.com ](mailto:juha.joki@sofiadigital.com)
+All newly created users will have empty provider and service list instances, they can create new ones as one pleases. Please note that at this point the test server DB should not be counted to be permament - i.e. it can be reset at some point in time.
+
+The Test Server Query API can be accessed from https://csr.dtv.fi/api/query
 Example queries: 
 https://csr.dtv.fi/api/query?TargetCountry=FIN 
 https://csr.dtv.fi/api/query?ProviderName=Servicelist%20provider%202
+
+Cache can be disabled using the endpoint https://csr.dtv.fi/api/query-nocache. 
 
 Refer to https://dvb.org/wp-content/uploads/2020/11/A177r2_Service-Discovery-and-Programme-Metadata-for-DVB-I_ts_103-770-v120_June-2021.pdf chapter 5.1.3 and annex C.4.
 
