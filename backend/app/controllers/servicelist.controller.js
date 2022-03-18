@@ -277,7 +277,6 @@ exports.update = async (req, res) => {
   let valid = true
   
   if(listCheck) {
-    console.log("test")
     if (!provs.includes(+listCheck.Provider) && req.user.Role != 'admin') {
       valid = false
     }

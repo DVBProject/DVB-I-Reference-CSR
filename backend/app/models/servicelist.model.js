@@ -76,7 +76,7 @@ ServiceList.create = (newServiceList, result) => {
             result({msg: "Invalid "+delivery +" mimium bit rate!"}, null);
             return;
         }
-        if(newServiceList.Delivery[delivery].minimumBitRate && parseInt(List.Delivery[delivery].minimumBitRate) > 4294967295) {
+        if(newServiceList.Delivery[delivery].minimumBitRate && parseInt(newServiceList.Delivery[delivery].minimumBitRate) > 4294967295) {
             result({msg: "Invalid "+delivery +" mimium bit rate, maximum value 4294967295"}, null);
             return;
         }
