@@ -33,14 +33,22 @@
           <div class="modal-dialog modal-dialog-centered" tabindex="-1" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalCenterTitle">Delete User</h5>
+                <h5 class="modal-title" id="exampleModalCenterTitle">Change password</h5>
                 <button type="button" class="close btn btn-outline-primary" data-dismiss="modal" aria-label="Close" @click="confirmPassword = !confirmPassword">
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
               <div class="modal-body">
-                <p>PASSWD?</p>
+                 <label for="Provider">New Password</label>
+                  <input type="password" class="form-control my-2" id="NewPassword"
+                    v-model="NewPassword"
+                  />
+                  <label for="Provider">Re-type new password</label>
+                  <input type="password" class="form-control my-2" id="PasswordCheck"
+                    v-model="PasswordCheck"
+                  />
               </div>
+                             <p class="small text-warning">{{ passwordMessage }}</p>
               <div class="modal-footer">
                 <button type="button" class="btn btn-outline-primary" data-dismiss="modal" @click="confirmPassword = !confirmPassword">Cancel</button>
                 <button type="button" class="btn btn-danger" @click="changePassword" :disabled="sending">Change</button>          
@@ -125,6 +133,13 @@
         Delete
       </button>
 
+       <button class="btn btn-outline-danger mr-2"
+        @click="confirmPassword = !confirmPassword"
+        :disabled="currentUser.Id == 1"
+      >
+        Change password
+      </button>
+
       <button type="submit" class="btn btn-outline-primary"
         @click="updateUser"
         :disabled="sending"
@@ -162,6 +177,8 @@ export default {
 
       admin: false,
       Names: [],
+      NewPassword: "",
+      PasswordCheck: "",
 
       sending: false,
     };
@@ -285,8 +302,59 @@ export default {
         });
     },
 
+
     changePassword() {
-      // todo
+    if( !this.validatePass() ) {
+      console.log("invalid password!");
+       return
+    }
+
+    const data = {
+      CurrentUser: this.currentUser.Id,
+      NewPassword: this.NewPassword,
+    }
+    this.sending = true
+    UserDataService.changePwd(data)
+          .then(response => {
+            console.log(response.data);
+            this.message = 'The password was updated successfully!'
+            // close modal dalog
+            this.confirmPassword = false
+            this.Password = ""
+            this.NewPassword = ""
+            this.PasswordCheck = ""
+          })
+          .catch(e => {
+            this.sending = false
+            // close modal dalog
+            this.confirmPassword = false
+            console.log(e);
+            this.message = 'Error updating password'
+          })
+
+    },
+
+    validatePass() {
+      this.passwordMessage = ""
+      this.oldpasswordMessage = ""
+      let valid = true
+
+
+      if(this.NewPassword !== "") {
+        if(this.NewPassword.length < 12) {
+          this.passwordMessage = "Pass length must be 12 or more. "
+          valid = false
+        }
+        if(this.NewPassword !== this.PasswordCheck) {
+          this.passwordMessage += "Passwords do not match, please check!"
+          valid = false
+        }
+      } else {
+        this.passwordMessage = "Password cannot be empty"        
+        valid = false
+      }
+
+      return valid
     },
 
     addProvider(item) {

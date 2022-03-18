@@ -176,34 +176,52 @@ exports.changePassword = async (req, res) => {
   if(!user || user.length < 1) {
       return res.status(401).json({ success: false, error: "general error" })
   }
-
-  const { Id, Hash, Role, Session } = user[0]
-
-  const match = await bcrypt.compare(updateData.Password, Hash)
-  if(!match) {
-      // old pwd is incorrect
-      return res.status(401).json({ success: false, error: "general error" })
+  //Admin password reset
+  if(req.user.Role === "admin" && updateData.CurrentUser ) {
+    const newHash = await bcrypt.hash(updateData.NewPassword, 8)
+    User.updatePwd(
+      updateData.CurrentUser,
+      newHash,
+      (err, data) => {
+        if (err) {
+          res.status(500).send({
+            message: "Error updating User with id " + req.user.Id
+          })
+        }
+        else {
+          console.log("password changed for user", req.user.Id)
+          res.send(data)
+        }
+      })
   }
+  else {
+    const { Id, Hash, Role, Session } = user[0]
 
-  // get new hash
-  const newHash = await bcrypt.hash(updateData.NewPassword, 8)
+    const match = await bcrypt.compare(updateData.Password, Hash)
+    if(!match) {
+        // old pwd is incorrect
+        return res.status(401).json({ success: false, error: "general error" })
+    }
 
-  // update new password hash
-  User.updatePwd(
-    Id,
-    newHash,
-    (err, data) => {
-      if (err) {         
-        res.status(500).send({
-          message: "Error updating User with id " + req.user.Id
-        })        
-      } 
-      else {
-        console.log("password changed for user", req.user.Id)
-        res.send(data)
-      }
-    })
+    // get new hash
+    const newHash = await bcrypt.hash(updateData.NewPassword, 8)
 
+    // update new password hash
+    User.updatePwd(
+      Id,
+      newHash,
+      (err, data) => {
+        if (err) {
+          res.status(500).send({
+            message: "Error updating User with id " + req.user.Id
+          })
+        }
+        else {
+          console.log("password changed for user", req.user.Id)
+          res.send(data)
+        }
+      })
+  }
 }
 
 
