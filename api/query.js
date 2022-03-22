@@ -361,25 +361,25 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
                 const electronicAddress = JSON.parse(organization.ElectronicAddress);
                 let electronicAddressElement = null;
                 if(electronicAddress.Telephone) {
-                    if(electronicAddress == null) {
+                    if(electronicAddressElement == null) {
                         electronicAddressElement = entity.ele("ElectronicAddress");
                     }
                     electronicAddressElement.ele("mpeg7:Telephone",{},electronicAddress.Telephone)
                 }
                 if(electronicAddress.Fax) {
-                    if(electronicAddress == null) {
+                    if(electronicAddressElement == null) {
                         electronicAddressElement = entity.ele("ElectronicAddress");
                     }
                     electronicAddressElement.ele("mpeg7:Fax",{},electronicAddress.Fax)
                 }
                 if(electronicAddress.Email) {
-                    if(electronicAddress == null) {
+                    if(electronicAddressElement == null) {
                         electronicAddressElement = entity.ele("ElectronicAddress");
                     }
                     electronicAddressElement.ele("mpeg7:Email",{},electronicAddress.Email)
                 }
                 if(electronicAddress.Url) {
-                    if(electronicAddress == null) {
+                    if(electronicAddressElement == null) {
                         electronicAddressElement = entity.ele("ElectronicAddress");
                     }
                     electronicAddressElement.ele("mpeg7:Url",{},electronicAddress.Url)
