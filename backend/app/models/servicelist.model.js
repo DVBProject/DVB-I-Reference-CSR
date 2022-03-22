@@ -109,6 +109,7 @@ ServiceList.findById = (ListId, result) => {
         }
     
         if (res.length) {  
+            res[0].Delivery = JSON.parse(res[0].Delivery);
             let list = res[0]            
             // fetch all the rest of relevant DB tables
             list.ProviderId = list.Provider
