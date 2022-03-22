@@ -17,6 +17,15 @@ csrquery.validParameters = [
     "ProviderName"
 ];
 
+csrquery.deliveryMap= {
+    "dvb-dash": ["DASHDelivery"],
+    "dvb-t": ["DVBTDelivery"],
+    "dvb-c": ["DVBCDelivery"],
+    "dvb-s": ["DVBSDelivery"],
+    "dvb-iptv": ["MulticastTSDelivery", "RTSPDelivery"],
+    "application": ["ApplicationDelivery"]
+}
+
 csrquery.validContacNameElements = [
     "GivenName",
     "LinkingName",
@@ -116,38 +125,50 @@ csrquery.parseCSRQuery = function(request)  {
         }
     }
     var queryParameters = [];
+    var query = [];
+
     var tables = [];
     tables.push("ServiceListOffering")
     if(params.regulatorListFlag){
         if( "true" !== params.regulatorListFlag && "false" !== params.regulatorListFlag ) {
             throw new Error("Invalid regulatorListFlag:"+params.regulatorListFlag);
         }
-        queryParameters.push("ServiceListOffering.regulatorList = " +( "true" == params.regulatorListFlag ? "1" : "0"));
+        query.push("ServiceListOffering.regulatorList = " +( "true" == params.regulatorListFlag ? "1" : "0"));
     }
     if(params.TargetCountry) {
-        queryParameters.push(this.validateTargetCountry(params.TargetCountry));
+        let params = this.validateTargetCountry(params.TargetCountry);
+        query.push(params[0]);
+        queryParameters.push(...params[1]);
         tables.push("TargetCountry");
     }
     if(params.Language) {
-        queryParameters.push(this.validateLanguage(params.Language));
+        let queryparams = this.validateLanguage(params.Language);
+        query.push(queryparams[0]);
+        queryParameters.push(...queryparams[1]);
         tables.push("Language");
     }
     if(params.Delivery) {
-        queryParameters.push(this.validateDelivery(params.Delivery));
+        let queryparams = this.validateDelivery(params.Delivery);
+        query.push(queryparams[0]);
+        queryParameters.push(...queryparams[1]);
     }
     if(params.Genre) {
-        queryParameters.push(this.validateGenres(params.Genre));
+        let queryparams = this.validateGenres(params.Genre);
+        query.push(queryparams[0]);
+        queryParameters.push(...queryparams[1]);
         tables.push("Genre");
     }
     if(params.ProviderName) {
-        queryParameters.push(this.validateProviderName(params.ProviderName));
+        let queryparams = this.validateProviderName(params.ProviderName);
+        query.push(queryparams[0]);
+        queryParameters.push(...queryparams[1]);
         tables.push("ProviderOffering");
         tables.push("Organization");
         tables.push("EntityName");
     }
     
-    const sqlQuery = "Select ServiceListOffering.Id,ServiceListOffering.Provider from "+tables.join(",")+(queryParameters.length == 0 ? "" : " where "+queryParameters.join(" and "))+" Group By Id;";
-    return sqlQuery;
+    const sqlQuery = "Select ServiceListOffering.Id,ServiceListOffering.Provider from "+tables.join(",")+(query.length == 0 ? "" : " where "+query.join(" and "))+" Group By Id;";
+    return [sqlQuery,queryParameters];
 };
 
 csrquery.validateLanguage = function(languageParams) {
@@ -159,9 +180,10 @@ csrquery.validateLanguage = function(languageParams) {
         if(!languages.hasOwnProperty(lang)) {
             throw new Error("Invalid language:"+lang);
         }
-        array.push("Language.language = '" +lang+"'")
+        array.push(lang)
     }
-    return "ServiceListOffering.Id NOT IN(SELECT ServiceList FROM Language) or ServiceListOffering.Id = Language.ServiceList and ("+array.join(" or " )+")";
+    const query = Array(array.length).fill("Language.language = ?")
+    return ["ServiceListOffering.Id NOT IN(SELECT ServiceList FROM Language) or ServiceListOffering.Id = Language.ServiceList and ("+query.join(" or " )+")",array];
 }
 
 csrquery.validateTargetCountry = function(countryParams) {
@@ -173,9 +195,10 @@ csrquery.validateTargetCountry = function(countryParams) {
         if(!countries.hasOwnProperty(country)) {
             throw new Error("Invalid targetcountry:"+country);
         }
-        array.push("TargetCountry.Country = '" +country+"'")
+        array.push(country)
     }
-    return "ServiceListOffering.Id NOT IN(SELECT ServiceList FROM TargetCountry) or ServiceListOffering.Id = TargetCountry.ServiceList and ("+array.join(" or " )+")";
+    const query = Array(array.length).fill("TargetCountry.Country = ?")
+    return ["ServiceListOffering.Id NOT IN(SELECT ServiceList FROM TargetCountry) or ServiceListOffering.Id = TargetCountry.ServiceList and ("+query.join(" or " )+")",array];
 }
 
 csrquery.validateDelivery = function(deliveries) {
@@ -184,12 +207,17 @@ csrquery.validateDelivery = function(deliveries) {
     }
     var array = [];
     for (var delivery of deliveries) {
-        if(!constants.deliveries.includes(delivery)) {
+        const validDeliveryparams = Object.keys(this.deliveryMap);
+        if(!validDeliveryparams.includes(delivery)) {
             throw new Error("Invalid delivery:"+delivery);
         }
-        array.push("ServiceListOffering.Delivery IS NULL OR ServiceListOffering.Delivery = '' or ServiceListOffering.Delivery LIKE '%" +delivery+"%'"); 
+        let deliveryValues = this.deliveryMap[delivery];
+        for(var value of deliveryValues) {
+            array.push("%" +value+"%");
+        }
     }
-    return "("+array.join(" or " )+")\n";
+    const query = Array(array.length).fill("ServiceListOffering.Delivery LIKE ?")
+    return ["("+query.join(" or " )+")",array];
 }
 
 csrquery.validateGenres = function(genres) {
@@ -201,9 +229,10 @@ csrquery.validateGenres = function(genres) {
         if(!constants.genres.hasOwnProperty(genre)) {
             throw new Error("Invalid genre:"+genre);
         }
-        array.push("Genre.Genre = '"+genre+"'");
+        array.push(genre);
     }
-    return "ServiceListOffering.Id NOT IN(SELECT ServiceList FROM Genre) or ServiceListOffering.Id = Genre.ServiceList and ("+array.join(" or " )+")";
+    const query = Array(array.length).fill("Genre.Genre = ?")
+    return ["ServiceListOffering.Id NOT IN(SELECT ServiceList FROM Genre) or ServiceListOffering.Id = Genre.ServiceList and ("+query.join(" or " )+")",array];
 }
 
 csrquery.validateProviderName = function(names) {
@@ -212,9 +241,10 @@ csrquery.validateProviderName = function(names) {
     }
     var array = [];
     for (var name of names) {
-        array.push("EntityName.Name = '"+name+"'"); 
+        array.push(name);
     }
-    return "ServiceListOffering.Provider = ProviderOffering.Id and ProviderOffering.Organization = Organization.Id and EntityName.Organization = Organization.id and("+array.join(" or " )+")";
+    const query = Array(array.length).fill("EntityName.Name = ?")
+    return ["ServiceListOffering.Provider = ProviderOffering.Id and ProviderOffering.Organization = Organization.Id and EntityName.Organization = Organization.id and("+query.join(" or " )+")",array];
 }
 
 csrquery.generateXML = async function(query) {
@@ -232,7 +262,7 @@ csrquery.generateXML = async function(query) {
         +"WHERE ServiceListEntryPoints.Id = 1 AND ServiceListEntryPoints.ServiceListRegistryEntity = Organization.Id");
         const entityData = registryEntity[0][0];
         await this.generateOrganizationXML(entityData,true,root);
-        const lists = await this.mysql.execute(query);
+        const lists = await this.mysql.execute(query[0],query[1]);
         var providers = {};
         for(var list of lists[0]) {
             if(!providers.hasOwnProperty(list.Provider)) {
@@ -252,7 +282,7 @@ csrquery.generateXML = async function(query) {
 
 csrquery.generateOrganizationXML = async function(organization,registryEntity,root) {
     try {
-        const names =  await this.mysql.execute("SELECT * FROM EntityName WHERE Organization = "+organization.Id);
+        const names =  await this.mysql.execute("SELECT * FROM EntityName WHERE Organization = ?",[organization.Id]);
         var entity = null;
         if(registryEntity) {
             entity = root.ele("ServiceListRegistryEntity",{'regulatorFlag': (organization["Regulator"] == 1 ? "true" : "false")});
@@ -419,7 +449,7 @@ csrquery.generatePlaceType = function(parent,data,elementName) {
 
 csrquery.generateProviderXML = async function(provider,lists,root) {
     try {
-        const organization = await this.mysql.execute("SELECT Organization.* FROM Organization,ProviderOffering WHERE Organization.Id = ProviderOffering.Organization AND ProviderOffering.Id = "+provider);
+        const organization = await this.mysql.execute("SELECT Organization.* FROM Organization,ProviderOffering WHERE Organization.Id = ProviderOffering.Organization AND ProviderOffering.Id = ?",[provider]);
         var providerOffering = root.ele("ProviderOffering");
         await this.generateOrganizationXML(organization[0][0],false,providerOffering);
         for(var list of lists) {
@@ -432,18 +462,18 @@ csrquery.generateProviderXML = async function(provider,lists,root) {
 
 csrquery.generateServiceListOfferingXML = async function(list,root) {
     var serviceListOffering = root.ele("ServiceListOffering");
-    const listOffering =  await this.mysql.execute("SELECT regulatorList,Delivery FROM ServiceListOffering WHERE Id = "+list);
+    const listOffering =  await this.mysql.execute("SELECT regulatorList,Delivery FROM ServiceListOffering WHERE Id = ?",[list]);
     if(listOffering[0][0].regulatorList == 1) {
         serviceListOffering.att("regulatorListFlag","true");
     }
-    const names =  await this.mysql.execute("SELECT Name,Lang FROM ServiceListName WHERE ServiceList = "+list);
+    const names =  await this.mysql.execute("SELECT Name,Lang FROM ServiceListName WHERE ServiceList = ?",[list]);
     for(var name of names[0]) {
         var nameElement = serviceListOffering.ele("ServiceListName",{},name.Name);
         if(name.Lang != null && name.Lang != "") {
             nameElement.att("xml:lang",name.Lang);
         }
     }
-    const uris =  await this.mysql.execute("SELECT URI FROM ServiceListURI WHERE ServiceList = "+list);
+    const uris =  await this.mysql.execute("SELECT URI FROM ServiceListURI WHERE ServiceList = ?",[list]);
     for(var uri of uris[0]) {
         var uriElement = serviceListOffering.ele("ServiceListURI",{"contentType":"application/xml"});
         uriElement.ele("dvbisd:URI",{},uri.URI);
@@ -500,15 +530,15 @@ csrquery.generateServiceListOfferingXML = async function(list,root) {
             console.log(e);
         }
     }
-    const languages =  await this.mysql.execute("SELECT Language FROM Language WHERE ServiceList = "+list);
+    const languages =  await this.mysql.execute("SELECT Language FROM Language WHERE ServiceList = ?",[list]);
     for(var language of languages[0]) {
         serviceListOffering.ele("Language",{},language.Language);
     }
-    const genres =  await this.mysql.execute("SELECT Genre FROM Genre WHERE ServiceList = "+list);
+    const genres =  await this.mysql.execute("SELECT Genre FROM Genre WHERE ServiceList = ?",[list]);
     for(var genre of genres[0]) {
         serviceListOffering.ele("Genre",{href: genre.Genre});
     }
-    const targetcountries =  await this.mysql.execute("SELECT Country FROM TargetCountry WHERE ServiceList = "+list);
+    const targetcountries =  await this.mysql.execute("SELECT Country FROM TargetCountry WHERE ServiceList = ?",[list]);
     for(var country of targetcountries[0]) {
         serviceListOffering.ele("TargetCountry",{},country.Country);
     }
