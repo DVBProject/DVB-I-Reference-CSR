@@ -1,7 +1,7 @@
 const http = require('http');
 const url = require('url');
-const redis = require("redis");
 const csrquery = require("./query");
+require('dotenv').config();
 
 const PORT = process.env.PORT || 3001;
 csrquery.init();

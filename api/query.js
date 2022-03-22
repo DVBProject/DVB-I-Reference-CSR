@@ -2,7 +2,6 @@ const qs = require('qs');
 const md5 = require('md5');
 const mysql = require('mysql2/promise');
 const xmlbuilder = require('xmlbuilder');
-const env = require('dotenv').config();
 const redis = require("redis");
 const countries = require("../common/countries");
 const languages = require("../common/languages");
