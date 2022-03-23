@@ -2,40 +2,42 @@
   <div id="app">
     <nav class="navbar navbar-expand navbar-dark bg-dark px-2">
       <router-link to="/" class="navbar-brand">DVB-I CSR</router-link> 
-      <div class="navbar-nav mr-auto">
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item" >
+            <router-link to="/servicelists" class="nav-link">Service Lists</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link to="/providers" class="nav-link">Providers</router-link>
+          </li>
+          <li class="nav-item" v-if="user && user.role">
+            <router-link to="/admin" class="nav-link">Admin</router-link>
+          </li>
+          <li class="nav-item" v-if="user && user.role">
+            <router-link to="/settings" class="nav-link">Settings</router-link>
+          </li>
 
-        <li class="nav-item" >
-          <router-link to="/servicelists" class="nav-link">Service Lists</router-link>
-        </li>
-        <li class="nav-item">
-          <router-link to="/providers" class="nav-link">Providers</router-link>
-        </li>
-        <li class="nav-item" v-if="user && user.role">
-          <router-link to="/admin" class="nav-link">Admin</router-link>
-        </li>
-        <li class="nav-item" v-if="user && user.role">
-          <router-link to="/settings" class="nav-link">Settings</router-link>
-        </li>
-
-        <li class="nav-item dropdown">
-          <i class="bi-person-square nav-link nav-icon" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" id="profileButton" aria-label="profile"></i>         
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileButton">
-            <li v-if="!user"><a class="dropdown-item" href="/login">Sign in</a></li>
-            <li v-if="false"><a class="dropdown-item" href="#">Register</a></li>
-            <li v-if="user"><a class="dropdown-item" href="/profile" >Profile</a></li>
-            <li v-if="user"><hr class="dropdown-divider"></li>
-            <li v-if="user"><a class="dropdown-item" href="/logout">Log out</a></li>
-          </ul>
-        </li>
-        <!--
-        <li class="nav-item invisible">
-          <router-link to="/add-servicelist" class="nav-link">Add Service List</router-link>
-        </li>
-        <li class="nav-item invisible">
-          <router-link to="/add-provider" class="nav-link">Add Provider</router-link>
-        </li>
-        -->
+          <li class="nav-item dropdown">
+            <i class="bi-person-square nav-link nav-icon" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" id="profileButton" aria-label="profile"></i>         
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileButton">
+              <li v-if="!user"><a class="dropdown-item" href="/login">Sign in</a></li>
+              <li v-if="false"><a class="dropdown-item" href="#">Register</a></li>
+              <li v-if="user"><a class="dropdown-item" href="/profile" >Profile</a></li>
+              <li v-if="user"><hr class="dropdown-divider"></li>
+              <li v-if="user"><a class="dropdown-item" href="/logout">Log out</a></li>
+            </ul>
+          </li>
+          <!--
+          <li class="nav-item invisible">
+            <router-link to="/add-servicelist" class="nav-link">Add Service List</router-link>
+          </li>
+          <li class="nav-item invisible">
+            <router-link to="/add-provider" class="nav-link">Add Provider</router-link>
+          </li>
+          -->
+        </ul>
       </div>
+      <span class="navbar-text">Version: {{version}}, Built: {{ buildDate }} </span>
     </nav>
 
     <div class="container mt-3">
@@ -50,7 +52,7 @@ export default {
   name: 'App',
   data() {
     return {
-      
+      version: "0.13"
     }
   },
   computed: {
@@ -63,6 +65,19 @@ export default {
         user = false
       }
       return user
+    },
+    buildDate() {
+      let value =  new Date(
+        document
+          .querySelector("meta[name='build_date']")
+          .getAttribute('content')
+      );
+      const date = value.getDate();
+      const month = value.getMonth() + 1;
+      const year = value.getFullYear();
+      const hour = value.getHours();
+      const minutes = value.getMinutes();
+      return date + '.' + month + '.' + year+ " "+hour+":"+minutes ;
     }
   },
   mounted() {
