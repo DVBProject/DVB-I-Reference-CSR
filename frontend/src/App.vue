@@ -52,7 +52,7 @@ export default {
   name: 'App',
   data() {
     return {
-      version: "0.14"
+      version: "0.15"
     }
   },
   computed: {
