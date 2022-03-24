@@ -167,7 +167,7 @@ csrquery.parseCSRQuery = function(request)  {
         tables.push("EntityName");
     }
     
-    const sqlQuery = "Select ServiceListOffering.Id,ServiceListOffering.Provider from "+tables.join(",")+(query.length == 0 ? "" : " where "+query.join(" and "))+" Group By Id;";
+    const sqlQuery = "Select ServiceListOffering.Id,ServiceListOffering.Provider from "+tables.join(",")+(query.length == 0 ? "" : " where ("+query.join(" ) and (")+ ")")+" Group By Id;";
     return [sqlQuery,queryParameters];
 };
 
