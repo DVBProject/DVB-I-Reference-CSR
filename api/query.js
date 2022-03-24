@@ -136,9 +136,9 @@ csrquery.parseCSRQuery = function(request)  {
         query.push("ServiceListOffering.regulatorList = " +( "true" == params.regulatorListFlag ? "1" : "0"));
     }
     if(params.TargetCountry) {
-        let params = this.validateTargetCountry(params.TargetCountry);
-        query.push(params[0]);
-        queryParameters.push(...params[1]);
+        let queryparams = this.validateTargetCountry(params.TargetCountry);
+        query.push(queryparams[0]);
+        queryParameters.push(...queryparams[1]);
         tables.push("TargetCountry");
     }
     if(params.Language) {
