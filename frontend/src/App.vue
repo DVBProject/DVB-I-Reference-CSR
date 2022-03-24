@@ -76,7 +76,7 @@ export default {
       const month = value.getMonth() + 1;
       const year = value.getFullYear();
       const hour = value.getHours();
-      const minutes = value.getMinutes();
+      let minutes = value.getMinutes();
       if (minutes < 10) {
         minutes = '0' + minutes;
       }
