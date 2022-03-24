@@ -77,6 +77,9 @@ export default {
       const year = value.getFullYear();
       const hour = value.getHours();
       const minutes = value.getMinutes();
+      if (minutes < 10) {
+        minutes = '0' + minutes;
+      }
       return date + '.' + month + '.' + year+ " "+hour+":"+minutes ;
     }
   },
