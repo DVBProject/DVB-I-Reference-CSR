@@ -354,6 +354,10 @@
       </button>
     </div>
     <p>{{ message }}</p>
+    <small id="uriHelpBlock" class="form-text text-muted">
+      It is recommended to use HTTPS for the service list URI. Some DVB-I clients may use AJAX to load the service list so the service list URI should
+      have the CORS headers (Access-Control-Allow-Origin etc.) set correctly.
+    </small>
   </div>
 
   </div>
@@ -369,6 +373,7 @@ import ProviderDataService from "../../services/ProviderDataService"
 import countries from "../../../../common/countries"
 import { deliveries, genres } from "../../../../common/dev_constants"
 import languages from "../../../../common/languages"
+import axios from "axios";
 
 export default {
   name: "servicelist-edit",
@@ -648,8 +653,34 @@ export default {
 
     testURI($event,item) {
       console.log(item,$event);
+      this.message = "Loading service list...";
       $event.preventDefault()
-      window.open(this.currentList.URI[item], '_blank').focus()
+      $event.srcElement.classList.remove("alert");
+      $event.srcElement.classList.remove("alert-success");
+      $event.srcElement.classList.remove("alert-danger");
+      axios.get(this.currentList.URI[item],
+        {
+          timeout: 5000
+        })
+      .then(function (response) {
+        console.log(response);
+        this.message = "Service list "+this.currentList.URI[item]+" loaded successfully!"
+        $event.srcElement.classList.add("alert");
+        $event.srcElement.classList.add("alert-success");
+      }.bind(this))
+      .catch(function (error) {
+        if (error.response) {
+          this.message = "Error loading "+this.currentList.URI[item]+"! Server status code:"+error.response.status;
+        } else if (error.request) {
+          console.log(error.request);
+          this.message = "Error loading "+this.currentList.URI[item]+"! Server did not respond:"+error.message;
+        } else {
+          this.message = "Error loading "+this.currentList.URI[item]+"! Something went wrong:"+error.message;
+        }
+        $event.srcElement.classList.add("alert");
+        $event.srcElement.classList.add("alert-danger");
+
+      }.bind(this));
     },
     retrieveProviders() {
       ProviderDataService.getAll()
