@@ -6,6 +6,7 @@ const ServiceList = function(serviceList) {
     this.lang = serviceList.lang
     this.URI = serviceList.URI
     this.Provider = serviceList.Provider
+    this.ProviderId = serviceList.ProviderId
     this.regulatorList = serviceList.regulatorList
     this.Delivery = serviceList.Delivery
     this.Countries = serviceList.Countries
@@ -83,7 +84,7 @@ ServiceList.create = (newServiceList, result) => {
     }
     const deliveries = JSON.stringify(newServiceList.Delivery)
 
-    sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, Delivery = ?,Status = ?", [ newServiceList.Provider, newServiceList.regulatorList, deliveries, newServiceList.Status ], async (err, res) => {
+    sql.query("INSERT INTO ServiceListOffering SET Provider = ?, regulatorList = ?, Delivery = ?,Status = ?", [ newServiceList.ProviderId, newServiceList.regulatorList, deliveries, newServiceList.Status ], async (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -347,8 +348,8 @@ ServiceList.updateById = (id, List, result) => {
     }
 
     sql.query(
-        "UPDATE ServiceListOffering SET regulatorList = ?, Status = ?, Delivery = ? WHERE Id = ?",
-        [List.regulatorList, List.Status, deliveries, id], 
+        "UPDATE ServiceListOffering SET regulatorList = ?, Provider = ?, Status = ?, Delivery = ? WHERE Id = ?",
+        [List.regulatorList, List.ProviderId, List.Status, deliveries, id],
         async (err, res) => {
             if (err) {
                 console.log("error: ", err);

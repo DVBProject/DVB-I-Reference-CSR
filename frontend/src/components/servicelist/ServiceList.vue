@@ -125,17 +125,14 @@
 
       <div class="form-group">
         <label for="Provider">Provider</label>
-        <select v-if="newList" class="form-control my-2" placeholder="Provider"
-          v-model="currentList.Provider">
+        <select class="form-control my-2" placeholder="Provider"
+          v-model="currentList.ProviderId">
         <option
             v-for="item in providers"
             v-bind:key="item.Id"
             v-bind:value="item.Id"
          >{{item.Names[0].name}}</option>
-      </select>
-      <input v-else type="text" class="form-control my-2" id="Provider"
-          v-model="currentList.Provider"
-        />
+        </select>
       </div>
 
       <div class="my-2">      
@@ -690,9 +687,8 @@ export default {
             this.message = "No providers available, create a provider first!"
           }
           else {
-            this.currentList.Provider = response.data[0].Id;
+            this.currentList.ProviderId = response.data[0].Id;
           }
-          //console.log("provirders:", response.data);
         })
         .catch(e => {
           console.log(e);
@@ -720,11 +716,11 @@ export default {
       this.SelectedDeliveries[deliveries[0]] = {}
       this.currentList = {
       URI: [""],
-      Provider: 0,
+      ProviderId: 0,
       regulatorList: 0,
       }
-      this.retrieveProviders();
     }
+    this.retrieveProviders();
   }
 };
 </script>
