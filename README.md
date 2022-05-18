@@ -106,7 +106,8 @@ Start the backend server with the command `node server.js` in the backend-direct
 ## Frontend Module usage
 
 After cloning the repository, install the required node modules with the command `yarn install` in the frontend-directory.
-Start the frontend development server with the command `yarn serve` in the frontend-directory. Default port is 8081.
+Start the frontend development server with the command `yarn serve` in the frontend-directory. Default port is 8080. If 8080 is reseverved,
+it will use the next free port. The yarn serve command will tell what port it is using.
 To build production version of the frontend, use the command `yarn build` in the frontend-directory. The production codes can be found 
 in the frontend/dist-directory.
 
