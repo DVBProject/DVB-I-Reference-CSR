@@ -22,7 +22,7 @@ exports.create = (req, res) => {
       console.log("user data corrupt", req.user)
     }
     
-    if (!provs.includes(+req.body.Provider) && req.user.Role !== 'admin') {
+    if (!provs.includes(+req.body.ProviderId) && req.user.Role !== 'admin') {
       res.status(400).send({
         message: "Invalid request"
       });
@@ -35,6 +35,7 @@ exports.create = (req, res) => {
         URI: req.body.URI,
         lang: req.body.lang,
         Provider: req.body.Provider,
+        ProviderId: req.body.ProviderId,
         regulatorList: req.body.regulatorList,
         Delivery: req.body.Delivery,
         Countries: req.body.Countries,
