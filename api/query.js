@@ -14,7 +14,8 @@ csrquery.validParameters = [
     "Delivery",
     "Language",
     "Genre",
-    "ProviderName"
+    "ProviderName",
+    "inlineImages"
 ];
 
 csrquery.deliveryMap= {
@@ -34,6 +35,9 @@ csrquery.validContacNameElements = [
     "Salutation",
     "Numeration"
 ];
+
+csrquery.A177r3 = "a177r3";
+csrquery.A177r4 = "a177r4";
 
 csrquery.redis = null;
 csrquery.mysql = null;
@@ -65,7 +69,10 @@ csrquery.init = function() {
 
 }
 
-csrquery.getCSRList = async function(request,useCache) {
+csrquery.getCSRList = async function(request,useCache,version) {
+        if(!version) {
+            version  = this.A177r4;
+        }
         const params  = qs.parse(request.query);
         var keys = Object.keys(params);
         keys.sort();
@@ -76,7 +83,7 @@ csrquery.getCSRList = async function(request,useCache) {
         //TODO Better hash function or some other way to identify the request?
         //Could we use the unhashed json as the key? or gzip the json so
         //we could check the parameters from the key
-        const hash = md5(JSON.stringify(ordered));
+        const hash = md5(JSON.stringify(ordered)+version);
         let cached = null;
         if(this.redis && useCache) {
             cached = await this.getCachedResponse(hash);
@@ -86,7 +93,7 @@ csrquery.getCSRList = async function(request,useCache) {
         }
         else {
             const query = this.parseCSRQuery(request);
-            const xml = await this.generateXML(query);
+            const xml = await this.generateXML(query,version);
             if(this.redis && useCache) {
                 this.redis.set(hash,xml);
                 this.redis.expire(hash,parseInt(process.env.REDIS_EXPIRES) || 300); //Default expiry, 5 minutes
@@ -126,8 +133,8 @@ csrquery.parseCSRQuery = function(request)  {
     }
     var queryParameters = [];
     var query = [];
-
     var tables = [];
+    var inlineImages = false;
     tables.push("ServiceListOffering")
     if(params.regulatorListFlag){
         if( "true" !== params.regulatorListFlag && "false" !== params.regulatorListFlag ) {
@@ -166,9 +173,11 @@ csrquery.parseCSRQuery = function(request)  {
         tables.push("Organization");
         tables.push("EntityName");
     }
-    
+    if(params.hasOwnProperty("inlineImages")) {
+        inlineImages = true;
+    }
     const sqlQuery = "Select ServiceListOffering.Id,ServiceListOffering.Provider from "+tables.join(",")+(query.length == 0 ? "" : " where ("+query.join(" ) and (")+ ")")+" Group By Id;";
-    return [sqlQuery,queryParameters];
+    return [sqlQuery,queryParameters,inlineImages];
 };
 
 csrquery.validateLanguage = function(languageParams) {
@@ -247,21 +256,30 @@ csrquery.validateProviderName = function(names) {
     return ["ServiceListOffering.Provider = ProviderOffering.Id and ProviderOffering.Organization = Organization.Id and EntityName.Organization = Organization.id and("+query.join(" or " )+")",array];
 }
 
-csrquery.generateXML = async function(query) {
+csrquery.generateXML = async function(query,version) {
     try {
+        //A177r4 schema is the default
+        var xmlns = "urn:dvb:metadata:servicediscovery:2022b";
+        var xmlns_dvbisd = "urn:dvb:metadata:servicediscovery:2022b";
+        var schemaLocation = "urn:dvb:metadata:servicelistdiscovery:2022 dvbi_service_list_discovery_v1.4.xsd";
+        if(version == this.A177r3) {
+            xmlns = "urn:dvb:metadata:servicediscovery:2022";
+            xmlns_dvbisd = "urn:dvb:metadata:servicediscovery:2022";
+            schemaLocation = "urn:dvb:metadata:servicelistdiscovery:2022 dvbi_service_list_discovery_v1.3.xsd";
+        }
         const lang = await this.mysql.execute("SELECT Language FROM ServiceListEntryPoints WHERE ServiceListEntryPoints.Id = 1");
         var root = xmlbuilder.create('ServiceListEntryPoints',{version: '1.0', encoding: 'UTF-8'})
-            .att("xmlns","urn:dvb:metadata:servicelistdiscovery:2022" )
+            .att("xmlns",xmlns )
             .att('xmlns:mpeg7',"urn:tva:mpeg7:2008")
-            .att('xmlns:dvbisd',"urn:dvb:metadata:servicediscovery:2022" )
+            .att('xmlns:dvbisd',xmlns_dvbisd )
             .att('xmlns:xsi',"http://www.w3.org/2001/XMLSchema-instance")
-            .att('xsi:schemaLocation',"urn:dvb:metadata:servicelistdiscovery:2022 dvbi_service_list_discovery_v1.3.xsd")
+            .att('xsi:schemaLocation',schemaLocation)
             .att("xml:lang",lang[0][0].Language);
 
         const registryEntity = await this.mysql.execute("SELECT Organization.* FROM ServiceListEntryPoints,Organization "
         +"WHERE ServiceListEntryPoints.Id = 1 AND ServiceListEntryPoints.ServiceListRegistryEntity = Organization.Id");
         const entityData = registryEntity[0][0];
-        await this.generateOrganizationXML(entityData,true,root);
+        await this.generateOrganizationXML(entityData,true,root,query[2]);
         const lists = await this.mysql.execute(query[0],query[1]);
         var providers = {};
         for(var list of lists[0]) {
@@ -271,7 +289,7 @@ csrquery.generateXML = async function(query) {
             providers[list.Provider].push(list.Id);   
         }
         for (var key of Object.keys(providers)) {
-            await this.generateProviderXML(key,providers[key],root);
+            await this.generateProviderXML(key,providers[key],root,query[2]);
         }
         return root.end();
     } catch(e) {
@@ -280,7 +298,7 @@ csrquery.generateXML = async function(query) {
     }
 }
 
-csrquery.generateOrganizationXML = async function(organization,registryEntity,root) {
+csrquery.generateOrganizationXML = async function(organization,registryEntity,root,inlineImages) {
     try {
         const names =  await this.mysql.execute("SELECT * FROM EntityName WHERE Organization = ?",[organization.Id]);
         var entity = null;
@@ -300,12 +318,12 @@ csrquery.generateOrganizationXML = async function(organization,registryEntity,ro
                                 let iconElement = entity.ele("mpeg7:Icon");
                                 iconElement.ele("mpeg7:MediaUri",{},icon.content);
                             }
-                            else if(icon.type == "MediaData16" && icon.mimeType) {
+                            else if(inlineImages && icon.type == "MediaData16" && icon.mimeType) {
                                 let iconElement = entity.ele("mpeg7:Icon");
                                 let inline = iconElement.ele("mpeg7:InlineMedia",{type: icon.mimeType});
                                 inline.ele("mpeg7:MediaData16",{},icon.content);
                             }
-                            else if(icon.type == "MediaData64" && icon.mimeType) {
+                            else if(inlineImages && icon.type == "MediaData64" && icon.mimeType) {
                                 let iconElement = entity.ele("mpeg7:Icon");
                                 let inline = iconElement.ele("mpeg7:InlineMedia",{type: icon.mimeType});
                                 inline.ele("mpeg7:MediaData16",{},icon.content);
@@ -447,11 +465,11 @@ csrquery.generatePlaceType = function(parent,data,elementName) {
 
 }
 
-csrquery.generateProviderXML = async function(provider,lists,root) {
+csrquery.generateProviderXML = async function(provider,lists,root,inlineImages) {
     try {
         const organization = await this.mysql.execute("SELECT Organization.* FROM Organization,ProviderOffering WHERE Organization.Id = ProviderOffering.Organization AND ProviderOffering.Id = ?",[provider]);
         var providerOffering = root.ele("ProviderOffering");
-        await this.generateOrganizationXML(organization[0][0],false,providerOffering);
+        await this.generateOrganizationXML(organization[0][0],false,providerOffering,inlineImages);
         for(var list of lists) {
             await this.generateServiceListOfferingXML(list,providerOffering);
         }

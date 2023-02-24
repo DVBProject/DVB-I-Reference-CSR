@@ -22,41 +22,60 @@ http.createServer(async function (req, res) {
     
     var request =  url.parse(req.url,true);
 
-    if(request.pathname && request.pathname.endsWith("/query-nocache")) {
-        try {
-            const list = await csrquery.getCSRList(request,false);
-            res.writeHead(200);
-            res.write(list);
-            res.end();
-            console.log('"'+req.url+'"','"'+req.headers['user-agent']+'"');
-            return;
+    if(request.pathname) {
+        if(request.pathname.endsWith("/query")) {
+            try {
+                const list = await csrquery.getCSRList(request,true,csrquery.A177r4);
+                res.writeHead(200);
+                res.write(list);
+                res.end();
+                console.log('"'+req.url+'"','"'+req.headers['user-agent']+'"');
+                return;
+            }
+            catch(e) {
+                res.writeHead(400);
+                res.end();
+                console.log("ERROR: Illegal request",e.message);
+                return;
+            }
         }
-        catch(e) {
-            res.writeHead(400);
-            res.end();
-            console.log("ERROR: Illegal request",e.message);
-            return;
+        else if(request.pathname.endsWith("/query-nocache")) {
+            try {
+                const list = await csrquery.getCSRList(request,false,csrquery.A177r4);
+                res.writeHead(200);
+                res.write(list);
+                res.end();
+                console.log('"'+req.url+'"','"'+req.headers['user-agent']+'"');
+                return;
+            }
+            catch(e) {
+                res.writeHead(400);
+                res.end();
+                console.log("ERROR: Illegal request",e.message);
+                return;
+            }
+        }
+        else if(request.pathname.endsWith("/query_r3")) {
+            try {
+                const list = await csrquery.getCSRList(request,false,csrquery.A177r3);
+                res.writeHead(200);
+                res.write(list);
+                res.end();
+                console.log('"'+req.url+'"','"'+req.headers['user-agent']+'"');
+                return;
+            }
+            catch(e) {
+                res.writeHead(400);
+                res.end();
+                console.log("ERROR: Illegal request",e.message);
+                return;
+            }
         }
     }
-    if(!request.pathname || !request.pathname.endsWith("/query")) {
-        res.writeHead(400);
-		res.end();
-        console.log("ERROR: Wrong pathname:"+req.pathname);
-        return;
-    }
-    try {
-        const list = await csrquery.getCSRList(request,true);
-        res.writeHead(200);
-        res.write(list);
-        res.end();
-        console.log('"'+req.url+'"','"'+req.headers['user-agent']+'"');
-    }
-    catch(e) {
-        res.writeHead(400);
-		res.end();
-        console.log("ERROR: Illegal request",e.message);
-        return;
-    }
+    res.writeHead(400);
+    res.end();
+    console.log("ERROR: Wrong pathname:"+req.pathname);
+    return;
    
 }).listen(PORT, () => {
     console.log("API server is running on port "+PORT);
