@@ -393,58 +393,13 @@
 </template>
 
 <script>
-  /*
-  <div class="row">
-    <div class="col-md-6">
-      <h4>List event history</h4>
-
-          <ul class="list-group historyList">
-            <li class="list-group-item"
-              :class="{ active: index == currentIndex }"
-              v-for="(list, index) in lists"
-              :key="index"
-              @click="setActiveList(list, index)"
-            >
-              {{ list.Name }}
-            </li>
-          </ul>
-
-    </div>
-
-    <div class="col-md-6">
-      <div v-if="currentList">
-        <h4>{{currentList.Name}}</h4>
-
-        <ul class="list-group historyList">
-          <li class="list-group-item"
-            v-for="(list, index) in listHistory"
-            :key="index"
-          >
-           {{list.Event}} / {{list.UserName}}: {{new Date(+list.Time).toLocaleString() }}
-          </li>
-        </ul>
-
-      </div>
-      <div v-else>
-        <br />
-        <p>Please click on a Service List...</p>
-      </div>
-    </div>
-
-  </div> */
-  import ProviderDataService from "../../services/ProviderDataService";
-  import ServiceListDataService from "../../services/ServiceListDataService";
   import ListProviderDataService from "../../services/ListProviderDataService";
-  import countries from "../../../../common/countries";
-  import { deliveries, genres } from "../../../../common/dev_constants";
   import languages from "../../../../common/languages";
 
   export default {
     name: "settings-view",
     data() {
       return {
-        providers: 2,
-        servicelists: 5,
         lists: [],
         currentList: null,
         currentIndex: -1,
@@ -456,146 +411,6 @@
       };
     },
     methods: {
-      fetchLists() {
-        ServiceListDataService.getAll()
-          .then((response) => {
-            if (response.data) {
-              this.lists = response.data;
-              //console.log("lists", this.lists)
-            }
-          })
-          .catch((e) => {
-            console.log("lists", e);
-
-            // TODO: move this handler the service module
-          });
-      },
-      fetchHistory() {
-        if (this.currentList) {
-          ServiceListDataService.getListHistory(this.currentList.Id)
-            .then((response) => {
-              if (response.data) {
-                this.listHistory = response.data;
-              }
-            })
-            .catch((e) => {
-              console.log("history", e);
-            });
-        }
-      },
-      fetchByProvider() {
-        // now only for debugging the backend
-        ServiceListDataService.getByProvider(5)
-          .then((response) => {
-            if (response.data) {
-              this.providerList = response.data;
-              //console.log("pp", this.providerList)
-            }
-          })
-          .catch((e) => {
-            console.log("by provider", e);
-          });
-      },
-
-      setActiveList(list, index) {
-        this.currentList = list;
-        this.currentIndex = list ? index : -1;
-        if (this.currentList) this.fetchHistory();
-      },
-
-      generateData() {
-        console.log("genrateData");
-        ProviderDataService.getAll().then((response) => {
-          let providerList = response.data;
-          const kinds = ["NGO", "company", "broadcaster"];
-          for (var z = 0; z < this.providers; z++) {
-            const providerNumber = providerList.length + 1 + z;
-            const keys = Object.keys(countries);
-            let value = keys[Math.floor(Math.random() * keys.length)];
-            const addrstring = JSON.stringify({
-              Name: "",
-              AddressLine: ["Examplestreet " + providerNumber, "Exampletown 00000", countries[value].name],
-            });
-            const data = {
-              Kind: kinds[Math.floor(Math.random() * kinds.length)],
-              Names: [
-                { name: "Test provider " + providerNumber, type: "" },
-                { name: "TP" + providerNumber, type: "variant" },
-              ],
-              ContactName: "Contact Name " + providerNumber,
-              Jurisdiction: JSON.stringify({ Name: "", AddressLine: ["", "", ""] }),
-              Address: addrstring,
-              ElectronicAddress: JSON.stringify({
-                Telephone: "",
-                Email: "example_contact" + providerNumber + "@example.com",
-                Fax: "",
-                Url: "",
-              }),
-              Regulator: Math.round(Math.random()),
-            };
-            console.log("add provider:", data);
-            ProviderDataService.create(data)
-              .then((response) => {
-                for (let i = 0; i < this.servicelists; i++) {
-                  let languageList = [];
-                  let delivertyList = [];
-                  let countryList = [];
-                  let genreList = [];
-                  let provider = response.data.id;
-                  let regulator = Math.round(Math.random());
-                  let rand = Math.floor(Math.random() * 5);
-                  let keys = Object.keys(languages);
-                  for (let j = 0; j < rand; j++) {
-                    let value = keys[Math.floor(Math.random() * keys.length)];
-                    languageList.push({ name: languages[value].name, a3: value });
-                  }
-                  rand = Math.floor(Math.random() * 2);
-                  for (let j = 0; j < rand; j++) {
-                    let value = deliveries[Math.floor(Math.random() * deliveries.length)];
-                    delivertyList.push(value);
-                  }
-                  rand = Math.floor(Math.random() * 5);
-                  keys = Object.keys(countries);
-                  for (let j = 0; j < rand; j++) {
-                    let value = keys[Math.floor(Math.random() * keys.length)];
-                    countryList.push({ name: countries[value].name, code: value });
-                  }
-                  rand = Math.floor(Math.random() * 5);
-                  keys = Object.keys(genres);
-                  for (let j = 0; j < rand; j++) {
-                    let value = keys[Math.floor(Math.random() * keys.length)];
-                    genreList.push({ name: genres[value].name, value: value });
-                  }
-                  const data = {
-                    Names: [{ name: "Provider " + providerNumber + " ServiceList " + (i + 1), lang: "" }],
-                    URI: "https://serviceprovider-" + providerNumber + ".net/servicelist" + i + ".xml",
-                    lang: languageList,
-                    Provider: provider,
-                    regulatorList: regulator,
-                    Delivery: delivertyList,
-                    Countries: countryList,
-                    Genres: genreList,
-                    Status: "",
-                  };
-                  ServiceListDataService.create(data)
-                    .then((response) => {
-                      console.log(response);
-                      console.log(i, z, this.servicelists, this.providers);
-                      if (z == this.providers && i + 1 == this.servicelists) {
-                        this.$router.push({ name: "providers" });
-                      }
-                    })
-                    .catch((err) => {
-                      console.log("error creating list", err);
-                    });
-                }
-              })
-              .catch((err) => {
-                console.log("error creating provider", err);
-              });
-          }
-        });
-      },
       addNameField() {
         this.provider.Names.push({ name: "", type: "" });
       },
@@ -650,6 +465,10 @@
               if (!this.validateAddress(this.provider.Jurisdiction)) {
                 this.provider.Jurisdiction = { Name: "", AddressLine: ["", "", ""] };
               }
+              if (!this.validateElectronicAddress(this.provider.ElectronicAddress)) {
+                this.provider.ElectronicAddress = { Telephone: "", Fax: "", Email: "", Url: "" };
+              }
+
               console.log(this.provider);
             }
           })
@@ -665,6 +484,15 @@
           return false;
         }
         if (address.AddressLine == null || !Array.isArray(address.AddressLine) || address.AddressLine.length < 3) {
+          return false;
+        }
+        return true;
+      },
+      validateElectronicAddress(address) {
+        if (!address) {
+          return false;
+        }
+        if (address.Telephone == null || address.Fax == null || address.Email == null || address.Url == null) {
           return false;
         }
         return true;
@@ -721,10 +549,26 @@
       },
     },
     mounted() {
-      this.fetchLists();
-      this.fetchByProvider();
       this.fetchListprovider();
       this.languages = languages;
+      this.provider = {
+        Kind: [],
+        Icons: [],
+        Name: "",
+        Type: "",
+        Names: [{ name: "", type: "" }],
+        ContactName: [],
+        Jurisdiction: {
+          Name: "",
+          AddressLine: ["", "", ""],
+        },
+        Address: {
+          Name: "",
+          AddressLine: ["", "", ""],
+        },
+        ElectronicAddress: { Telephone: "", Fax: "", Email: "", Url: "" },
+        Regulator: 0,
+      };
     },
   };
 </script>
