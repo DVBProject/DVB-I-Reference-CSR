@@ -547,6 +547,13 @@
       removeLang(item) {
         this.SelectedLanguages.splice(item.target.id, 1);
       },
+      regulatorRadio(item) {
+        if (item.target.id === "btnradioYes") {
+          this.provider.Regulator = 1;
+        } else {
+          this.provider.Regulator = 0;
+        }
+      },
     },
     mounted() {
       this.fetchListprovider();
