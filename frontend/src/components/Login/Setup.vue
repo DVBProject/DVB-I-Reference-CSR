@@ -1,17 +1,16 @@
-
 <script>
-import LoginService from "../../services/LoginService"
-export default {
-  name: "setup-view",
+  import LoginService from "../../services/LoginService";
+  export default {
+    name: "setup-view",
 
-  mounted() {
+    mounted() {
       LoginService.setup()
-        .then(response => {
-          console.log("success", response.data)
+        .then((response) => {
+          console.log("success", response.data);
         })
-        .catch(e => {
+        .catch((e) => {
           console.log(e);
         });
-  }
-};
+    },
+  };
 </script>

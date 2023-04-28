@@ -1,12 +1,9 @@
 import http from "../http-common";
 
-
 let configdata = {
-  headers: { 'Authorization': sessionStorage.getItem("auth") }
-}
+  headers: { Authorization: sessionStorage.getItem("auth") },
+};
 
-
- 
 class ServiceListDataService {
   getAll() {
     return http.get("/servicelist", configdata);
@@ -27,7 +24,7 @@ class ServiceListDataService {
   delete(id) {
     return http.delete(`/servicelist/${id}`, configdata);
   }
-  
+
   findByTitle(title) {
     return http.get(`/servicelist?title=${title}`, configdata);
   }

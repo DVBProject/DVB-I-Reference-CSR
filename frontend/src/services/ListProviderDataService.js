@@ -1,13 +1,10 @@
 import http from "../http-common";
 
-
 let configdata = {
-  headers: { 'Authorization': sessionStorage.getItem("auth") }
-}
+  headers: { Authorization: sessionStorage.getItem("auth") },
+};
 
 class ListproviderDataService {
-
-
   get() {
     return http.get(`/listprovider`, configdata);
   }

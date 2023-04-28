@@ -1,25 +1,25 @@
 <template>
-
   <div class="list">
     <div class="row">
-
       <div class="col-md-8">
         <div class="btn-group btn-group-sm mb-2 " role="group" aria-label="Basic radio toggle button group">
-          <router-link :to="'/admin/add-user/'" class="btn btn-outline-primary mt-1"><span class="bi-plus-lg mx-1"></span>Create new</router-link>
+          <router-link :to="'/admin/add-user/'" class="btn btn-outline-primary mt-1"
+            ><span class="bi-plus-lg mx-1"></span>Create new</router-link
+          >
         </div>
       </div>
-      
+
       <div class="col-md-6 mt-3">
         <h4>Users</h4>
         <ul class="list-group userlist">
-          <li class="list-group-item"
+          <li
+            class="list-group-item"
             :class="{ active: index == currentIndex }"
             v-for="(user, index) in users"
             :key="index"
             @click="setActiveUser(user, index)"
           >
             {{ user.Name }}
-
           </li>
         </ul>
       </div>
@@ -51,66 +51,62 @@
 </template>
 
 <script>
+  import UserDataService from "../../services/UserDataService";
 
-import UserDataService from "../../services/UserDataService"
-
-
-export default {
-  name: "admin-view",
-  data() {
-    return {
-      users: [],
-      currentUser: null,
-      currentIndex: -1,
-      filterType: 1,
-      title: "",
-      Delivery: ""
-    };
-  },
-  computed: {
-  },
-  methods: {
-    retrieveUsers() {
-      UserDataService.getAll()
-        .then(response => {
-          this.users = response.data;
-          this.users.forEach(user => {
-            try {
-              user.Providers = JSON.parse(user.Providers)
-            } catch {
-              user.Providers = []
-            }
+  export default {
+    name: "admin-view",
+    data() {
+      return {
+        users: [],
+        currentUser: null,
+        currentIndex: -1,
+        filterType: 1,
+        title: "",
+        Delivery: "",
+      };
+    },
+    computed: {},
+    methods: {
+      retrieveUsers() {
+        UserDataService.getAll()
+          .then((response) => {
+            this.users = response.data;
+            this.users.forEach((user) => {
+              try {
+                user.Providers = JSON.parse(user.Providers);
+              } catch {
+                user.Providers = [];
+              }
+            });
+            console.log(response.data);
           })
-          console.log(response.data);
-        })
-        .catch(e => {
+          .catch((e) => {
             console.log(e);
 
             setTimeout(() => {
-                this.$router.push({ name: "servicelists" });
-            }, 2000)
-        });
+              this.$router.push({ name: "servicelists" });
+            }, 2000);
+          });
+      },
+      setActiveUser(user, index) {
+        this.currentUser = user;
+        this.currentIndex = user ? index : -1;
+      },
     },
-    setActiveUser(user, index) {
-      this.currentUser = user      
-      this.currentIndex = user ? index : -1    
+    mounted() {
+      this.retrieveUsers();
     },
-
-  },
-  mounted() {
-    this.retrieveUsers();
-  }
-};
+  };
 </script>
 
 <style scoped>
-.list {
-  text-align: left;
-  max-width: 750px;
-  margin: auto;
-}
-.userlist {
-  max-height: 30vh;  
-  overflow-y: scroll;
-}
+  .list {
+    text-align: left;
+    max-width: 750px;
+    margin: auto;
+  }
+  .userlist {
+    max-height: 30vh;
+    overflow-y: scroll;
+  }
 </style>

@@ -1,12 +1,9 @@
 import http from "../http-common";
 
-
 let configdata = {
-  headers: { 'Authorization': sessionStorage.getItem("auth") }
-}
+  headers: { Authorization: sessionStorage.getItem("auth") },
+};
 
-
- 
 class UserDataService {
   getAll() {
     return http.get("/users", configdata);
@@ -35,7 +32,6 @@ class UserDataService {
   changePwd(data) {
     return http.post("/pwd", data, configdata);
   }
-  
 }
 
 export default new UserDataService();
