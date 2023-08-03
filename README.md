@@ -111,6 +111,17 @@ it will use the next free port. The yarn serve command will tell what port it is
 To build production version of the frontend, use the command `yarn build` in the frontend-directory. The production codes can be found 
 in the frontend/dist-directory.
 
+#### Known issues
+Node.js version 17 and greater uses OpenSSL 3 and the frontend requires OpenSSL 2. In that case starting the frontend will fail with an error:
+```
+ code: 'ERR_OSSL_EVP_UNSUPPORTED'
+```
+To fix this issue, a workaround is required. Before `yarn serve` or `yarn build` command an environment variable needs to be set using a command:
+
+Linux: `export NODE_OPTIONS=--openssl-legacy-provider`
+
+Windows: `set NODE_OPTIONS=--openssl-legacy-provider`
+
 ## Test server and Query API
 
 A test server Frontend is running at https://csr.dtv.fi/
