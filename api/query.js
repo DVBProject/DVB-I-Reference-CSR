@@ -273,11 +273,11 @@ csrquery.validateProviderName = function (names) {
 csrquery.generateXML = async function (query, version) {
   try {
     //A177r4 schema is the default
-    var xmlns = "urn:dvb:metadata:servicediscovery:2022b";
+    var xmlns = "urn:dvb:metadata:servicelistdiscovery:2022b";
     var xmlns_dvbisd = "urn:dvb:metadata:servicediscovery:2022b";
     var schemaLocation = "urn:dvb:metadata:servicelistdiscovery:2022 dvbi_service_list_discovery_v1.4.xsd";
     if (version == this.A177r3) {
-      xmlns = "urn:dvb:metadata:servicediscovery:2022";
+      xmlns = "urn:dvb:metadata:servicelistdiscovery:2022";
       xmlns_dvbisd = "urn:dvb:metadata:servicediscovery:2022";
       schemaLocation = "urn:dvb:metadata:servicelistdiscovery:2022 dvbi_service_list_discovery_v1.3.xsd";
     }
