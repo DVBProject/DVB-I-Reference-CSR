@@ -344,7 +344,7 @@ csrquery.generateOrganizationXML = async function (organization, registryEntity,
               } else if (inlineImages && icon.type == "MediaData64" && icon.mimeType) {
                 let iconElement = entity.ele("mpeg7:Icon");
                 let inline = iconElement.ele("mpeg7:InlineMedia", { type: icon.mimeType });
-                inline.ele("mpeg7:MediaData16", {}, icon.content);
+                inline.ele("mpeg7:MediaData64", {}, icon.content);
               }
             }
           }
