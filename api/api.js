@@ -1,7 +1,8 @@
-const http = require("http");
-const url = require("url");
-const csrquery = require("./query");
-require("dotenv").config();
+import * as http from "http";
+import * as url from "url";
+import "./query.js";
+import csrquery from "./query.js";
+import "dotenv/config";
 
 const PORT = process.env.PORT || 3001;
 csrquery.init();

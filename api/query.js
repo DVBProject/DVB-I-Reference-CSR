@@ -1,11 +1,11 @@
-const qs = require("qs");
-const md5 = require("md5");
-const mysql = require("mysql2/promise");
-const xmlbuilder = require("xmlbuilder");
-const redis = require("redis");
-const countries = require("../common/countries");
-const languages = require("../common/languages");
-const constants = require("../common/dev_constants");
+import * as qs from "qs";
+import md5 from "md5";
+import * as mysql from "mysql2/promise";
+import * as xmlbuilder from "xmlbuilder";
+import * as redis from "redis";
+import countries from "../common/countries.js";
+import languages from "../common/languages.js";
+import { genres as genrelist, deliveries as deliverylist } from "../common/dev_constants.js";
 
 const csrquery = {};
 csrquery.validParameters = [
@@ -239,7 +239,7 @@ csrquery.validateGenres = function (genres) {
   }
   var array = [];
   for (var genre of genres) {
-    if (!constants.genres.hasOwnProperty(genre)) {
+    if (!genrelist.hasOwnProperty(genre)) {
       throw new Error("Invalid genre:" + genre);
     }
     array.push(genre);
@@ -517,7 +517,7 @@ csrquery.generateServiceListOfferingXML = async function (list, root) {
       if (typeof deliveries === "object" && !Array.isArray(deliveries)) {
         var deliveryElement = serviceListOffering.ele("Delivery");
         var keys = Object.keys(deliveries);
-        for (var key of constants.deliveries) {
+        for (var key of deliverylist) {
           if (deliveries[key]) {
             var delivery = deliveryElement.ele(key);
             if (key === "DVBSDelivery") {
@@ -575,4 +575,4 @@ csrquery.generateServiceListOfferingXML = async function (list, root) {
   }
 };
 
-module.exports = csrquery;
+export default csrquery;
