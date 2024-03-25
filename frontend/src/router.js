@@ -2,15 +2,15 @@ import { createWebHistory, createRouter } from "vue-router";
 
 import LoginService from "./services/LoginService";
 
-import Login from "./components/Login/Login";
-import Logout from "./components/Login/Logout";
+import Login from "./components/Login/Login.vue";
+import Logout from "./components/Login/Logout.vue";
 
 const routes = [
   {
     path: "/providers",
     alias: "/providers",
     name: "providers",
-    component: () => import("./components/providers/ProviderList"),
+    component: () => import("./components/providers/ProviderList.vue"),
     meta: {
       requiresAuth: true,
     },
@@ -18,7 +18,7 @@ const routes = [
   {
     path: "/providers/:id",
     name: "provider-details",
-    component: () => import("./components/providers/Provider"),
+    component: () => import("./components/providers/Provider.vue"),
     meta: {
       requiresAuth: true,
     },
@@ -26,7 +26,7 @@ const routes = [
   {
     path: "/add-provider",
     name: "add-provider",
-    component: () => import("./components/providers/Provider"),
+    component: () => import("./components/providers/Provider.vue"),
     meta: {
       requiresAuth: true,
     },
@@ -35,7 +35,7 @@ const routes = [
     path: "/",
     alias: "/servicelists",
     name: "servicelists",
-    component: () => import("./components/servicelist/ServiceListList"),
+    component: () => import("./components/servicelist/ServiceListList.vue"),
     meta: {
       requiresAuth: true,
       //is_admin: true
@@ -44,7 +44,7 @@ const routes = [
   {
     path: "/servicelists/:id",
     name: "servicelist-details",
-    component: () => import("./components/servicelist/ServiceList"),
+    component: () => import("./components/servicelist/ServiceList.vue"),
     meta: {
       requiresAuth: true,
       //is_admin: true
@@ -53,7 +53,7 @@ const routes = [
   {
     path: "/add-servicelist",
     name: "add-servicelist",
-    component: () => import("./components/servicelist/ServiceList"),
+    component: () => import("./components/servicelist/ServiceList.vue"),
     meta: {
       requiresAuth: true,
       //is_admin: true
@@ -75,7 +75,7 @@ const routes = [
     path: "/setup",
     alias: "/setup",
     name: "setup",
-    component: () => import("./components/Login/Setup"),
+    component: () => import("./components/Login/Setup.vue"),
     meta: {
       guest: true,
     },
@@ -88,12 +88,12 @@ const routes = [
       requiresAuth: true,
       is_admin: true,
     },
-    component: () => import("./components/settings/Settings"),
+    component: () => import("./components/settings/Settings.vue"),
   },
   {
     path: "/admin",
     name: "admin",
-    component: () => import("./components/admin/AdminView"),
+    component: () => import("./components/admin/AdminView.vue"),
     meta: {
       requiresAuth: true,
       is_admin: true,
@@ -102,7 +102,7 @@ const routes = [
   {
     path: "/admin/user/:id",
     name: "user-edit",
-    component: () => import("./components/admin/EditUser"),
+    component: () => import("./components/admin/EditUser.vue"),
     meta: {
       requiresAuth: true,
       is_admin: true,
@@ -111,7 +111,7 @@ const routes = [
   {
     path: "/admin/add-user/",
     name: "user-add",
-    component: () => import("./components/admin/AddUser"),
+    component: () => import("./components/admin/AddUser.vue"),
     meta: {
       requiresAuth: true,
       is_admin: true,
@@ -120,7 +120,7 @@ const routes = [
   {
     path: "/view-provider/:id",
     name: "provider-view",
-    component: () => import("./components/providers/ProviderView"),
+    component: () => import("./components/providers/ProviderView.vue"),
     meta: {
       requiresAuth: true,
     },
@@ -128,7 +128,7 @@ const routes = [
   {
     path: "/profile",
     name: "profile",
-    component: () => import("./components/User/Profile"),
+    component: () => import("./components/User/Profile.vue"),
     meta: {
       requiresAuth: true,
     },
@@ -137,7 +137,7 @@ const routes = [
     // redirect for nonexistent routes
     path: "/:pathMatch(.*)*",
     name: "notfound",
-    component: () => import("./components/servicelist/ServiceListList"),
+    component: () => import("./components/servicelist/ServiceListList.vue"),
   },
 ];
 
@@ -145,7 +145,6 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 });
-
 // auth & admin checking middleware
 router.beforeEach(LoginService.authCheck);
 
