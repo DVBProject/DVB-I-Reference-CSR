@@ -254,4 +254,4 @@ const countries = {
   ZWE: { name: "Zimbabwe" },
 };
 
-module.exports = countries;
+export default countries;

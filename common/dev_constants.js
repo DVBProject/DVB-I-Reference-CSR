@@ -1,4 +1,4 @@
-const deliveries = [
+export const deliveries = [
   "DASHDelivery",
   "DVBTDelivery",
   "DVBCDelivery",
@@ -9,7 +9,7 @@ const deliveries = [
   "OtherDeliveryParameters",
 ];
 
-const genres = {
+export const genres = {
   "urn:tva:metadata:cs:ContentCS:2011.3.0": "Proprietary",
   "urn:tva:metadata:cs:ContentCS:2011.3.1": "NON-FICTION/INFORMATION",
   "urn:tva:metadata:cs:ContentCS:2011.3.1.1": "News",
@@ -907,9 +907,4 @@ const genres = {
   "urn:dvb:metadata:cs:ContentSubject:2019.11.5": "Local or regional",
   "urn:dvb:metadata:cs:ContentSubject:2019.12": "Adult",
   "urn:dvb:metadata:cs:ContentSubject:2019.12.0": "Adult (general)",
-};
-
-module.exports = {
-  deliveries,
-  genres,
 };
