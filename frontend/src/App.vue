@@ -32,7 +32,7 @@
               <li v-if="!user"><a class="dropdown-item" href="/login">Sign in</a></li>
               <li v-if="false"><a class="dropdown-item" href="#">Register</a></li>
               <li v-if="user"><a class="dropdown-item" href="/profile">Profile</a></li>
-              <li v-if="user"><hr class="dropdown-divider"/></li>
+              <li v-if="user"><hr class="dropdown-divider" /></li>
               <li v-if="user"><a class="dropdown-item" href="/logout">Log out</a></li>
             </ul>
           </li>
@@ -46,7 +46,7 @@
           -->
         </ul>
       </div>
-      <span class="navbar-text"><img class="logo" src="@/assets/logo_sofiadigital.png"/></span>
+      <span class="navbar-text"><img class="logo" src="@/assets/logo_sofiadigital.png" /></span>
     </nav>
 
     <div class="container mt-3">
@@ -70,7 +70,7 @@
     name: "App",
     data() {
       return {
-        version: "0.20",
+        version: "0.23",
       };
     },
     computed: {
@@ -84,7 +84,7 @@
         return user;
       },
       buildDate() {
-        let value = new Date(document.querySelector("meta[name='build_date']").getAttribute("content"));
+        let value = new Date(__BUILD_DATE__);
         const date = value.getDate();
         const month = value.getMonth() + 1;
         const year = value.getFullYear();
