@@ -4,19 +4,10 @@
       <div v-if="confirmDelete">
         <div class="modal-mask">
           <div class="modal-wrapper" role="dialog" aria-labelledby="exampleModalCenterTitle">
-            <div class="modal-dialog modal-dialog-centered" tabindex="-1" role="document">
+            <div class="modal modal-dialog modal-dialog-centered" tabindex="-1" role="document">
               <div class="modal-content">
                 <div class="modal-header">
                   <h5 class="modal-title" id="exampleModalCenterTitle">Delete User</h5>
-                  <button
-                    type="button"
-                    class="close btn btn-outline-primary"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                    @click="confirmDelete = !confirmDelete"
-                  >
-                    <span aria-hidden="true">&times;</span>
-                  </button>
                 </div>
                 <div class="modal-body">
                   <p>Please confirm, delete User?</p>
@@ -42,19 +33,10 @@
       <div v-if="confirmPassword">
         <div class="modal-mask">
           <div class="modal-wrapper" role="dialog" aria-labelledby="exampleModalCenterTitle">
-            <div class="modal-dialog modal-dialog-centered" tabindex="-1" role="document">
+            <div class="modal modal-dialog modal-dialog-centered" tabindex="-1" role="document">
               <div class="modal-content">
                 <div class="modal-header">
                   <h5 class="modal-title" id="exampleModalCenterTitle">Change password</h5>
-                  <button
-                    type="button"
-                    class="close btn btn-outline-primary"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                    @click="confirmPassword = !confirmPassword"
-                  >
-                    <span aria-hidden="true">&times;</span>
-                  </button>
                 </div>
                 <div class="modal-body">
                   <label for="Provider">New Password</label>
