@@ -10,6 +10,6 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^9.0.2",
-    "mysql2": "^2.3.2"
+    "mysql2": "^3.9.7"
   }
 }
