@@ -1,6 +1,7 @@
 const Provider = require("../models/provider.model.js");
 const ServiceList = require("./servicelist.controller");
 const User = require("../models/user.model.js");
+const { log } = require("../../logging.js");
 
 // Create and Save a new Customer
 exports.create = (req, res) => {
@@ -33,20 +34,15 @@ exports.create = (req, res) => {
     else {
       if (req.user.Role != "admin") {
         // add the new provider to users' providers
-        //
         let updateData = req.user;
         try {
-          updateData.Providers = JSON.parse(updateData.Providers);
           updateData.Providers.push(data.id);
-          updateData.Providers = JSON.stringify(updateData.Providers);
-        } catch {
-          console.log("user data or new provider id corrupted", req.user);
+        } catch(err) {
+          log(err);
         }
         User.updateById(req.user.Id, false, new User(updateData), (err, data) => {
           if (err) {
-            console.log("error adding provider to user", req.user.Id);
-          } else {
-            console.log("added new provider to user", req.user.Id);
+            log(err);
           }
         });
       }
@@ -68,41 +64,32 @@ exports.findAll = async (req, res) => {
     });
   } else {
     // fetch all providers for this user
-    //let provs = JSON.parse(req.user.Providers)
-    let provs = [];
-    try {
-      provs = JSON.parse(req.user.Providers);
-    } catch {
-      console.log("user data corrupt", req.user);
-    }
+    let provs = req.user.Providers ?? [];
 
     let result_data = [];
     let promises = [];
-    let failedProviderIds = [];
-    for (p in provs) {
+    for (const p in provs) {
       promises.push(
-        new Promise(async (resolve, reject) => {
+        new Promise((resolve, reject) => {
           Provider.findById(provs[p], (err, data) => {
             if (err) {
               reject(err);
-              console.log("error getting provider", provs[p]);
-              failedProviderIds.push(provs[p]);
+              log(err);
             } else {
               result_data.push(data);
               resolve();
             }
           });
         }).catch((err) => {
-          console.log("get users providers error:", err);
+          log(err);
         })
       );
     }
 
-    await Promise.all(promises).catch((err) => console.log("ALL", err));
+    await Promise.all(promises).catch((err) => log(err));
     res.send(result_data);
 
     // TODO: should we remove this id from users proders-set?
-    // failedProviderIds
   }
 };
 
@@ -118,14 +105,7 @@ exports.findOne = (req, res) => {
 
   // check user has rigths to this prov
   if (req.user.Role !== "admin") {
-    //const providers = JSON.parse(req.user.Providers)
-    let providers = [];
-    try {
-      providers = JSON.parse(req.user.Providers);
-    } catch {
-      console.log("user data corrupt", req.user);
-    }
-
+    let providers = req.user.Providers ?? [];
     if (!providers.includes(+providerId)) {
       validrequest = false;
     }
@@ -165,13 +145,7 @@ exports.update = (req, res) => {
 
   // check user has rigths to this prov
   if (req.user.Role !== "admin") {
-    //const providers = JSON.parse(req.user.Providers)
-    let providers = [];
-    try {
-      providers = JSON.parse(req.user.Providers);
-    } catch {
-      console.log("user data corrupt", req.user);
-    }
+    let providers = req.user.Providers ?? [];
 
     if (!providers.includes(+providerId)) {
       validrequest = false;
@@ -184,8 +158,6 @@ exports.update = (req, res) => {
     });
     return;
   }
-
-  console.log("updating:", req.body);
 
   Provider.updateById(req.params.customerId, new Provider(req.body), (err, data) => {
     if (err) {
@@ -206,16 +178,7 @@ exports.update = (req, res) => {
 exports.delete = async (req, res) => {
   // check user has rigths to this prov
   if (req.user.Role != "admin") {
-    let providers = [];
-    try {
-      providers = JSON.parse(req.user.Providers);
-    } catch {
-      console.log("user data corrupt", req.user);
-      res.status(400).send({
-        message: "Invalid request!",
-      });
-      return;
-    }
+    let providers = req.user.Providers ??[];
 
     if (!providers.includes(+req.params.customerId)) {
       res.status(400).send({
@@ -225,7 +188,6 @@ exports.delete = async (req, res) => {
     }
   }
 
-  //console.log(req.params, req.body)
   await ServiceList.deleteProviderLists(req, req.params.customerId);
 
   Provider.remove(req.params.customerId, (err, data) => {

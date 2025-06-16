@@ -1,3 +1,4 @@
+const { log } = require("../../logging.js");
 const sql = require("./db.js");
 
 // constructor
@@ -16,11 +17,9 @@ const EventHistory = function (eventHistory) {
 };
 
 EventHistory.create = (newEvent, result) => {
-  console.log("new", newEvent);
-
   sql.query("INSERT INTO EventHistory SET ?", newEvent, (err, res) => {
     if (err) {
-      console.log("EventHistory create error: ", err);
+      log(err);
       result(err, null);
       return;
     }
@@ -30,10 +29,9 @@ EventHistory.create = (newEvent, result) => {
 };
 
 EventHistory.findById = (ListId, result) => {
-  console.log("EventHistory for List", ListId);
   sql.query("SELECT * FROM EventHistory WHERE ServiceList = ?", ListId, async (err, res) => {
     if (err) {
-      console.log("error: ", err);
+      log(err);
       result(err, null);
       return;
     }
@@ -43,7 +41,6 @@ EventHistory.findById = (ListId, result) => {
       return;
     }
 
-    // not found List with the id
     result({ Name: "not_found" }, null);
   });
 };

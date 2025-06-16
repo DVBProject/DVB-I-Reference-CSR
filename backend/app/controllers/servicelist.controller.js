@@ -1,6 +1,7 @@
 const ServiceList = require("../models/servicelist.model.js");
 const EventHistory = require("../controllers/eventhistory.controller");
 const Providers = require("../controllers/provider.controller");
+const { log } = require("../../logging.js");
 
 // Create and Save a new List
 exports.create = (req, res) => {
@@ -14,15 +15,8 @@ exports.create = (req, res) => {
   }
 
   // provider check, user must "own" the provider to add a new list
-  //const provs = JSON.parse(req.user.Providers)
-  let provs = [];
-  try {
-    provs = JSON.parse(req.user.Providers);
-  } catch {
-    console.log("user data corrupt", req.user);
-  }
-
-  if (!provs.includes(+req.body.ProviderId) && req.user.Role !== "admin") {
+  let  provs = req.user.Providers ?? [];
+  if (!provs.includes(req.body.ProviderId) && req.user.Role !== "admin") {
     res.status(400).send({
       message: "Invalid request",
     });
@@ -33,14 +27,15 @@ exports.create = (req, res) => {
   const serviceList = new ServiceList({
     Names: req.body.Names,
     URI: req.body.URI,
-    lang: req.body.lang,
+    languages: req.body.languages,
     Provider: req.body.Provider,
     ProviderId: req.body.ProviderId,
     regulatorList: req.body.regulatorList,
     Delivery: req.body.Delivery,
-    Countries: req.body.Countries,
+    targetCountries: req.body.targetCountries,
     Genres: req.body.Genres,
     Status: "active",
+    ServiceListId: req.body.ServiceListId
   });
 
   // Save List in the database
@@ -53,7 +48,6 @@ exports.create = (req, res) => {
       res.send(data);
 
       // Log an event for this serviceList's event history
-      //
       const event = {
         ...data,
         Name: req.body.Names[0].name,
@@ -64,7 +58,7 @@ exports.create = (req, res) => {
 
       EventHistory.create(event, (err, res) => {
         if (err) {
-          console.log("List update, create event error:", err);
+          log(err);
         }
       });
     }
@@ -73,7 +67,6 @@ exports.create = (req, res) => {
 
 // Retrieve all Lists from the database.
 exports.findAll = async (req, res) => {
-  //console.log(req.url, req.ip, "user:", req.user.Name, req.user.Role)
   // check that user is admin
   if (!req.user) {
     res.status(500).send({
@@ -92,53 +85,37 @@ exports.findAll = async (req, res) => {
     });
   } else {
     // get users providers and their lists
-    //let provs = JSON.parse(req.user.Providers)
-    let provs = [];
-    try {
-      provs = JSON.parse(req.user.Providers);
-    } catch {
-      console.log("user data corrupt", req.user);
-    }
+    let provs = req.user.Providers ?? [];
     let lists = [];
     let promises = [];
-    for (p in provs) {
+    for (const p in provs) {
       promises.push(
-        new Promise(async (resolve, reject) => {
+        new Promise((resolve, reject) => {
           ServiceList.getAllByProvider(provs[p], (err, data) => {
             if (err) {
               reject(err);
-              console.log("error getting list", provs[p]);
+              log(err);
             } else {
               data.forEach((dd) => lists.push(dd));
               resolve();
             }
           });
         }).catch((err) => {
-          console.log("get users lists error:", err);
+          log(err);
         })
       );
     }
-    await Promise.all(promises).catch((err) => console.log("ALL", err));
-    //console.log(lists)
-
+    await Promise.all(promises).catch((err) => log(err));
     res.send(lists);
   }
 };
 
 // Retrieve all Lists from the database.
 exports.findAllByProvider = (req, res) => {
-  //console.log(req.url, req.ip, "user:", req.user.Name, req.user.Role)
 
   const providerId = +req.params.providerId; // sanitize...
   const user = req.user;
-  //const provs = JSON.parse(req.user.Providers)
-  let provs = [];
-  try {
-    provs = JSON.parse(req.user.Providers);
-  } catch {
-    console.log("user data corrupt", req.user);
-  }
-
+  let provs = req.user.Providers ?? [];
   if (provs.includes(providerId) || user.Role == "admin") {
     let provider = providerId;
 
@@ -150,8 +127,7 @@ exports.findAllByProvider = (req, res) => {
       else res.send(data);
     });
   } else {
-    console.log("findAllByProvider error, no permission", user.Role);
-    res.status(500).send({
+    res.status(401).send({
       message: "Unauthorised",
     });
   }
@@ -160,17 +136,6 @@ exports.findAllByProvider = (req, res) => {
 // find with status and by provider (optonal)
 //
 exports.findWithStatus = (req, result, status = "active", provider = null) => {
-  //console.log(req.url, req.ip, "user:", req.user.Name, req.user.Role)
-
-  /*
-  // check status validity
-  if(['active','suspended','deleted'].indexOf(status) == -1) {
-    console.log("invalid status")
-    result("err: invalid status", null)
-    return
-  }
-  */
-
   ServiceList.getAllByStatus(
     (err, data) => {
       if (err) result(err, null);
@@ -212,14 +177,7 @@ exports.findOne = (req, res) => {
     } else {
       // check if the found list is by one of the user's providers (if not admin)
       if (req.user.Role !== "admin") {
-        //const providers = JSON.parse(req.user.Providers)
-        let providers = [];
-        try {
-          providers = JSON.parse(req.user.Providers);
-        } catch {
-          console.log("user data corrupt", req.user);
-        }
-
+        let providers = req.user.Providers ?? [];
         if (!providers.includes(data.ProviderId)) {
           res.status(400).send({
             message: "Invalid request!",
@@ -233,12 +191,51 @@ exports.findOne = (req, res) => {
   });
 };
 
-// update
-//
-exports.update = async (req, res) => {
-  // check for auth,
-  //
+exports.findById = (req, res) => {
+  let validrequest = true;
 
+  // Id is a valid number
+  const listId = req.params.listId;
+  if (!listId) {
+    validrequest = false;
+  }
+
+  if (!validrequest) {
+    res.status(400).send({
+      message: "Invalid request!",
+    });
+    return;
+  }
+
+  ServiceList.findByUniqueId(req.params.listId, (err, data) => {
+    if (err) {
+      if (err.Name === "not_found") {
+        res.status(404).send({
+          message: `Not found List with id ${req.params.listId}.`,
+        });
+      } else {
+        res.status(500).send({
+          message: "Error retrieving List with id " + req.params.listId,
+        });
+      }
+    } else {
+      // check if the found list is by one of the user's providers (if not admin)
+      if (req.user.Role !== "admin") {
+        let providers = req.user.Providers ?? [];
+        if (!providers.includes(data.ProviderId)) {
+          res.status(400).send({
+            message: "Invalid request!",
+          });
+          return;
+        }
+      }
+
+      res.send(data);
+    }
+  });
+};
+// update
+exports.update = async (req, res) => {
   const listId = req.params.listId;
 
   if (!req.body) {
@@ -257,14 +254,7 @@ exports.update = async (req, res) => {
 
   // check users ownership of list's provider
   const listCheck = await ServiceList.listHeaderById(listId);
-  //const provs = JSON.parse(req.user.Providers)
-  let provs = [];
-  try {
-    provs = JSON.parse(req.user.Providers);
-  } catch {
-    console.log("user data corrupt", req.user);
-  }
-
+  let provs = req.user.Providers ?? [];
   let valid = true;
 
   if (listCheck) {
@@ -298,7 +288,7 @@ exports.update = async (req, res) => {
 
       EventHistory.create(event, (err, res) => {
         if (err) {
-          console.log("List update, create event error:", err);
+          log(err);
         }
       });
     }
@@ -311,18 +301,10 @@ exports.delete = async (req, res) => {
 
   // check users ownership of list's provider
   const listCheck = await ServiceList.listHeaderById(listId);
-  //const provs = JSON.parse(req.user.Providers)
-  let provs = [];
-  try {
-    provs = JSON.parse(req.user.Providers);
-  } catch {
-    console.log("user data corrupt", req.user);
-  }
-
+  let provs = req.user.Providers ?? [];
   let valid = true;
 
   if (listCheck) {
-    console.log("test");
     if (!provs.includes(+listCheck.Provider) && req.user.Role != "admin") {
       valid = false;
     }
@@ -357,7 +339,7 @@ exports.delete = async (req, res) => {
 
       EventHistory.create(event, (err, res) => {
         if (err) {
-          console.log("List update, create event error:", err);
+          log(err);
         }
       });
     }
@@ -366,19 +348,15 @@ exports.delete = async (req, res) => {
 
 // delete all per provider
 exports.deleteProviderLists = async (req, providerId) => {
-  console.log("Delete lists for provider", providerId);
   // get provider lists
   const data = await ServiceList.getAllProviderServiceListOfferings(providerId).catch((err) => {
-    console.log("getAllProviderServiceListOfferings", err);
+    log(err);
   });
 
-  //console.log(data)
-  // delete
   if (data) {
     let promises = [];
 
-    for (var i = 0; i < data.length; i++) {
-      console.log(i, data[i].Id);
+    for (let i = 0; i < data.length; i++) {
       promises.push(
         new Promise((resolve, reject) => {
           let listId = data[i].Id;
@@ -396,17 +374,17 @@ exports.deleteProviderLists = async (req, providerId) => {
 
               EventHistory.create(event, (err, res) => {
                 if (err) {
-                  console.log("delete provider lists, create event error:", err);
+                  log(err);
                 }
               });
             }
           });
         }).catch((err) => {
-          console.log("delete provider lists error:", err);
+          log(err);
         })
       );
     }
 
-    await Promise.all(promises).catch((err) => console.log("ALL", err));
+    await Promise.all(promises).catch((err) => log(err));
   }
 };

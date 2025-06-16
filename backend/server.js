@@ -1,6 +1,6 @@
 // catch all rogue exceptions
 process.on("uncaughtException", (err) => {
-  console.log("Caught exception: ", err);
+  error(err)
 });
 
 require("dotenv").config();
@@ -8,18 +8,19 @@ const express = require("express");
 
 const app = express();
 const cors = require("cors");
+const { error, info } = require("./logging");
 
 const PORT = process.env.PORT || 3000;
 app.use(cors());
 
 app.disable("x-powered-by");
 if (!process.env.JWT_SECRET) {
-  console.log("WARNING! JWT_SECRET NOT DEFINED! PLEASE DEFINE YOUR JWT SECRET IN THE ENV-FILE!");
+  error("WARNING! JWT_SECRET NOT DEFINED! PLEASE DEFINE YOUR JWT SECRET IN THE ENV-FILE!");
 }
 app.set("jwtstring", process.env.JWT_SECRET || "7öldÖJISjfs903jF(NljewOIWJRÖOA30SF");
 
 // parse requests of content-type: application/json
-app.use(express.json());
+app.use(express.json({limit: '10mb'}));
 
 // parse requests of content-type: application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
@@ -44,5 +45,5 @@ require("./app/routes/user.routes")(app);
 
 // set port, listen for requests
 app.listen(PORT, () => {
-  console.log("Backend server is running on port " + PORT);
+  info("Backend server is running on port "+PORT);
 });

@@ -34,7 +34,6 @@ module.exports = async (req, res, next) => {
     return next();
   } catch (err) {
     // expired token or other error
-    console.log(err);
     return res.status(401).json({
       success: false,
     });

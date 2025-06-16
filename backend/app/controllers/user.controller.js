@@ -1,12 +1,12 @@
 const User = require("../models/user.model.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { log } = require("../../logging.js");
 
 // create
 exports.create = async (req, res) => {
   if (req.user.Role !== "admin") {
-    console.log("create user: unauthorized", req.user);
-    return res.status(500).json({ success: false });
+    return res.status(401).json({ success: false });
   }
 
   const { Name, Role, Password, Email, Providers } = req.body;
@@ -17,11 +17,10 @@ exports.create = async (req, res) => {
   }
 
   if (!valid) {
-    console.log("create user: not a valid entry", req.user);
     return res.status(500).json({ success: false });
   }
-
-  const passwordHash = await bcrypt.hash(Password, 8);
+  //Empty password hash for publisher role. no password login, only access token 
+  const passwordHash = Role != "publisher" ? await bcrypt.hash(Password, 8) : '';
 
   const user = new User({
     Name: Name,
@@ -29,24 +28,18 @@ exports.create = async (req, res) => {
     passwordhash: passwordHash,
     Role: Role,
     Organization: 0,
-    Providers: Providers,
+    Providers: JSON.stringify(Providers) ||  '[]',
     Session: 1,
   });
 
   const newUser = await User.create(user);
-
   if (newUser) {
-    // logger
-    console.log("created user");
-    return res.status(200).json({ success: true });
+    return res.status(200).json({ success: true, Id: newUser.insertId });
   } else {
-    // logger
-    console.log("create user: error occured");
     return res.status(500).json({ success: false });
   }
 };
 
-// find
 exports.findOne = (req, res) => {
   // privileges: user should be able to find their own data
 
@@ -67,10 +60,29 @@ exports.findOne = (req, res) => {
     });
 };
 
+exports.getCurrent = (req,res) => {
+  const id = req.user.Id;
+  User.findById(id)
+    .then((data) => {
+      delete data[0]["Session"];
+      res.send(data);
+    })
+    .catch((err) => {
+      if (err.Name === "not_found") {
+        res.status(404).send({
+          message: `Not found user with id ${req.params.userId}.`,
+        });
+      } else {
+        res.status(500).send({
+          message: "Error retrieving user with id " + req.params.userId,
+        });
+      }
+    });
+
+}
+
 // find all users
 exports.findAll = (req, res) => {
-  //console.log(req.url, req.ip, "user:", req.user.Name, req.user.Role)
-
   if (!req.user) {
     res.status(500).send({
       message: err.message || "Not authorized.",
@@ -82,6 +94,8 @@ exports.findAll = (req, res) => {
   if (req.user.Role == "admin") {
     User.getAll()
       .then((data) => {
+        const from = data.findIndex((user) => user.Id === req.user.Id)
+        data.splice(0, 0, data.splice(from, 1)[0]);
         res.send(data);
       })
       .catch((err) => {
@@ -117,12 +131,7 @@ exports.findAllByProvider = (req, res) => {
   const providerId = +req.params.providerId;
   const user = req.user;
 
-  let provs = [];
-  try {
-    provs = JSON.parse(req.user.Providers);
-  } catch {
-    console.log("user data corrupt", req.user);
-  }
+  let provs = req.user.Providers ?? [];
 
   if (provs.includes(providerId) || user.Role == "admin") {
     let provider = providerId;
@@ -135,8 +144,7 @@ exports.findAllByProvider = (req, res) => {
       else res.send(data);
     });
   } else {
-    console.log("findAllByProvider error, no permission", user.Role);
-    res.status(500).send({
+    res.status(401).send({
       message: "Unauthorised",
     });
   }
@@ -172,12 +180,11 @@ exports.changePassword = async (req, res) => {
           message: "Error updating User with id " + req.user.Id,
         });
       } else {
-        console.log("password changed for user", req.user.Id);
         res.send(data);
       }
     });
   } else {
-    const { Id, Hash, Role, Session } = user[0];
+    const { Id, Hash } = user[0];
 
     const match = await bcrypt.compare(updateData.Password, Hash);
     if (!match) {
@@ -195,7 +202,6 @@ exports.changePassword = async (req, res) => {
           message: "Error updating User with id " + req.user.Id,
         });
       } else {
-        console.log("password changed for user", req.user.Id);
         res.send(data);
       }
     });
@@ -223,17 +229,16 @@ exports.update = (req, res) => {
     if (req.user.Role !== "admin") {
       // check providers, can only remove providers from existing
       try {
-        const oldlist = JSON.parse(req.user.Providers);
-        const newlist = JSON.parse(updateData.Providers);
+        const oldlist = req.user.Providers ?? [];
+        const newlist = updateData.Providers ?? [];
 
         newlist.forEach((elem) => {
           if (!oldlist.includes(elem)) {
             validrequest = false;
-            console.log("invalid, user attempting to add provider:", elem, "user:", req.user.Id);
           }
         });
       } catch (err) {
-        console.log("Update user err:", err);
+        log(err);
         validrequest = false;
       }
     }
@@ -298,8 +303,6 @@ exports.delete = (req, res) => {
 
 // log out
 exports.logout = (req, res) => {
-  console.log("User logged out:", req.user.Id, req.user.Name);
-
   const { Id, Session } = req.user;
 
   let newSession = Session + 1;
@@ -307,10 +310,71 @@ exports.logout = (req, res) => {
 
   User.updateSession(Id, newSession, (err, data) => {
     if (err) {
-      console.log("error with logout:", err);
+      log(err);
       res.status(400).json({ success: false });
     } else {
       res.send({ success: true });
+    }
+  });
+};
+
+exports.getPublishToken = async (req, res) => {  
+  if (req.user.Role !== "admin") {
+    res.status(400).send({
+      message: "Invalid request!",
+    });
+    return;
+  }
+  const userId = req.params.userId;
+  const user = await User.findById(userId);
+
+  if (!user || !user[0]) {
+    res.status(400).send({
+      message: "Invalid request!",
+    });
+    return;
+  }
+ 
+ const { Id, Session,Role } = user[0];
+
+ if (Role !== "publisher") {
+  res.status(400).send({
+    message: "User is not a publisher!",
+  });
+  return;
+ }
+ const date = new Date(2100,0, 1, 0, 0, 0, 0)
+ const iat = new Date(2025,0, 1, 0, 0, 0, 0)
+ 
+ const token = jwt.sign({ Id, Role, Session,iat:Math.floor(iat.getTime()/1000),exp:Math.floor(date.getTime()/1000)  }, req.app.get("jwtstring"));
+ res.send({ token: token });
+};
+
+exports.refreshPublishToken = async (req, res) => {
+  const userId = req.params.userId;
+  const user = await User.findById(userId);
+  if (!user || !user[0]) {
+    res.status(400).send({
+      message: "Invalid request!",
+    });
+    return;
+  }
+  const { Id, Session,Role } = user[0];
+  if (Role !== "publisher") {
+    res.status(400).send({
+      message: "User is not a publisher!",
+    });
+    return;
+   }
+
+  let newSession = Session + 1;
+  if (newSession > 1000) newSession = 1;
+
+  User.updateSession(Id, newSession, (err, data) => {
+    if (err) {
+      res.status(400).json({ success: false });
+    } else {
+      this.getPublishToken(req,res)
     }
   });
 };

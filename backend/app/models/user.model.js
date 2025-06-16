@@ -1,3 +1,4 @@
+const { log } = require("../../logging.js");
 const sql = require("./db.js");
 
 const User = function (newuser) {
@@ -13,7 +14,7 @@ User.create = (user) => {
   return new Promise((resolve, reject) => {
     sql.query("INSERT INTO User SET ?", user, (err, res) => {
       if (err) {
-        console.log("error: ", err);
+        log(err);
         reject(err);
       } else {
         resolve(res);
@@ -26,12 +27,13 @@ User.getAll = () => {
   return new Promise((resolve, reject) => {
     sql.query("SELECT * FROM User", (err, res) => {
       if (err) {
-        console.log("error: ", err);
+        log(err);
         reject(err);
       } else {
         // return everything but the pass hash
         res.forEach((element) => {
           delete element["Hash"];
+          element.Providers = JSON.parse(element.Providers);
         });
         resolve(res);
       }
@@ -44,11 +46,12 @@ User.findById = (Id) => {
   return new Promise((resolve, reject) => {
     sql.query(`SELECT * FROM User WHERE User.Id = ?`, [Id], (err, res) => {
       if (err) {
-        console.log("error: ", err);
+        log(err);
         reject(err);
       } else {
         res.forEach((element) => {
           delete element["Hash"];
+          element.Providers = JSON.parse(element.Providers);
         });
         resolve(res);
       }
@@ -61,32 +64,36 @@ User.findByName = (Name) => {
   return new Promise((resolve, reject) => {
     sql.query(`SELECT * FROM User WHERE User.Name = ?`, [Name], (err, res) => {
       if (err) {
-        console.log("error: ", err);
+        log(err);
         reject(err);
       } else {
+        for (let i = 0; i < res.length; i++) {
+          res[i].Providers = JSON.parse(res[i].Providers);
+        }
         resolve(res);
       }
     });
   });
 };
 
+
 User.getAllByProvider = async (provider, result) => {
   sql.query("SELECT User.Id, User.Name, User.Role, User.Providers, User.Email FROM User ", async (err, res) => {
     if (err) {
-      console.log("error: ", err);
+      log(err);
       result(err, null);
       return;
     }
 
     let list = [];
     for (let i = 0; i < res.length; i++) {
+      res[i].Providers = JSON.parse(res[i].Providers);
       try {
-        let provs = JSON.parse(res[i].Providers);
-        if (provs.includes(provider)) {
+        if (res[i].Providers.includes(provider)) {
           list.push(res[i]);
         }
-      } catch {
-        console.log("user data corrupt", res[i]);
+      } catch(err) {
+        log(err);
       }
     }
 
@@ -95,26 +102,22 @@ User.getAllByProvider = async (provider, result) => {
 };
 
 User.updateById = (Id, admin, newUser, result) => {
-  console.log("update User", Id);
-
   // verify needed data is not missing
   newUser.Name = newUser.Name || "";
   newUser.Email = newUser.Email || "";
   newUser.Role = newUser.Role || "user";
-  newUser.Providers = newUser.Providers || "[]";
+  newUser.Providers = newUser.Providers || [];
 
   if (admin) {
     sql.query(
       "UPDATE User SET Name = ?, Email = ?, Role = ?, Providers = ? WHERE Id = ?",
-      [newUser.Name, newUser.Email, newUser.Role, newUser.Providers, Id],
+      [newUser.Name, newUser.Email, newUser.Role, JSON.stringify(newUser.Providers), Id],
       async (err, res) => {
         if (err) {
-          console.log("error: ", err);
+          log(err);
           result(err, null);
           return;
         }
-
-        console.log("updated User: ", { Id: Id });
         result(null, { Id: Id });
       }
     );
@@ -122,15 +125,13 @@ User.updateById = (Id, admin, newUser, result) => {
     // regular user can only edit these fields
     sql.query(
       "UPDATE User SET Email = ?, Providers = ? WHERE Id = ?",
-      [newUser.Email, newUser.Providers, Id],
+      [newUser.Email,JSON.stringify( newUser.Providers ), Id],
       async (err, res) => {
         if (err) {
-          console.log("error: ", err);
+          log(err);
           result(err, null);
           return;
         }
-
-        console.log("updated User: ", { Id: Id });
         result(null, { Id: Id });
       }
     );
@@ -138,22 +139,17 @@ User.updateById = (Id, admin, newUser, result) => {
 };
 
 User.remove = async (id, result) => {
-  console.log("remove User", id);
-
   sql.query("DELETE FROM User WHERE Id = ?", id, (err, res) => {
     if (err) {
-      console.log("error: ", err);
+      log(err);
       result(err, null);
       return;
     }
 
     if (res.affectedRows == 0) {
-      console.log("not found User with the id", id);
       result({ user: "not_found" }, null);
       return;
     }
-
-    console.log("deleted User with id: ", id);
     result(null, res);
   });
 };
@@ -162,12 +158,11 @@ User.remove = async (id, result) => {
 User.updateSession = (Id, Session, result) => {
   sql.query("UPDATE User SET Session = ? WHERE Id = ?", [Session, Id], (err, res) => {
     if (err) {
-      console.log("error with logout update: ", err);
+      log(err);
       result(err, null);
       return;
     }
 
-    //console.log("Logged out User: ", { Id: Id })
     result(null, { Id: Id });
   });
 };
@@ -175,12 +170,10 @@ User.updateSession = (Id, Session, result) => {
 User.updatePwd = (Id, Hash, result) => {
   sql.query("UPDATE User SET Hash = ? WHERE Id = ?", [Hash, Id], async (err, res) => {
     if (err) {
-      console.log("error: ", err);
+      log(err);
       result(err, null);
       return;
     }
-
-    console.log("updated User: ", { Id: Id });
     result(null, { Id: Id });
   });
 };

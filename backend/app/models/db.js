@@ -1,4 +1,5 @@
 const mysql = require("mysql2");
+const { info } = require("../../logging");
 
 // Create a connection to the database
 const connection = mysql.createPool({
@@ -8,12 +9,13 @@ const connection = mysql.createPool({
   port: process.env.DB_PORT || "",
   password: process.env.DB_PASSWORD || "password",
   database: process.env.DB_NAME || "dvb_i_csr",
+  timezone: "Z",
 });
 
 // open the MySQL connection
 connection.getConnection((error, connection) => {
   if (error) throw error;
-  console.log("Successfully connected to the database.");
+  info("Successfully connected to the database.");
   connection.release();
 });
 

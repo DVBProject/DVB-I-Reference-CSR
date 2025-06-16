@@ -10,6 +10,9 @@ module.exports = (app) => {
   // Retrieve a single list with listId
   app.get("/servicelist/:listId", servicelist.findOne);
 
+  // Retrieve a single list with uniqueid
+  app.get("/servicelist-id/:listId", servicelist.findById);
+
   // Update a list with listId
   app.put("/servicelist/:listId", servicelist.update);
 

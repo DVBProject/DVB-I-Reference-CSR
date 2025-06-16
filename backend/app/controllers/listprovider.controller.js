@@ -1,10 +1,11 @@
+const { log } = require("../../logging.js");
 const Listprovider = require("../models/listprovider.model.js");
 
 // Retrieve all Providers from the database.
 exports.getProvider = (req, res) => {
   Listprovider.getProvider((err, data) => {
     if (err) {
-      console.log(err);
+      log(err);
       res.status(500).send({
         message: err.message || "Some error occurred while getting listprovider.",
       });
@@ -21,8 +22,6 @@ exports.update = (req, res) => {
     });
   }
 
-  console.log(req.body);
-
   Listprovider.update(new Listprovider(req.body), (err, data) => {
     if (err) {
       if (err.kind === "not_found") {
@@ -30,7 +29,7 @@ exports.update = (req, res) => {
           message: `List provider not found`,
         });
       } else {
-        console.log(err);
+        log(err);
         if (err.message) {
           res.status(500).send({
             message: "Error: " + err.message,

@@ -1,3 +1,4 @@
+const { log } = require("../../logging.js");
 const sql = require("./db.js");
 
 // constructor
@@ -12,16 +13,30 @@ const Provider = function (Provider) {
   this.Icons = Provider.Icons || [];
 };
 
-const jsonfields = ["Address", "ContactName", "ElectronicAddress", "Jurisdiction", "Kind", "Icons"];
+const jsonfields = [
+  "Address",
+  "ContactName",
+  "ElectronicAddress",
+  "Jurisdiction",
+  "Kind",
+  "Icons",
+];
 Provider.create = (newProvider, Names, result) => {
   if (!Names || Names.length == 0) {
     result({ message: "Provider name required!" }, null);
     return;
   }
-  for (var Name of Names) {
+  for (const Name of Names) {
     if (Name.name == "") {
       result({ message: "Provider cannot be empty!" }, null);
       return;
+    }
+  }
+  for (let field of jsonfields) {
+    try {
+      newProvider[field] = JSON.stringify(newProvider[field]);
+    } catch (e) {
+      log(err);
     }
   }
   sql.query(
@@ -37,43 +52,34 @@ Provider.create = (newProvider, Names, result) => {
     ],
     (err, res) => {
       if (err) {
-        console.log("provider create error: ", err);
+        log(err);
         result(err, null);
         return;
       }
 
-      console.log("created Organization: ", { id: res.insertId, ...newProvider });
-      // check if serviceListRegistry exixst, create if not.. TODO
-
-      // create a new name table entry for the new organization + type
-      //EntityName.name, EntityName.type
       const orgId = res.insertId;
 
-      for (index in Names) {
+      for (const index in Names) {
         const data = { ...Names[index], organization: orgId };
 
         sql.query("INSERT INTO EntityName SET ?", data, (err, res) => {
           if (err) {
-            console.log("error: ", err);
-
-            // ei varmaan pida tassa vaiheessa palauttaa requa..
-            //result(err, null);
-            //return;
+            log(err);
           }
         });
       }
 
       //Assume for now only one ServiceListRegistry, use id 1
       sql.query(
-        "INSERT INTO ProviderOffering(Organization,ServiceListRegistry) VALUES (?,?)",
+        "INSERT INTO ProviderOffering(Organization,ServiceListRegistry,updatedUtc) VALUES (?,?,utc_timestamp())",
         [orgId /*res.insertId*/, 1],
         (err, res) => {
           if (err) {
-            console.log("error: ", err);
+            log(err);
             result(err, null);
             return;
           }
-          console.log("created ProviderOffering");
+
           result(null, { id: res.insertId, ...newProvider });
         }
       );
@@ -83,18 +89,17 @@ Provider.create = (newProvider, Names, result) => {
 
 Provider.findById = (ProviderId, result) => {
   sql.query(
-    `SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator,Organization.Icons FROM ProviderOffering,Organization,EntityName WHERE ProviderOffering.Id = ? AND ProviderOffering.Organization = Organization.Id `,
+    `SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind,Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator,Organization.Icons,ProviderOffering.updatedUtc FROM ProviderOffering,Organization,EntityName WHERE ProviderOffering.Id = ? AND ProviderOffering.Organization = Organization.Id `,
     [ProviderId],
     async (err, res) => {
       if (err) {
-        console.log("findById error: ", err);
+        log(err);
         result(err, null);
         return;
       }
 
       if (res.length) {
         res[0].Regulator = res[0].Regulator != 0;
-        //console.log("found Provider: ", res[0]);
 
         // fetch names
         let provider = res[0];
@@ -102,11 +107,12 @@ Provider.findById = (ProviderId, result) => {
           try {
             provider[field] = JSON.parse(provider[field]);
           } catch (e) {
-            console.log("parse error in field", field, err);
+            provider[field] = {};
+            log(err);
           }
         }
         const names = await getNames(provider).catch((err) => {
-          console.log("findById, getNames error: ", err);
+          log(err);
         });
         provider.Names = [];
         if (names) {
@@ -127,27 +133,27 @@ Provider.findById = (ProviderId, result) => {
 
 Provider.getAll = (result) => {
   sql.query(
-    "SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind, Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator,Organization.Icons  FROM ProviderOffering,Organization where ProviderOffering.Organization = Organization.Id",
+    "SELECT ProviderOffering.Id,ProviderOffering.Organization,ProviderOffering.ServiceListRegistry,Organization.Kind, Organization.ContactName,Organization.Jurisdiction,Organization.Address,Organization.ElectronicAddress,Organization.Regulator,Organization.Icons,ProviderOffering.updatedUtc  FROM ProviderOffering,Organization where ProviderOffering.Organization = Organization.Id",
     async (err, res) => {
       if (err) {
-        console.log("error: ", err);
+        log(err);
         result(err, null);
         return;
       }
 
       try {
-        for (i = 0; i < res.length; i++) {
+        for (let i = 0; i < res.length; i++) {
           let provider = res[i];
           for (let field of jsonfields) {
             try {
               provider[field] = JSON.parse(provider[field]);
             } catch (e) {
-              console.log("parse error in field", field, err);
+              log(err);
             }
           }
           // Fetch Names
           const names = await getNames(provider).catch((err) => {
-            console.log("error: ", err);
+            log(err);
           });
           provider.Names = [];
           if (names) {
@@ -155,146 +161,148 @@ Provider.getAll = (result) => {
               provider.Names.push({ name: n.Name, type: n.Type });
             });
           }
-          //console.log(provider.Names)
         }
       } catch (err) {
-        console.log("error: ", err);
+        log(err);
         result(err, null);
         return;
       }
-
-      console.log("Providers: ", res.length);
       result(null, res);
     }
   );
 };
 
 Provider.updateById = (id, Provider, result) => {
-  console.log("update Provider"); //,Provider,id);
-
   if (!Provider.Names || Provider.Names.length == 0) {
     result({ message: "Provider name required!" }, null);
     return;
   }
-  for (var Name of Provider.Names) {
+  for (const Name of Provider.Names) {
     if (Name.name == "") {
       result({ message: "Provider name cannot be empty!" }, null);
       return;
     }
   }
+  sql.query(
+    "UPDATE ProviderOffering SET updatedUtc = utc_timestamp() WHERE Id = ?",
+    id
+  );
 
-  sql.query("SELECT Organization FROM ProviderOffering WHERE Id = ?", id, (err, res) => {
-    if (err) {
-      console.log("error: ", err);
-      result(err, null);
-      return;
+  sql.query(
+    "SELECT Organization FROM ProviderOffering WHERE Id = ?",
+    id,
+    (err, res) => {
+      if (err) {
+        log(err);
+        result(err, null);
+        return;
+      }
+      const orgId = res[0].Organization;
+      for (let field of jsonfields) {
+        try {
+          Provider[field] = JSON.stringify(Provider[field]);
+        } catch (e) {
+          result(e, null);
+          log(e);
+          return;
+        }
+      }
+      sql.query(
+        "UPDATE Organization SET Kind = ?, ContactName = ?, Jurisdiction = ?,Address = ?,ElectronicAddress = ?,Regulator = ?, Icons = ? WHERE Id = ?",
+        [
+          Provider.Kind,
+          Provider.ContactName,
+          Provider.Jurisdiction,
+          Provider.Address,
+          Provider.ElectronicAddress,
+          Provider.Regulator ? 1 : 0,
+          Provider.Icons,
+          res[0].Organization,
+        ],
+        async (err, res) => {
+          if (err) {
+            log(err);
+            result(err, null);
+            return;
+          }
+          // update names
+          await removeNames(orgId);
+          await createNames(orgId, Provider);
+          result(null, { id: id, ...Provider });
+        }
+      );
     }
-    //console.log(res[0].Organization,id);
-    const orgId = res[0].Organization;
-    sql.query(
-      "UPDATE Organization SET Kind = ?, ContactName = ?, Jurisdiction = ?,Address = ?,ElectronicAddress = ?,Regulator = ?, Icons = ? WHERE Id = ?",
-      [
-        Provider.Kind,
-        Provider.ContactName,
-        Provider.Jurisdiction,
-        Provider.Address,
-        Provider.ElectronicAddress,
-        Provider.Regulator ? 1 : 0,
-        Provider.Icons,
-        res[0].Organization,
-      ],
-      async (err, res) => {
+  );
+};
+
+Provider.remove = (id, result) => {
+  sql.query(
+    "SELECT Organization FROM ProviderOffering WHERE Id = ?",
+    id,
+    (err, res) => {
+      if (err) {
+        log(err);
+        result(err, null);
+        return;
+      }
+      //delete organization, cascade will remove the provideroffering
+      const orgId = res[0].Organization;
+      sql.query("DELETE FROM Organization WHERE id = ?", orgId, (err, res) => {
         if (err) {
-          console.log("Organization update error: ", err);
+          log(err);
           result(err, null);
           return;
         }
 
         if (res.affectedRows == 0) {
-          console.log("Affected rows", res.affectedRows);
           // not found Provider with the id
-          //result({ kind: "not_found" }, null);
-          //return;
+          result({ kind: "not_found" }, null);
+          return;
         }
-
-        // update names
-        await removeNames(orgId);
-        await createNames(orgId, Provider);
-
-        console.log("updated Provider: ", { id: id, ...Provider });
-        result(null, { id: id, ...Provider });
-      }
-    );
-  });
-};
-
-Provider.remove = (id, result) => {
-  console.log("remove Provider");
-  sql.query("SELECT Organization FROM ProviderOffering WHERE Id = ?", id, (err, res) => {
-    if (err) {
-      console.log("error: ", err);
-      result(err, null);
-      return;
+        result(null, res);
+      });
     }
-    //console.log(res[0].Organization,id);
-    //delete organization, cascade will remove the provideroffering
-    const orgId = res[0].Organization;
-    sql.query("DELETE FROM Organization WHERE id = ?", orgId, (err, res) => {
-      if (err) {
-        console.log("error: ", err);
-        result(err, null);
-        return;
-      }
-
-      if (res.affectedRows == 0) {
-        // not found Provider with the id
-        result({ kind: "not_found" }, null);
-        return;
-      }
-
-      console.log("deleted Provider with id: ", id);
-      result(null, res);
-    });
-  });
+  );
 };
 
 Provider.removeAll = (result) => {
-  console.log("remove ALL Providers");
   sql.query("DELETE FROM Providers", (err, res) => {
     if (err) {
-      console.log("error: ", err);
+      log(err);
       result(err, null);
       return;
     }
-
-    console.log(`deleted ${res.affectedRows} Providers`);
     result(null, res);
   });
 };
 
 function removeNames(id) {
   return new Promise((resolve, reject) => {
-    sql.query(`DELETE FROM EntityName where EntityName.Organization = ?`, [id], (err, res) => {
-      if (err) {
-        console.log("EntityName delete error: ", err);
-        reject(err);
-      } else {
-        resolve(res);
+    sql.query(
+      `DELETE FROM EntityName where EntityName.Organization = ?`,
+      [id],
+      (err, res) => {
+        if (err) {
+          log(err);
+          reject(err);
+        } else {
+          resolve(res);
+        }
       }
-    });
+    );
   });
 }
 
 async function createNames(orgId, provider) {
   let promises = [];
-  for (index in provider.Names) {
+  for (const index in provider.Names) {
     const data = { ...provider.Names[index], organization: orgId };
     // with promise.all the names are not always saved in the same order
     //promises.push(
     await new Promise((resolve, reject) => {
       sql.query("INSERT INTO EntityName SET ?", data, (err, res) => {
         if (err) {
-          console.log("EntityName insert error: ", err);
+          log(err);
           reject();
         }
         resolve();
@@ -302,22 +310,41 @@ async function createNames(orgId, provider) {
     }).catch((err) => {
       return err;
     });
-    //)
   }
-  //await Promise.all(promises).catch(err => console.log("createNames ALL", err))
 }
 
 function getNames(provider) {
   return new Promise((resolve, reject) => {
-    sql.query(`SELECT * FROM EntityName where EntityName.Organization = ?`, [provider.Organization], (err, res) => {
-      if (err) {
-        console.log("EntityName get error: ", err);
-        reject(err);
-      } else {
-        resolve(res);
+    sql.query(
+      `SELECT * FROM EntityName where EntityName.Organization = ?`,
+      [provider.Organization],
+      (err, res) => {
+        if (err) {
+          log(err);
+          reject(err);
+        } else {
+          resolve(res);
+        }
       }
-    });
+    );
   });
 }
+
+Provider.findByName = (name) => {
+  return new Promise((resolve, reject) => {
+    sql.query(
+      "SELECT ProviderOffering.Id FROM EntityName, ProviderOffering where EntityName.Name = ? and EntityName.Organization != 1 and EntityName.Organization = ProviderOffering.Organization",
+      [name],
+      (err, res) => {
+        if (err) {
+          log(err);
+          reject(err);
+        } else {
+          resolve(res);
+        }
+      }
+    );
+  });
+};
 
 module.exports = Provider;

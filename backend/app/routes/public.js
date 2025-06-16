@@ -1,8 +1,7 @@
 const User = require("../models/user.model.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
-// logger
+const { log } = require("../../logging.js");
 
 // public routes, no auth required
 
@@ -30,62 +29,60 @@ module.exports = (app) => {
         const newUser = await User.create(user);
 
         if (newUser) {
-          // logger
           return res.status(200).json({ success: true });
         } else {
-          // logger
-          console.log("error occured");
           return res.status(500).json({ success: false });
         }
       } else {
-        // logger
-        console.log("already created");
-        return res.status(400).json({ success: false, error: "already created" });
+        return res
+          .status(400)
+          .json({ success: false, error: "already created" });
       }
     } catch (err) {
-      console.log(err);
-      // logger
-
+      log(err);
       return res.status(400).json({ success: false });
     }
   });
 
   app.post("/authenticate", async (req, res) => {
-    try {
-      let {
-        body: { username, password },
-        ip,
-      } = req;
+      try {
+        let {
+          body: { username, password },
+        } = req;
 
-      const user = await User.findByName(username);
+        const user = await User.findByName(username);
 
-      if (!user || user.length < 1) {
+        if (!user || user.length < 1) {
+          return res
+            .status(401)
+            .json({ success: false, error: "general error" });
+        }
+
+        const { Id, Hash, Role, Session } = user[0];
+
+        const match = await bcrypt.compare(password, Hash);
+        if (!match) {
+          return res
+            .status(401)
+            .json({ success: false, error: "general error" });
+        }
+
+        // create token
+        // include user IP in token ? todo
+        const token = jwt.sign(
+          { Id, Role, Session },
+          req.app.get("jwtstring"),
+          { expiresIn: "4h" }
+        );
+
+        // log the login: "user logged in from ip"
+        let user_data = {
+          role: Role === "admin",
+        };
+        return res.status(200).json({ success: true, token, user: user_data });
+      } catch (err) {
+        log(err);
         return res.status(401).json({ success: false, error: "general error" });
       }
-
-      const { Id, Hash, Role, Session } = user[0];
-
-      const match = await bcrypt.compare(password, Hash);
-      if (!match) {
-        // failed login, logger
-        return res.status(401).json({ success: false, error: "general error" });
-      }
-
-      // create token
-      // include user IP in token ? todo
-      const token = jwt.sign({ Id, Role, Session }, req.app.get("jwtstring"), { expiresIn: "4h" });
-
-      // log the login: "user logged in from ip"
-      console.log("User", Id, "logged in from IP", ip);
-      let user_data = {
-        role: Role === "admin",
-        //Id
-      };
-      return res.status(200).json({ success: true, token, user: user_data });
-    } catch (err) {
-      // log error
-
-      return res.status(401).json({ success: false, error: "general error" });
-    }
   });
 };

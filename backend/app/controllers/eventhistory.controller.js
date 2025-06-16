@@ -1,3 +1,4 @@
+const { log } = require("../../logging.js");
 const EventHistory = require("../models/eventhistory.model.js");
 
 // create, called only by other internal routes
@@ -7,9 +8,6 @@ exports.create = (data, result) => {
     result("err: data is null", null);
     return;
   }
-
-  console.debug(data);
-
   const event = new EventHistory({
     User: data.user.Id,
     UserName: data.user.Name,
@@ -22,13 +20,12 @@ exports.create = (data, result) => {
 
   EventHistory.create(event, (err, data) => {
     if (err) {
-      console.log("error creating history event");
+      log(err);
       result(err, null);
       return;
     }
 
     if (!data) {
-      console.log("error creating history event");
       result("EventHistory. create err: null data", null);
       return;
     }
