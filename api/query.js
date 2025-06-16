@@ -1,11 +1,8 @@
-import * as qs from "qs";
-import md5 from "md5";
-import * as mysql from "mysql2/promise";
-import * as xmlbuilder from "xmlbuilder";
-import * as redis from "redis";
-import countries from "../common/countries.js";
-import languages from "../common/languages.js";
-import { genres as genrelist, deliveries as deliverylist } from "../common/dev_constants.js";
+const xmlbuilder = require('xmlbuilder')
+const {countries} = require( "../common/countries.js")
+const {languages} = require("../common/languages.js");
+const  { genres, deliveries} = require("../common/dev_constants.js");
+const { log } = require('./logging.js');
 
 const csrquery = {};
 csrquery.validParameters = [
@@ -16,6 +13,7 @@ csrquery.validParameters = [
   "Genre",
   "ProviderName",
   "inlineImages",
+  "ServicelistId"
 ];
 
 csrquery.deliveryMap = {
@@ -29,102 +27,23 @@ csrquery.deliveryMap = {
 
 csrquery.validContacNameElements = ["GivenName", "LinkingName", "FamilyName", "Title", "Salutation", "Numeration"];
 
-csrquery.A177r3 = "a177r3";
-csrquery.A177r4 = "a177r4";
+csrquery.A177r6 = "a177r6";
 
-csrquery.redis = null;
 csrquery.mysql = null;
-csrquery.init = function () {
-  console.log("init csrquery");
-  if (process.env.REDIS_ENABLED === "true") {
-    let config = {};
-    if (process.env.REDIS_HOST) {
-      config.host = process.env.REDIS_HOST;
-    }
-    if (process.env.REDIS_PORT) {
-      config.port = process.env.REDIS_PORT;
-    }
-    if (process.env.REDIS_PASSWORD) {
-      config.password = process.env.REDIS_PASSWORD;
-    }
-    this.redis = redis.createClient(config);
-    console.log("redis cache initialized");
-  }
-  this.mysql = mysql.createPool({
-    connectionLimit: process.env.DB_CONNECTIONS || 10,
-    host: process.env.DB_HOST || "localhost",
-    port: process.env.DB_PORT || "",
-    user: process.env.DB_USER || "user",
-    password: process.env.DB_PASSWORD || "password",
-    database: process.env.DB_NAME || "dvb_i_csr",
-  });
-  console.log("DB connection pool initialized");
+csrquery.init = function (db) {
+ this.mysql = db;
 };
 
-csrquery.getCSRList = async function (request, useCache, version) {
-  if (!version) {
-    version = this.A177r4;
-  }
-  const params = qs.parse(request.query);
-  var keys = Object.keys(params);
-  keys.sort();
-  var ordered = {};
-  for (var i = 0; i < keys.length; i++) {
-    ordered[keys[i]] = params[keys[i]];
-  }
-  //TODO Better hash function or some other way to identify the request?
-  //Could we use the unhashed json as the key? or gzip the json so
-  //we could check the parameters from the key
-  const hash = md5(JSON.stringify(ordered) + version);
-  let cached = null;
-  if (this.redis && useCache) {
-    cached = await this.getCachedResponse(hash);
-  }
-  if (cached) {
-    return cached;
-  } else {
-    const query = this.parseCSRQuery(request);
-    const xml = await this.generateXML(query, version);
-    if (this.redis && useCache) {
-      this.redis.set(hash, xml);
-      this.redis.expire(hash, parseInt(process.env.REDIS_EXPIRES) || 300); //Default expiry, 5 minutes
-    }
-    return xml;
-  }
-};
-
-csrquery.getCachedResponse = async function (hash) {
-  try {
-    return new Promise((resv, rej) => {
-      this.redis.get(hash, (err, reply) => {
-        resv(reply);
-      });
-    });
-  } catch (e) {
-    console.log(e);
-    return false;
-  }
-};
-
-csrquery.parseCSRQuery = function (request) {
-  const params = qs.parse(request.query);
-
-  var keys = Object.keys(params);
-  keys.sort();
-  var ordered = {};
-  for (var i = 0; i < keys.length; i++) {
-    ordered[keys[i]] = params[keys[i]];
-  }
-
-  for (var param in params) {
+csrquery.parseCSRQuery = function (params)  {
+  for (const param in params) {
     if (!this.validParameters.includes(param)) {
       throw new Error("Invalid parameter:" + param);
     }
   }
-  var queryParameters = [];
-  var query = [];
-  var tables = [];
-  var inlineImages = false;
+  const queryParameters = [];
+  const query = [];
+  const tables = [];
+  let inlineImages = false;
   tables.push("ServiceListOffering");
   if (params.regulatorListFlag) {
     if ("true" !== params.regulatorListFlag && "false" !== params.regulatorListFlag) {
@@ -166,6 +85,11 @@ csrquery.parseCSRQuery = function (request) {
   if (params.hasOwnProperty("inlineImages")) {
     inlineImages = true;
   }
+  if (params.ServicelistId) {
+    let queryparams = this.parseServiceListId(params.ServicelistId);
+    query.push(queryparams[0]);
+    queryParameters.push(...queryparams[1]);
+  }
   const sqlQuery =
     "Select ServiceListOffering.Id,ServiceListOffering.Provider from " +
     tables.join(",") +
@@ -178,8 +102,8 @@ csrquery.validateLanguage = function (languageParams) {
   if (!Array.isArray(languageParams)) {
     languageParams = [languageParams];
   }
-  var array = [];
-  for (var lang of languageParams) {
+  const array = [];
+  for (const lang of languageParams) {
     if (!languages.hasOwnProperty(lang)) {
       throw new Error("Invalid language:" + lang);
     }
@@ -194,12 +118,26 @@ csrquery.validateLanguage = function (languageParams) {
   ];
 };
 
+csrquery.parseServiceListId = function (serviceListParams) {
+  if (!Array.isArray(serviceListParams)) {
+    serviceListParams = [serviceListParams];
+  }
+
+  const query = Array(serviceListParams.length).fill("ServiceListOffering.ServiceListId = ?");
+  return [
+    "(" +
+      query.join(" or ") +
+      ")",
+    serviceListParams,
+  ];
+}
+
 csrquery.validateTargetCountry = function (countryParams) {
   if (!Array.isArray(countryParams)) {
     countryParams = [countryParams];
   }
-  var array = [];
-  for (var country of countryParams) {
+  const array = [];
+  for (const country of countryParams) {
     if (!countries.hasOwnProperty(country)) {
       throw new Error("Invalid targetcountry:" + country);
     }
@@ -218,14 +156,14 @@ csrquery.validateDelivery = function (deliveries) {
   if (!Array.isArray(deliveries)) {
     deliveries = [deliveries];
   }
-  var array = [];
-  for (var delivery of deliveries) {
+  const array = [];
+  for (const delivery of deliveries) {
     const validDeliveryparams = Object.keys(this.deliveryMap);
     if (!validDeliveryparams.includes(delivery)) {
       throw new Error("Invalid delivery:" + delivery);
     }
     let deliveryValues = this.deliveryMap[delivery];
-    for (var value of deliveryValues) {
+    for (const value of deliveryValues) {
       array.push("%" + value + "%");
     }
   }
@@ -233,13 +171,13 @@ csrquery.validateDelivery = function (deliveries) {
   return ["(" + query.join(" or ") + ")", array];
 };
 
-csrquery.validateGenres = function (genres) {
-  if (!Array.isArray(genres)) {
-    genres = [genres];
+csrquery.validateGenres = function (genreList) {
+  if (!Array.isArray(genreList)) {
+    genreList = [genreList];
   }
-  var array = [];
-  for (var genre of genres) {
-    if (!genrelist.hasOwnProperty(genre)) {
+  const array = [];
+  for (const genre of genreList) {
+    if (!genres.hasOwnProperty(genre)) {
       throw new Error("Invalid genre:" + genre);
     }
     array.push(genre);
@@ -257,8 +195,8 @@ csrquery.validateProviderName = function (names) {
   if (!Array.isArray(names)) {
     names = [names];
   }
-  var array = [];
-  for (var name of names) {
+  const array = [];
+  for (const name of names) {
     array.push(name);
   }
   const query = Array(array.length).fill("EntityName.Name = ?");
@@ -270,57 +208,60 @@ csrquery.validateProviderName = function (names) {
   ];
 };
 
-csrquery.generateXML = async function (query, version) {
+
+csrquery.generateXML = async function (params,version) {
+  const query = this.parseCSRQuery(params);
   try {
-    //A177r4 schema is the default
-    var xmlns = "urn:dvb:metadata:servicelistdiscovery:2022b";
-    var xmlns_dvbisd = "urn:dvb:metadata:servicediscovery:2022b";
-    var schemaLocation = "urn:dvb:metadata:servicelistdiscovery:2022 dvbi_service_list_discovery_v1.4.xsd";
-    if (version == this.A177r3) {
-      xmlns = "urn:dvb:metadata:servicelistdiscovery:2022";
-      xmlns_dvbisd = "urn:dvb:metadata:servicediscovery:2022";
-      schemaLocation = "urn:dvb:metadata:servicelistdiscovery:2022 dvbi_service_list_discovery_v1.3.xsd";
-    }
-    const lang = await this.mysql.execute(
+    //A177r6 schema is the default
+    const xmlns = "urn:dvb:metadata:servicelistdiscovery:2024";
+    const xmlns_dvbisd = "urn:dvb:metadata:servicediscovery:2024";
+    const schemaLocation = "urn:dvb:metadata:servicelistdiscovery:2022 dvbi_service_list_discovery_v1.6.xsd";
+    const lang = await this.execute(
       "SELECT Language FROM ServiceListEntryPoints WHERE ServiceListEntryPoints.Id = 1"
     );
-    var root = xmlbuilder
+    const root = xmlbuilder
       .create("ServiceListEntryPoints", { version: "1.0", encoding: "UTF-8" })
       .att("xmlns", xmlns)
       .att("xmlns:mpeg7", "urn:tva:mpeg7:2008")
+      .att("xmlns:tva", "urn:tva:metadata:2024")
       .att("xmlns:dvbisd", xmlns_dvbisd)
+      .att("xmlns:dvbi-types","urn:dvb:metadata:servicediscovery-types:2023" )
       .att("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
       .att("xsi:schemaLocation", schemaLocation)
-      .att("xml:lang", lang[0][0].Language);
+      .att("xml:lang", lang[0].Language);
 
-    const registryEntity = await this.mysql.execute(
+    const registryEntity = await this.execute(
       "SELECT Organization.* FROM ServiceListEntryPoints,Organization " +
         "WHERE ServiceListEntryPoints.Id = 1 AND ServiceListEntryPoints.ServiceListRegistryEntity = Organization.Id"
     );
-    const entityData = registryEntity[0][0];
+    const entityData = registryEntity[0];
     await this.generateOrganizationXML(entityData, true, root, query[2]);
-    const lists = await this.mysql.execute(query[0], query[1]);
-    var providers = {};
-    for (var list of lists[0]) {
+    const lists = await this.execute(query[0], query[1]);
+    const providers = {};
+    for (const list of lists) {
       if (!providers.hasOwnProperty(list.Provider)) {
         providers[list.Provider] = [];
       }
       providers[list.Provider].push(list.Id);
     }
-    for (var key of Object.keys(providers)) {
-      await this.generateProviderXML(key, providers[key], root, query[2]);
+    let lastModified = null;
+    for (const key of Object.keys(providers)) {
+      const modified = await this.generateProviderXML(key, providers[key], root, query[2]);
+      if(lastModified == null || lastModified < modified) {
+        lastModified = modified;
+      }
     }
-    return root.end();
+    return {xml: root.end(), lastModified: lastModified} ;
   } catch (e) {
-    console.log(e);
+    log(e);
     return null;
   }
 };
 
 csrquery.generateOrganizationXML = async function (organization, registryEntity, root, inlineImages) {
   try {
-    const names = await this.mysql.execute("SELECT * FROM EntityName WHERE Organization = ?", [organization.Id]);
-    var entity = null;
+    const names = await this.execute("SELECT * FROM EntityName WHERE Organization = ?", [organization.Id]);
+    let entity = null;
     if (registryEntity) {
       entity = root.ele("ServiceListRegistryEntity", {
         regulatorFlag: organization["Regulator"] == 1 ? "true" : "false",
@@ -350,12 +291,11 @@ csrquery.generateOrganizationXML = async function (organization, registryEntity,
           }
         }
       } catch (e) {
-        console.log("Invalid Icon JSON:" + organization.Icons);
+        log("Invalid Icon JSON:" + organization.Icons);
       }
     }
-    for (var name of names[0]) {
-      var nameElement = entity.ele("Name", {}, name.Name);
-      name;
+    for (const name of names) {
+      const nameElement = entity.ele("Name", {}, name.Name);
       if (name.Type != null && name.Type != "") {
         nameElement.att("type", name.Type);
       }
@@ -363,16 +303,16 @@ csrquery.generateOrganizationXML = async function (organization, registryEntity,
     if (organization.Kind && organization.Kind.length > 0) {
       const kinds = JSON.parse(organization.Kind);
       if (Array.isArray(kinds) && kinds.length > 0) {
-        var kindElement = entity.ele("Kind");
+        const kindElement = entity.ele("Kind");
         for (const kind of kinds) {
           if (kind.name) {
-            var element = kindElement.ele("mpeg7:Name", {}, kind.name);
+            const element = kindElement.ele("mpeg7:Name", {}, kind.name);
             if (kind.lang) {
               element.att("xml:lang", kind.lang);
             }
           }
           if (kind.definition) {
-            var element = kindElement.ele("mpeg7:Definition", {}, kind.definition);
+            const element = kindElement.ele("mpeg7:Definition", {}, kind.definition);
             if (kind.lang) {
               element.att("xml:lang", kind.lang);
             }
@@ -385,12 +325,12 @@ csrquery.generateOrganizationXML = async function (organization, registryEntity,
         const names = JSON.parse(organization.ContactName);
         if (Array.isArray(names)) {
           if (names.length > 0) {
-            var contact = entity.ele("ContactName");
-            for (var name of names) {
+            const contact = entity.ele("ContactName");
+            for (const name of names) {
               if (this.validContacNameElements.includes(name.type)) {
                 contact.ele("mpeg7:" + name.type, {}, name.name);
               } else {
-                console.log("Invalid ContactName element type:" + name.type);
+                log("Invalid ContactName element type:" + name.type);
               }
             }
           }
@@ -398,21 +338,21 @@ csrquery.generateOrganizationXML = async function (organization, registryEntity,
           throw new Error("ContactName not an array");
         }
       } catch (e) {
-        console.log("Invalid ContactName JSON:" + organization.ContactName);
+        log("Invalid ContactName JSON:" + organization.ContactName);
       }
     }
     if (organization.Jurisdiction) {
       try {
         this.generatePlaceType(entity, organization.Jurisdiction, "Jurisdiction");
       } catch (e) {
-        console.log("Invalid Jurisdiction JSON:" + organization.Address);
+        log("Invalid Jurisdiction JSON:" + organization.Address);
       }
     }
     if (organization.Address) {
       try {
         this.generatePlaceType(entity, organization.Address, "Address");
       } catch (e) {
-        console.log(e, "Invalid Address JSON:" + organization.Address);
+        log(e, "Invalid Address JSON:" + organization.Address);
       }
     }
     if (organization.ElectronicAddress) {
@@ -444,24 +384,24 @@ csrquery.generateOrganizationXML = async function (organization, registryEntity,
           electronicAddressElement.ele("mpeg7:Url", {}, electronicAddress.Url);
         }
       } catch (e) {
-        console.log("Invalid Electronicaddress JSON:" + organization.ElectronicAddress);
+        log("Invalid Electronicaddress JSON:" + organization.ElectronicAddress);
       }
     }
   } catch (e) {
-    console.log(e);
+    log(e);
   }
 };
 
 csrquery.generatePlaceType = function (parent, data, elementName) {
-  var root = null;
+  let root = null;
   const address = JSON.parse(data);
   if (address.Name) {
     root = parent.ele(elementName);
     root.ele("mpeg7:Name", {}, address.Name);
   }
   if (address.AddressLine) {
-    var postalAddress = null;
-    for (var Line of address.AddressLine) {
+    let postalAddress = null;
+    for (const Line of address.AddressLine) {
       if (Line.length > 0) {
         if (root == null) {
           root = parent.ele(elementName);
@@ -477,68 +417,69 @@ csrquery.generatePlaceType = function (parent, data, elementName) {
 
 csrquery.generateProviderXML = async function (provider, lists, root, inlineImages) {
   try {
-    const organization = await this.mysql.execute(
-      "SELECT Organization.* FROM Organization,ProviderOffering WHERE Organization.Id = ProviderOffering.Organization AND ProviderOffering.Id = ?",
+    const organization = await this.execute(
+      "SELECT Organization.*,ProviderOffering.updatedUtc FROM Organization,ProviderOffering WHERE Organization.Id = ProviderOffering.Organization AND ProviderOffering.Id = ?",
       [provider]
     );
-    var providerOffering = root.ele("ProviderOffering");
-    await this.generateOrganizationXML(organization[0][0], false, providerOffering, inlineImages);
-    for (var list of lists) {
-      await this.generateServiceListOfferingXML(list, providerOffering);
+    let lastModified = organization[0].updatedUtc
+    const providerOffering = root.ele("ProviderOffering");
+    await this.generateOrganizationXML(organization[0], false, providerOffering, inlineImages);
+    for (const list of lists) {
+      let modified = await this.generateServiceListOfferingXML(list, providerOffering);
+      if(lastModified < modified) {
+        lastModified = modified;
+      }
     }
+    return lastModified
   } catch (e) {
-    console.log(e);
+    log(e);
   }
 };
 
 csrquery.generateServiceListOfferingXML = async function (list, root) {
-  var serviceListOffering = root.ele("ServiceListOffering");
-  const listOffering = await this.mysql.execute("SELECT regulatorList,Delivery FROM ServiceListOffering WHERE Id = ?", [
+  const serviceListOffering = root.ele("ServiceListOffering");
+  const listOffering = await this.execute("SELECT regulatorList,Delivery,Icons,ServicelistId,updatedUtc FROM ServiceListOffering WHERE Id = ?", [
     list,
   ]);
-  if (listOffering[0][0].regulatorList == 1) {
+  if (listOffering[0].regulatorList == 1) {
     serviceListOffering.att("regulatorListFlag", "true");
   }
-  const names = await this.mysql.execute("SELECT Name,Lang FROM ServiceListName WHERE ServiceList = ?", [list]);
-  for (var name of names[0]) {
-    var nameElement = serviceListOffering.ele("ServiceListName", {}, name.Name);
+  const names = await this.execute("SELECT Name,Lang FROM ServiceListName WHERE ServiceList = ?", [list]);
+  for (const name of names) {
+    const nameElement = serviceListOffering.ele("dvbi-types:ServiceListName", {}, name.Name);
     if (name.Lang != null && name.Lang != "") {
       nameElement.att("xml:lang", name.Lang);
     }
   }
-  const uris = await this.mysql.execute("SELECT URI FROM ServiceListURI WHERE ServiceList = ?", [list]);
-  for (var uri of uris[0]) {
-    var uriElement = serviceListOffering.ele("ServiceListURI", { contentType: "application/xml" });
-    uriElement.ele("dvbisd:URI", {}, uri.URI);
+  const uris = await this.execute("SELECT URI FROM ServiceListURI WHERE ServiceList = ?", [list]);
+  for (const uri of uris) {
+    const uriElement = serviceListOffering.ele("dvbi-types:ServiceListURI", { contentType: "application/xml" });
+    uriElement.ele("dvbi-types:URI", {}, uri.URI);
   }
-  if (listOffering[0][0].Delivery) {
+  if (listOffering[0].Delivery) {
     try {
-      var deliveries = JSON.parse(listOffering[0][0].Delivery);
-      if (typeof deliveries === "object" && !Array.isArray(deliveries)) {
-        var deliveryElement = serviceListOffering.ele("Delivery");
-        var keys = Object.keys(deliveries);
-        for (var key of deliverylist) {
-          if (deliveries[key]) {
-            var delivery = deliveryElement.ele(key);
+      const deliveryList = JSON.parse(listOffering[0].Delivery);
+      if (typeof deliveryList === "object" && !Array.isArray(deliveryList)) {
+        const deliveryElement = serviceListOffering.ele("dvbi-types:Delivery");
+        for (const key of deliveries) {
+          if (deliveryList[key]) {
+            const delivery = deliveryElement.ele("dvbi-types:"+key);
             if (key === "DVBSDelivery") {
-              if (deliveries[key]["required"] === true) {
+              if (deliveryList[key]["required"] === true) {
                 delivery.att("required", true);
               }
-              console.log(deliveries[key]);
-              if (deliveries[key]["OrbitalPosition"] && Array.isArray(deliveries[key]["OrbitalPosition"])) {
-                for (var position of deliveries[key]["OrbitalPosition"]) {
-                  console.log(position);
-                  delivery.ele("OrbitalPosition", {}, position);
+              if (deliveryList[key]["OrbitalPosition"] && Array.isArray(deliveryList[key]["OrbitalPosition"])) {
+                for (const position of deliveryList[key]["OrbitalPosition"]) {
+                  delivery.ele("dvbi-types:OrbitalPosition", {}, position);
                 }
               }
             } else if (key === "ApplicationDelivery") {
-              if (deliveries[key]["required"] === true) {
+              if (deliveryList[key]["required"] === true) {
                 delivery.att("required", true);
               }
-              if (deliveries[key]["ApplicationTypes"] && Array.isArray(deliveries[key]["ApplicationTypes"])) {
-                for (var apptype of deliveries[key]["ApplicationTypes"]) {
-                  console.log(apptype);
-                  var typeElement = delivery.ele("ApplicationType");
+              if (deliveryList[key]["ApplicationTypes"] && Array.isArray(deliveryList[key]["ApplicationTypes"])) {
+                for (const apptype of deliveryList[key]["ApplicationTypes"]) {
+                  const typeElement = delivery.ele("dvbi-types:ApplicationType");
                   typeElement.att("contentType", apptype["contentType"]);
                   if (apptype["xmlAitApplicationType"]) {
                     typeElement.att("xmlAitApplicationType", apptype["xmlAitApplicationType"]);
@@ -546,9 +487,9 @@ csrquery.generateServiceListOfferingXML = async function (list, root) {
                 }
               }
             } else {
-              var attributes = Object.keys(deliveries[key]);
-              for (var attribute of attributes) {
-                const value = deliveries[key][attribute];
+              const attributes = Object.keys(deliveryList[key]);
+              for (const attribute of attributes) {
+                const value = deliveryList[key][attribute];
                 if (value) {
                   delivery.att(attribute, value);
                 }
@@ -558,21 +499,61 @@ csrquery.generateServiceListOfferingXML = async function (list, root) {
         }
       }
     } catch (e) {
-      console.log(e);
+      log(e);
     }
   }
-  const languages = await this.mysql.execute("SELECT Language FROM Language WHERE ServiceList = ?", [list]);
-  for (var language of languages[0]) {
-    serviceListOffering.ele("Language", {}, language.Language);
+  const languages = await this.execute("SELECT Language FROM Language WHERE ServiceList = ?", [list]);
+  for (const language of languages) {
+    serviceListOffering.ele("dvbi-types:Language", {}, language.Language);
   }
-  const genres = await this.mysql.execute("SELECT Genre FROM Genre WHERE ServiceList = ?", [list]);
-  for (var genre of genres[0]) {
-    serviceListOffering.ele("Genre", { href: genre.Genre });
+  const genres = await this.execute("SELECT Genre FROM Genre WHERE ServiceList = ?", [list]);
+  for (const genre of genres) {
+    serviceListOffering.ele("dvbi-types:Genre", { href: genre.Genre });
   }
-  const targetcountries = await this.mysql.execute("SELECT Country FROM TargetCountry WHERE ServiceList = ?", [list]);
-  for (var country of targetcountries[0]) {
-    serviceListOffering.ele("TargetCountry", {}, country.Country);
+  const targetcountries = await this.execute("SELECT Country FROM TargetCountry WHERE ServiceList = ?", [list]);
+  for (const country of targetcountries) {
+    serviceListOffering.ele("dvbi-types:TargetCountry", {}, country.Country);
   }
+  if (listOffering[0].Icons) {
+    try {
+      const iconList = JSON.parse(listOffering[0].Icons);
+      if (typeof iconList === "object" && Array.isArray(iconList) && iconList.length > 0) {
+        const deliveryElement = serviceListOffering.ele("dvbi-types:RelatedMaterial");
+        deliveryElement.ele("tva:HowRelated",{href : "urn:dvb:metadata:cs:HowRelatedCS:2021:1001.1"})
+        for (const icon of iconList) {
+          const mediaLocator = deliveryElement.ele("tva:MediaLocator")
+          if(icon.type == "MediaUri") {
+             mediaLocator.ele("tva:MediaUri", { contentType: icon.mimeType}, icon.content )
+          }
+          if(icon.type == "MediaData16") {
+             const inline = mediaLocator.ele("tva:InlineMedia", { type: icon.mimeType} )
+             inline.ele("mpeg7:MediaData16",{},icon.content)
+          }
+          if(icon.type == "MediaData64") {
+             const inline = mediaLocator.ele("tva:InlineMedia", { type: icon.mimeType} )
+             inline.ele("mpeg7:MediaData64",{},icon.content)
+          }
+        }
+      }
+    } catch (e) {
+      log(e);
+    }
+  }
+  serviceListOffering.ele("dvbi-types:ServiceListId",{},listOffering[0].ServicelistId);
+  return listOffering[0].updatedUtc
 };
 
-export default csrquery;
+csrquery.execute = function(...query) {
+  return new Promise((resolve, reject) => {
+      this.mysql.query(...query, (err, res) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(res);
+        }
+      });
+    });
+} 
+
+
+module.exports = { csrquery }

@@ -1,11 +1,49 @@
-import * as http from "http";
-import * as url from "url";
-import "./query.js";
-import csrquery from "./query.js";
-import "dotenv/config";
+const  http = require("http");
+const  url = require("url");
+const  qs = require("qs");
+const  md5 = require("md5");
+const csrquery = require("./query.js").csrquery;
+require('dotenv').config()
+const  redis = require("redis");
+const mysql = require("mysql2");
 
 const PORT = process.env.PORT || 3001;
-csrquery.init();
+const { error, info } = require("./logging");
+
+process.on("uncaughtException", (err) => {
+  error(err)
+});
+
+let redisClient = null;
+
+if (process.env.REDIS_ENABLED === "true") {
+  let config = {};
+  if (process.env.REDIS_HOST) {
+    config.host = process.env.REDIS_HOST;
+  }
+  if (process.env.REDIS_PORT) {
+    config.port = process.env.REDIS_PORT;
+  }
+  if (process.env.REDIS_PASSWORD) {
+    config.password = process.env.REDIS_PASSWORD;
+  }
+  redisClient = redis.createClient(config);
+  info("redis cache initialized");
+}
+
+const mysqlClient = mysql.createPool({
+    connectionLimit: process.env.DB_CONNECTIONS || 10,
+    host: process.env.DB_HOST || "localhost",
+    port: process.env.DB_PORT || "",
+    user: process.env.DB_USER || "user",
+    password: process.env.DB_PASSWORD || "password",
+    database:  process.env.DB_NAME || "dvb_i_csr",
+    timezone: "Z",
+  });
+  info("DB connection pool initialized");
+
+
+csrquery.init(mysqlClient);
 http
   .createServer(async function (req, res) {
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -13,7 +51,6 @@ http
     if (req.method === "OPTIONS") {
       res.writeHead(200);
       res.end();
-      console.log("Options, 200 OK");
       return;
     }
     if (req.url === "/favicon.ico") {
@@ -25,55 +62,67 @@ http
     var request = url.parse(req.url, true);
 
     if (request.pathname) {
-      if (request.pathname.endsWith("/query")) {
+      if (request.pathname.endsWith("/query")|| request.pathname.endsWith("/query-nocache")) {
         try {
-          const list = await csrquery.getCSRList(request, true, csrquery.A177r4);
-          res.writeHead(200);
-          res.write(list);
+          const useCache = request.pathname.endsWith("/query-nocache")
+          const params = qs.parse(request.query);
+          const keys = Object.keys(params);
+          keys.sort((a, b) => {
+            return a.localeCompare(b, 'en', { sensitivity: 'base' });
+          });
+          //TODO Better hash function or some other way to identify the request?
+          //Could we use the unhashed json as the key? or gzip the json so
+          //we could check the parameters from the key
+          const hash = md5(JSON.stringify(keys) + csrquery.A177r6);
+          let xml = null;
+          if (redisClient && useCache) {
+            xml = await getCachedResponse(hash);
+          }
+
+          if (!xml) {
+            xml = await csrquery.generateXML(params, csrquery.A177r6);
+            if (redisClient && useCache) {
+              redisClient.set(hash, xml);
+              redisClient.expire(hash, parseInt(process.env.REDIS_EXPIRES) || 300); //Default expiry, 5 minutes
+            }
+          }
+          if(xml.lastModified) {
+            res.appendHeader('Last-Modified',xml.lastModified.toUTCString() )
+          }
+          res.writeHead(200, { "Content-Type": "application/xml"  });
+          res.write(xml.xml);
           res.end();
-          console.log('"' + req.url + '"', '"' + req.headers["user-agent"] + '"');
+          info('"' + req.url + '"', '"' + req.headers["user-agent"] + '"');
           return;
         } catch (e) {
           res.writeHead(400);
           res.end();
-          console.log("ERROR: Illegal request", e.message);
-          return;
-        }
-      } else if (request.pathname.endsWith("/query-nocache")) {
-        try {
-          const list = await csrquery.getCSRList(request, false, csrquery.A177r4);
-          res.writeHead(200);
-          res.write(list);
-          res.end();
-          console.log('"' + req.url + '"', '"' + req.headers["user-agent"] + '"');
-          return;
-        } catch (e) {
-          res.writeHead(400);
-          res.end();
-          console.log("ERROR: Illegal request", e.message);
-          return;
-        }
-      } else if (request.pathname.endsWith("/query_r3")) {
-        try {
-          const list = await csrquery.getCSRList(request, false, csrquery.A177r3);
-          res.writeHead(200);
-          res.write(list);
-          res.end();
-          console.log('"' + req.url + '"', '"' + req.headers["user-agent"] + '"');
-          return;
-        } catch (e) {
-          res.writeHead(400);
-          res.end();
-          console.log("ERROR: Illegal request", e.message);
+          info(e);
           return;
         }
       }
     }
-    res.writeHead(400);
-    res.end();
-    console.log("ERROR: Wrong pathname:" + req.pathname);
+    else {
+      res.writeHead(400);
+      res.end();
+      info("ERROR: Wrong pathname:" + req.pathname);
+    }
     return;
   })
   .listen(PORT, () => {
-    console.log("API server is running on port " + PORT);
+    info("API server is running on port " + PORT);
   });
+
+
+  async function getCachedResponse(hash) {
+    try {
+      return new Promise((resv, rej) => {
+        redisClient.get(hash, (err, reply) => {
+          resv(reply);
+        });
+      });
+    } catch (e) {
+      info(e);
+      return false;
+    }
+  };
