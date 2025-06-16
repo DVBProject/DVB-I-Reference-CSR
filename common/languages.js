@@ -189,4 +189,5 @@ const languages = {
   zu: { name: "Zulu" },
 };
 
-export default languages;
+
+module.exports = { languages}
