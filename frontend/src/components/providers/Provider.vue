@@ -415,7 +415,7 @@
 <script>
   import ProviderDataService from "../../services/ProviderDataService";
   import LoginService from "../../services/LoginService";
-  import languages from "../../../../common/languages";
+  import languages from "../../languages";
   export default {
     name: "provider",
     data() {

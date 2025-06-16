@@ -111,7 +111,7 @@
               <strong>Genres: </strong>
               <span v-for="(genre, index) in currentList.Genres" :key="index">
                 <template v-if="index > 0">, </template>
-                <template v-if="genre && genre in genres_ui">{{ genres_ui[genre] }}</template>
+                <template v-if="genre && genre.value in genres_ui">{{ genres_ui[genre.value] }}</template>
               </span>
             </div>
 
@@ -145,9 +145,9 @@
 <script>
   import ServiceListDataService from "../../services/ServiceListDataService";
   import LoginService from "../../services/LoginService";
-  import countries from "../../../../common/countries";
-  import { genres } from "../../../../common/dev_constants";
-  import languages from "../../../../common/languages";
+  import countries from "../../countries";
+  import { genres } from "../../dev_constants";
+  import languages from "../../languages";
 
   export default {
     name: "servicelist-list",

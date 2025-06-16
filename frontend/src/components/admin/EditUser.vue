@@ -183,6 +183,7 @@
         currentUser: null,
         message: "",
         emailMessage: "",
+        nameMessage: "",
 
         providers_ui: [],
         SelectedProviders: [],
@@ -191,7 +192,7 @@
         Names: [],
         NewPassword: "",
         PasswordCheck: "",
-
+        
         sending: false,
       };
     },
@@ -204,11 +205,6 @@
             this.Names = this.currentUser.Names;
             console.log(response.data);
             this.admin = this.currentUser.Role == "admin" ? true : false;
-            try {
-              this.currentUser.Providers = JSON.parse(this.currentUser.Providers);
-            } catch {
-              console.log("Could not parse", this.currentUser.Providers);
-            }
             this.getProviders();
           })
           .catch((e) => {
@@ -273,7 +269,7 @@
         this.SelectedProviders.forEach((sp) => prov.push(+sp.value));
         const data = {
           ...this.currentUser,
-          Providers: JSON.stringify(prov),
+          Providers: prov,
           Role: this.admin ? "admin" : "user",
         };
 

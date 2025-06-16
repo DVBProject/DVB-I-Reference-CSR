@@ -71,13 +71,6 @@
         UserDataService.getAll()
           .then((response) => {
             this.users = response.data;
-            this.users.forEach((user) => {
-              try {
-                user.Providers = JSON.parse(user.Providers);
-              } catch {
-                user.Providers = [];
-              }
-            });
             console.log(response.data);
           })
           .catch((e) => {

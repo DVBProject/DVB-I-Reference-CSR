@@ -119,6 +119,12 @@
             </div>
           </div>
 
+          
+          <div class="form-group">
+            <label for="Provider">Service list ID</label>
+            <input class="form-control mb-1" placeholder="Service list ID" type="text" v-model="currentList.ServiceListId"/>
+          </div>
+
           <div class="form-group">
             <label for="Provider">Provider</label>
             <select class="form-control my-2" placeholder="Provider" v-model="currentList.ProviderId">
@@ -428,9 +434,9 @@
 <script>
   import ServiceListDataService from "../../services/ServiceListDataService";
   import ProviderDataService from "../../services/ProviderDataService";
-  import countries from "../../../../common/countries";
-  import { deliveries, genres } from "../../../../common/dev_constants";
-  import languages from "../../../../common/languages";
+  import countries from "../../countries";
+  import { deliveries, genres } from "../../dev_constants";
+  import languages from "../../languages";
   import axios from "axios";
 
   export default {
@@ -514,8 +520,8 @@
         const data = {
           ...this.currentList,
           Delivery: this.SelectedDeliveries,
-          lang: this.SelectedLanguages,
-          Countries: this.SelectedCountries,
+          languages: this.SelectedLanguages,
+          targetCountries: this.SelectedCountries,
           Genres: this.SelectedGenres,
           Names: this.Names,
         };
@@ -640,7 +646,7 @@
         delete this.SelectedDeliveries[item.target.id];
       },
       addGenre(item) {
-        const value = item.target ? item.target.value : item;
+        const value = item.target ? item.target.value : item.value;
         const valid = genres[value] !== undefined;
         const contains =
           this.SelectedGenres.findIndex((elem) => {
@@ -667,7 +673,7 @@
               return elem.a3 === value;
             }) != -1;
           if (valid && !contains) {
-            this.SelectedLanguages.push({ name: languages[value].name, a3: value });
+            this.SelectedLanguages.push({ name: languages[value].name, Language: value });
           } else {
             console.log("not valid", value, valid, contains);
           }
@@ -688,7 +694,7 @@
             return elem.code === value;
           }) != -1;
         if (valid && !contains) {
-          this.SelectedCountries.push({ name: valid.name, code: value });
+          this.SelectedCountries.push({ name: valid.name, country: value });
         }
 
         if (item.target) item.target.value = null;

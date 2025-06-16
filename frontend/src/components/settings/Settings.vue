@@ -394,7 +394,7 @@
 
 <script>
   import ListProviderDataService from "../../services/ListProviderDataService";
-  import languages from "../../../../common/languages";
+  import languages from "../../languages";
 
   export default {
     name: "settings-view",

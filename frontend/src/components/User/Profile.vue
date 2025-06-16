@@ -132,12 +132,6 @@
 
             this.Names = this.currentUser.Names;
             console.log(response.data);
-
-            try {
-              this.currentUser.Providers = JSON.parse(this.currentUser.Providers);
-            } catch {
-              console.log("Could not parse", this.currentUser.Providers);
-            }
             this.getProviders();
           })
           .catch((e) => {
