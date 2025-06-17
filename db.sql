@@ -236,3 +236,13 @@ INSERT INTO EntityName(Name,Type,Organization,Id) VALUES("Repository provider","
 INSERT INTO ServiceListEntryPoints(ServiceListRegistryEntity,Id,Language) VALUES (1,1,"en");
 
 INSERT INTO User(Name,Hash,Role,Id,Providers,Email,Session) VALUES ('admin','$2a$08$B5kXMji7bHC8yOO1xIqeO.Vy3oPc.rkQUTG4bNG1hZWNBmcz9eaZe','admin',1,"[]","",1);
+
+
+ALTER TABLE `ServiceListOffering` ADD `updatedUtc` datetime NOT NULL DEFAULT utc_timestamp();
+ALTER TABLE `ProviderOffering` ADD `updatedUtc` datetime NOT NULL DEFAULT utc_timestamp();
+
+ALTER TABLE `ServiceListOffering`
+  ADD `Icons` TEXT NOT NULL;
+
+ALTER TABLE `ServiceListOffering`
+  ADD `ServiceListId` text NOT NULL;
