@@ -576,8 +576,14 @@
         if (this.ApplicationTypes && this.ApplicationDelivery) {
           this.ApplicationDelivery.ApplicationTypes = this.ApplicationTypes;
         }
-        if (this.OrbitalPosition && this.DVBSDelivery) {
-          this.DVBSDelivery.OrbitalPosition = this.OrbitalPosition;
+        if (this.DVBSDelivery) {
+          if(this.OrbitalPosition && this.OrbitalPosition.length > 0) {
+            this.DVBSDelivery.OrbitalPosition = this.OrbitalPosition;
+          }
+          else {
+            this.message = "DVB-S orbital position is mandatory!"
+            return;
+          }
         }
         for (const delivery of this.deliveries_ui) {
           if (data.Delivery[delivery]) {
