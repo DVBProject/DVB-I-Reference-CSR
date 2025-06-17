@@ -134,6 +134,54 @@
             </select>
           </div>
 
+          <div class="form-group">
+            <label>Provider Icons:</label>
+            <button class="btn btn-outline-primary mx-2 mb-1" type="button" @click="addIconField">+</button>
+            <div class="input-group mb-3">
+              <div class="col-sm-12 px-0" v-for="(icon, index) in currentList?.Icons" :key="index">
+                <div class="row my-0 mx-0">
+                  <div class="form-floating px-0 col-sm-5">
+                    <input
+                      type="text"
+                      id="floatingInput"
+                      class="form-control mb-1"
+                      placeholder="Name"
+                      v-model="icon.content"
+                    />
+                    <label for="floatingInput">Content</label>
+                  </div>
+
+                  <div class="form-floating px-0 col-sm-2">
+                    <select id="floatingInput5" v-model="icon.type" class="form-control mx-2 mb-1">
+                      <option value="MediaUri">MediaURI</option>
+                      <option value="MediaData16">hexBinary</option>
+                      <option value="MediaData64">base64Binary</option>
+                    </select>
+                    <label for="floatingInpu5">Type</label>
+                  </div>
+
+                   <div class="form-floating px-0 col-sm-2">
+                    <select id="floatingInput5" v-model="icon.mimeType" class="form-control mx-2 mb-1">
+                      <option value="image/jpeg">JPEG</option>
+                      <option value="image/png">PNG</option>
+                      <option value="image/svg+xml">SVG</option>
+                    </select>
+                    <label for="floatingInpu5">Content type</label>
+                  </div>
+
+                  <button
+                    class="btn btn-outline-danger mx-3 mb-1 col-sm-1"
+                    type="button"
+                    :id="index"
+                    @click="delIconField"
+                  >
+                    -
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="my-2">
             <label for="deliveriesDataList" class="form-label">Deliveries:</label>
             <input
@@ -446,7 +494,6 @@
         confirmDelete: false,
         currentList: null,
         message: "",
-
         deliveries_ui: [],
         SelectedDeliveries: {},
         genres_ui: [],
@@ -468,6 +515,7 @@
         sending: false,
         newList: false,
         providers: [],
+        Icons: []
       };
     },
     methods: {
@@ -621,7 +669,12 @@
           this.currentList.URI.splice(item.target.id, 1);
         }
       },
-
+      addIconField() {
+        this.currentList.Icons.push({ content: "", type: "MediaUri", mimeType: "" });
+      },
+      delIconField(item) {
+        this.currentList.Icons.splice(item.target.id, 1);
+      },
       addNameField() {
         this.Names.push({ name: "", lang: "" });
       },
@@ -783,6 +836,7 @@
           URI: [""],
           ProviderId: 0,
           regulatorList: 0,
+          Icons: []
         };
       }
       this.retrieveProviders();

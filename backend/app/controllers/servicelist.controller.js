@@ -35,7 +35,8 @@ exports.create = (req, res) => {
     targetCountries: req.body.targetCountries,
     Genres: req.body.Genres,
     Status: "active",
-    ServiceListId: req.body.ServiceListId
+    ServiceListId: req.body.ServiceListId,
+    Icons: req.body.Icons
   });
 
   // Save List in the database
