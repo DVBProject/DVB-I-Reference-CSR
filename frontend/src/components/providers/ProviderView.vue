@@ -267,7 +267,7 @@
 <style scoped>
   .edit-form {
     text-align: left;
-    max-width: 750px;
+    max-width: 1050px;
     margin: auto;
   }
   .test-form {

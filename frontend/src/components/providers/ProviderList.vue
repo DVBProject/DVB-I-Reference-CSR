@@ -278,7 +278,7 @@
 <style scoped>
   .list {
     text-align: left;
-    max-width: 750px;
+    max-width: 1050px;
     margin: auto;
   }
   .mainlist {
