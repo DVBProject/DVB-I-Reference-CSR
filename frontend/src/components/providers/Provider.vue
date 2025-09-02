@@ -445,21 +445,9 @@
           });
       },
       updateProvider() {
-        const addrstring = JSON.stringify(this.currentProvider.Address);
-        const jurisdictionstring = JSON.stringify(this.currentProvider.Jurisdiction);
-        const electronicaddrstring = JSON.stringify(this.currentProvider.ElectronicAddress);
-        const contactname = JSON.stringify(this.currentProvider.ContactName);
-        const icons = JSON.stringify(this.currentProvider.Icons);
-        const kind = JSON.stringify(this.currentProvider.Kind);
-
         const data = {
           ...this.currentProvider,
-          Address: addrstring,
-          ElectronicAddress: electronicaddrstring,
-          Jurisdiction: jurisdictionstring,
-          ContactName: contactname,
-          Icons: icons,
-          Kind: kind,
+
         };
 
         //console.log("POST",this.currentProvider.Id, data)
