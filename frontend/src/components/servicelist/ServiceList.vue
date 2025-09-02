@@ -222,7 +222,7 @@
             </div>
             <div v-if="'DVBSDelivery' in SelectedDeliveries">
               <div class="form-group">
-                <input type="checkbox" class="form-check-input" id="dvbs_required" v-model="DVBCDelivery.required" />
+                <input type="checkbox" class="form-check-input" id="dvbs_required" v-model="DVBSDelivery.required" />
                 <label class="form-check-label" for="dvbs_required">DVB-S Delivery: required</label>
               </div>
               <label for="Name">Orbital Position</label>
