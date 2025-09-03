@@ -585,6 +585,10 @@
             return;
           }
         }
+        if(this.ProviderId == null) {
+          this.message = "Provider required!"
+          return;
+        }
         for (const delivery of this.deliveries_ui) {
           if (data.Delivery[delivery]) {
             data.Delivery[delivery] = this[delivery];
@@ -814,8 +818,6 @@
             this.providers = response.data;
             if (response.data.length == 0) {
               this.message = "No providers available, create a provider first!";
-            } else {
-              this.currentList.ProviderId = response.data[0].Id;
             }
           })
           .catch((e) => {
