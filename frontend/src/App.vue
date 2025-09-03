@@ -70,7 +70,7 @@
     name: "App",
     data() {
       return {
-        version: "0.29",
+        version: "0.30",
       };
     },
     computed: {
