@@ -576,7 +576,7 @@
         if (this.ApplicationTypes && this.ApplicationDelivery) {
           this.ApplicationDelivery.ApplicationTypes = this.ApplicationTypes;
         }
-        if (this.DVBSDelivery) {
+        if (this.SelectedDeliveries.DVBSDelivery != null) {
           if(this.OrbitalPosition && this.OrbitalPosition.length > 0) {
             this.DVBSDelivery.OrbitalPosition = this.OrbitalPosition;
           }
