@@ -585,7 +585,7 @@
             return;
           }
         }
-        if(this.ProviderId == null) {
+        if(this.currentList.ProviderId == null) {
           this.message = "Provider required!"
           return;
         }
